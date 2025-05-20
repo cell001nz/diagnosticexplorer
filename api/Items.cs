@@ -13,7 +13,7 @@ public class Items
 {
     private readonly ILogger<Items> _logger;
     
-    private CosmosClient _cosmosClient = new(
+    CosmosClient CreateClient() => new(
         Environment.GetEnvironmentVariable("CosmosDBConnectionString"), 
         new CosmosClientOptions()
         {
@@ -35,7 +35,8 @@ public class Items
     {
         try
         {
-            var database = _cosmosClient.GetDatabase("SWAStore");
+            var client = CreateClient();
+            var database = client.GetDatabase("SWAStore");
             var container = database.GetContainer("Items");
             if (req.Method == "GET" && !IsNullOrWhiteSpace(id))
                 return await FindById(req, container, id);

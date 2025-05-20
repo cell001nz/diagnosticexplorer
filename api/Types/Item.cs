@@ -13,7 +13,7 @@ public class Item
         Price = price;
     }
 
-    public string? Id { get; set; }
-    public string Title { get; set; }
+    public string Id { get; set; } = "";
+    public string Title { get; set; } = "";
     public decimal Price { get; set; }
 }

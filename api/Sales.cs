@@ -10,7 +10,7 @@ namespace api;
 public class Sales
 {
     private readonly ILogger<Sales> _logger;
-    private CosmosClient _cosmosClient = new(
+    CosmosClient CreateClient() => new(
         Environment.GetEnvironmentVariable("CosmosDBConnectionString"), 
         new CosmosClientOptions()
         {
@@ -33,7 +33,8 @@ public class Sales
     {
         try
         {
-            var database = _cosmosClient.GetDatabase("SWAStore");
+            var client = CreateClient();
+            var database = client.GetDatabase("SWAStore");
             var container = database.GetContainer("Sales");
 
             if (req.Method == "GET" && !IsNullOrWhiteSpace(id))
