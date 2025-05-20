@@ -2,17 +2,18 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
 import Breadcrumb from '../../components/Breadcrumb';
+import {Item} from "../../Types/Item.ts";
 
 const CreateItemsPage = () => {
-  const [formData, setFormData] = useState({ id: '', title: '', price: '' });
+  const [formData, setFormData] = useState<Item>(new Item());
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
+  const handleChange = (e: any) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     try {
       const response = await fetch('/api/Items', {
@@ -27,7 +28,7 @@ const CreateItemsPage = () => {
       }
       // Redirect to ItemsPage after successful creation
       navigate('/items');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating item:', error);
     }
   };

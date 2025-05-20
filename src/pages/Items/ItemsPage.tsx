@@ -27,7 +27,7 @@ const ItemsPage = () => {
       return () => abortController.abort();
   }, []);
 
-  const handleDelete = async (itemId) => {
+  const handleDelete = async (itemId: string) => {
     try {
       const response = await fetch(`/api/Items/${itemId}`, {
         method: "DELETE",

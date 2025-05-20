@@ -26,12 +26,12 @@ const EditItemsPage = () => {
     fetchItem();
   }, [id]);
 
-  const handleChange = (e) => {
+  const handleChange = (e: any) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     try {
       const response = await fetch(`/api/Items/${id}`, {
@@ -45,7 +45,7 @@ const EditItemsPage = () => {
         throw new Error('Failed to update item');
       }
       navigate('/items');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating item:', error);
     }
   };

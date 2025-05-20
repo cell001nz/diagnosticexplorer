@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
 import Breadcrumb from '../../components/Breadcrumb';
+import type {Item} from "../../Types/Item.ts";
 
 const EditSalesPage = () => {
   const [formData, setFormData] = useState({ id: '', date: '', items: [{ id: '', quantity: 0 }] });
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState<Item[]>([]);
   const navigate = useNavigate();
   const { id } = useParams();
 
@@ -20,7 +21,7 @@ const EditSalesPage = () => {
         const data = await response.json();
         // Omit the ID from the fetched data to prevent changes
         setFormData({ ...data, date: new Date(data.date).toISOString().split('T')[0] });
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error fetching sale:', error);
       }
     };
@@ -40,19 +41,19 @@ const EditSalesPage = () => {
       .then(data => {
         setItems(data);
       })
-      .catch(error => {
+      .catch((error: any) => {
         console.error('Error fetching items:', error);
       });
   }, []);
 
-  const handleChange = (e) => {
+  const handleChange = (e: any) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleItemChange = (e, index) => {
+  const handleItemChange = (e: any, index: number) => {
     const { name, value } = e.target;
-    const updatedItems = [...formData.items];
+    const updatedItems: any = [...formData.items];
     updatedItems[index][name] = value;
     setFormData({ ...formData, items: updatedItems });
   };
@@ -61,13 +62,13 @@ const EditSalesPage = () => {
     setFormData({ ...formData, items: [...formData.items, { id: '', quantity: 0 }] });
   };
 
-  const handleRemoveItem = (index) => {
+  const handleRemoveItem = (index: number) => {
     const updatedItems = [...formData.items];
     updatedItems.splice(index, 1);
     setFormData({ ...formData, items: updatedItems });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     console.log(formData);
     let formDataToSubmit = { ...formData };
@@ -84,7 +85,7 @@ const EditSalesPage = () => {
         throw new Error('Failed to update sale');
       }
       navigate('/sales');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating sale:', error);
     }
   };

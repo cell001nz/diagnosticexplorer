@@ -1,7 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const Breadcrumb = ({ paths }) => {
+interface BreadcrumbPath {
+  name: string;
+  url?: string;
+};
+
+// Define the props type
+type BreadcrumbProps = {
+  paths: BreadcrumbPath[];
+};
+
+const Breadcrumb: React.FC<BreadcrumbProps> = ({ paths }) => {
   return (
     <div className="text-md text-gray-400 mb-4">
       {paths.map((path, index) => (

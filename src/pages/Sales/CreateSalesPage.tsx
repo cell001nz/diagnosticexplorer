@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
 import Breadcrumb from '../../components/Breadcrumb';
+import {Sale} from "../../Types/Sale.ts";
+import {Item} from "../../Types/Item.ts";
 
 const CreateSalesPage = () => {
-  const [formData, setFormData] = useState({ id: '', date: '', items: [{ id: '', quantity: 0 }] });
-  const [items, setItems] = useState([]);
+  const [formData, setFormData] = useState<Sale>(new Sale());
+  const [items, setItems] = useState<Item[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,14 +27,14 @@ const CreateSalesPage = () => {
       });
   }, []);
 
-  const handleChange = (e) => {
+  const handleChange = (e: any) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleItemChange = (e, index) => {
+  const handleItemChange = (e: any, index: number) => {
     const { name, value } = e.target;
-    const updatedItems = [...formData.items];
+    const updatedItems: any = [...formData.items];
     updatedItems[index][name] = value;
     setFormData({ ...formData, items: updatedItems });
   };
@@ -41,13 +43,13 @@ const CreateSalesPage = () => {
     setFormData({ ...formData, items: [...formData.items, { id: '', quantity: 0 }] });
   };
 
-  const handleRemoveItem = (index) => {
+  const handleRemoveItem = (index: number) => {
     const updatedItems = [...formData.items];
     updatedItems.splice(index, 1);
     setFormData({ ...formData, items: updatedItems });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     console.log(formData);
     let formDataToSubmit = { ...formData };

@@ -2,11 +2,14 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import Breadcrumb from "../../components/Breadcrumb";
+import type {Item} from "../../Types/Item.ts";
+import type {Sale} from "../../Types/Sale.ts";
+import type {SaleItem} from "../../Types/SaleItem.ts";
 
 const SalesPage = () => {
-  const [sales, setSales] = useState([]);
-  const [itemPrices, setItemPrices] = useState({});
-  const [items, setItems] = useState([]);
+  const [sales, setSales] = useState<Sale[]>([]);
+  const [itemPrices, setItemPrices] = useState<Record<string, number>>({});
+  const [items, setItems] = useState<Item[]>([]);
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -18,9 +21,9 @@ const SalesPage = () => {
         }
         return response.json();
       })
-      .then((data) => {
+      .then(async (data) => {
         setSales(data);
-        fetchItemPrices(abortController);
+        await fetchItemPrices(abortController);
       })
       .catch((error) => {
         if (error.name !== 'AbortError')
@@ -36,9 +39,9 @@ const SalesPage = () => {
       if (!response.ok) {
         throw new Error("Failed to fetch item prices");
       }
-      const items = await response.json();
+      const items = (await response.json()) as Item[];
       setItems(items);
-      const prices = {};
+      const prices: Record<string, number> = {};
       items.forEach((item) => {
         prices[item.id] = item.price;
       });
@@ -48,19 +51,19 @@ const SalesPage = () => {
     }
   };
 
-  const calculateRevenueForItem = (item, quantity) => {
+  const calculateRevenueForItem = (item: SaleItem, quantity: number) => {
     const itemPrice = itemPrices[item.id] || 0; // Use 0 if price is not available
     return itemPrice * quantity;
   };
 
-  const calculateTotalRevenue = (sale) => {
+  const calculateTotalRevenue = (sale: Sale) => {
     return sale.items.reduce((acc, item) => {
       const itemPrice = itemPrices[item.id] || 0; // Use 0 if price is not available
       return acc + itemPrice * item.quantity;
     }, 0);
   };
 
-  const handleDelete = async (saleId) => {
+  const handleDelete = async (saleId: string) => {
     try {
       const response = await fetch(`/api/Sales/${saleId}`, {
         method: "DELETE",

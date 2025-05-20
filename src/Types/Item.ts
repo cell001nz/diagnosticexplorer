@@ -1,6 +1,5 @@
-export class Item
-{
-    id: number;
-    title: string;
-    price: number;
+export class Item {
+    id = "";
+    title = "";
+    price = 0;
 }

@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import Navbar from '../../components/Navbar';
 import Breadcrumb from '../../components/Breadcrumb';
 import RevenueCard from './OverviewRevenueCard';
-
+import {Sale} from '../../Types/Sale'
+import type {Item} from "../../Types/Item.ts";
 const OverviewPage = () => {
-  const [sales, setSales] = useState([]);
-  const [items, setItems] = useState([]);
+  const [sales, setSales] = useState<Sale[]>([]);
+  const [items, setItems] = useState<Item[]>([]);
 
   useEffect(() => {
     let abort = new AbortController();
@@ -27,14 +28,14 @@ const OverviewPage = () => {
 
       setSales(salesData);
       setItems(itemsData);
-    } catch (error) {
+    } catch (error: any) {
       if (error.name !== 'AbortError')
         console.error('Error fetching data:', error);
     }
   };
 
   // Calculate revenue for the past n days
-  const calculateRevenueForDays = (days) => {
+  const calculateRevenueForDays = (days: number) => {
     const today = new Date();
     const pastDate = new Date();
     pastDate.setDate(today.getDate() - days);
@@ -51,7 +52,7 @@ const OverviewPage = () => {
   };
 
   // Calculate total revenue for a sale
-  const calculateTotalRevenue = (sale) => {
+  const calculateTotalRevenue = (sale: Sale) => {
     return sale.items.reduce((acc, item) => {
       const itemData = items.find((i) => i.id === item.id);
       const itemPrice = itemData ? itemData.price : 0;
