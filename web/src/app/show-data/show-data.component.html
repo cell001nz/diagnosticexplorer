@@ -1,0 +1,8 @@
+<p>show-data works!</p>
+
+
+@if (myData.error()) {
+    <p>Error: {{myData.error() | errMsg}}</p>
+} @else {
+    {{myData.value()}}
+}
