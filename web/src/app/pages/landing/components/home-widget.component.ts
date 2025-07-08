@@ -7,7 +7,7 @@ import {ErrMsgPipe} from "../../../pipes/err-msg.pipe";
 
 @Component({
     selector: 'home-widget',
-    imports: [ButtonModule, RippleModule, ErrMsgPipe],
+    imports: [ButtonModule, RippleModule],
     template: `
         <div
             class="flex flex-col pt-6 px-6 lg:px-20 overflow-hidden anchor-target"
