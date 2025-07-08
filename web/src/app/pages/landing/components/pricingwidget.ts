@@ -7,7 +7,7 @@ import { RippleModule } from 'primeng/ripple';
     selector: 'pricing-widget',
     imports: [DividerModule, ButtonModule, RippleModule],
     template: `
-        <div id="pricing" class="py-6 px-6 lg:px-20 my-2 md:my-6">
+        <div class="py-6 px-6 lg:px-20 my-2 md:my-6">
             <div class="text-center mb-6">
                 <div class="text-surface-900 dark:text-surface-0 font-normal mb-2 text-4xl">Matchless Pricing</div>
                 <span class="text-muted-color text-2xl">Amet consectetur adipiscing elit...</span>

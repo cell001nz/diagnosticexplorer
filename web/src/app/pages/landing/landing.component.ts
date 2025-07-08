@@ -4,26 +4,26 @@ import { RippleModule } from 'primeng/ripple';
 import { StyleClassModule } from 'primeng/styleclass';
 import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
-import { TopbarWidget } from './components/topbarwidget.component';
-import { HeroWidget } from './components/herowidget';
+import { HomeWidget } from './components/home-widget.component';
 import { FeaturesWidget } from './components/featureswidget';
 import { HighlightsWidget } from './components/highlightswidget';
 import { PricingWidget } from './components/pricingwidget';
 import { FooterWidget } from './components/footerwidget';
+import {LandingLayout} from "./components/landinglayout.component";
 
 @Component({
     selector: 'app-landing',
     standalone: true,
-    imports: [RouterModule, TopbarWidget, HeroWidget, FeaturesWidget, HighlightsWidget, PricingWidget, FooterWidget, RippleModule, StyleClassModule, ButtonModule, DividerModule],
-    template: `<div class="bg-surface-0 dark:bg-surface-900">
-        <div id="home" class="landing-wrapper overflow-hidden">
-            <topbar-widget class="py-6 px-6 mx-0 md:mx-12 lg:mx-20 lg:px-20 flex items-center justify-between relative lg:static" />
-            <hero-widget />
-            <features-widget />
-            <highlights-widget />
-            <pricing-widget />
+    imports: [RouterModule, HomeWidget, FeaturesWidget, HighlightsWidget, PricingWidget, FooterWidget, RippleModule, StyleClassModule, ButtonModule, DividerModule, LandingLayout],
+    template: `
+        <landing-layout>
+            <home-widget id="home"  />            
+            <features-widget id="features" class="scroll-mt-100" />
+            <features-widget id="features2" class="scroll-mt-100" />
+            <highlights-widget id="highlights" class="scroll-mt-200" />
+            <pricing-widget id="pricing"  class="scroll-mt-100"  />
             <footer-widget />
-        </div>
-    </div>`
+        </landing-layout>
+    `
 })
 export class LandingComponent {}

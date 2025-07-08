@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import {inject, Injectable} from '@angular/core';
-import {Observable} from "rxjs";
+import {catchError, Observable, throwError} from "rxjs";
+import {getErrorMsg} from "../../util/errorUtil";
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +14,8 @@ export class DataService {
   
   
   getData(): Observable<string> {
-    return this.#http.get('http://localhost:4280/api/DataTrigger', { responseType: 'text' });
+    return this.#http.get('http://localhost:4280/api/DataTrigger', { responseType: 'text' })
+        .pipe(catchError(err => throwError(() => new Error(getErrorMsg(err)))));
   }
   
 }
