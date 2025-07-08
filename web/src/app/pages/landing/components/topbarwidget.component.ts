@@ -32,11 +32,6 @@ import {NgOptimizedImage} from "@angular/common";
                     </a>
                 </li>
                 <li>
-                    <a routerLink="/" fragment="features2" pRipple class="px-0 py-4 text-surface-900 dark:text-surface-0 font-medium text-xl">
-                        <span>Features</span>
-                    </a>
-                </li>
-                <li>
                     <a routerLink="/" fragment="highlights" pRipple class="px-0 py-4 text-surface-900 dark:text-surface-0 font-medium text-xl">
                         <span>Highlights</span>
                     </a>

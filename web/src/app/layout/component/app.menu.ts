@@ -13,7 +13,7 @@ import { AppMenuitem } from './app.menuitem';
             @if (item.separator) { 
                 <li class="menu-separator"></li> 
             } @else {
-                <li app-menuitem *ngIf="!item.separator" [item]="item" [index]="i" [root]="true"></li>
+                <li app-menuitem [item]="item" [index]="i" [root]="true"></li>
             } 
         }
     </ul> `
