@@ -18,7 +18,7 @@ import {
  */
 export const msalConfig: Configuration = {
   auth: {
-    clientId: '2321c711-6c8c-457c-a245-430f58ee7825', // This is the ONLY mandatory field that you need to supply.
+    clientId: '009f69b1-41b4-4145-881b-35f3761c7d23', // This is the ONLY mandatory field that you need to supply.
     authority: 'https://diagnosticexplorer.ciamlogin.com/', // Replace the placeholder with your tenant subdomain
     redirectUri: '/', // Points to window.location.origin by default. You must register this URI on Microsoft Entra admin center/App Registration.
     postLogoutRedirectUri: '/', // Points to window.location.origin by default.
