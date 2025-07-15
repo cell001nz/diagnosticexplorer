@@ -135,22 +135,26 @@ export class LayoutService {
         });
     }
 
-    onMenuToggle() {
+  onMenuToggle() {
         if (this.isOverlay()) {
             this.layoutState.update((prev) => ({ ...prev, overlayMenuActive: !this.layoutState().overlayMenuActive }));
 
             if (this.layoutState().overlayMenuActive) {
                 this.overlayOpen.next(null);
+                console.log('onMenuToggle 1')
             }
         }
 
         if (this.isDesktop()) {
             this.layoutState.update((prev) => ({ ...prev, staticMenuDesktopInactive: !this.layoutState().staticMenuDesktopInactive }));
+                console.log('onMenuToggle 2', this.layoutState())
         } else {
             this.layoutState.update((prev) => ({ ...prev, staticMenuMobileActive: !this.layoutState().staticMenuMobileActive }));
+                console.log('onMenuToggle 3')
 
             if (this.layoutState().staticMenuMobileActive) {
                 this.overlayOpen.next(null);
+                console.log('onMenuToggle 4')
             }
         }
     }

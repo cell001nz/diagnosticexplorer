@@ -1,8 +1,0 @@
-@import 'tailwindcss';
-
-@plugin 'tailwindcss-primeui';
-
-@source './**/*.{html,ts,scss,css}';
-
-@custom-variant dark (&:where([class="app-dark"], [class="app-dark"] *));
-

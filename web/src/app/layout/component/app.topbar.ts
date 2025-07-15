@@ -1,75 +1,95 @@
-import { Component } from '@angular/core';
+import {Component, inject} from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { StyleClassModule } from 'primeng/styleclass';
 import { AppConfigurator } from './app.configurator';
 import { LayoutService } from '../service/layout.service';
+import {AppFloatingConfigurator} from "./app.floatingconfigurator";
+import {Button} from "primeng/button";
+import {Popover} from "primeng/popover";
+import {Menu} from "primeng/menu";
+import {AppFooter} from "./app.footer";
+import {AppAuthService} from "../../services/app-auth.service";
 
 @Component({
     selector: 'app-topbar',
     standalone: true,
-    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator],
-    template: ` <div class="layout-topbar">
-        <div class="layout-topbar-logo-container">
-            <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
+    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, AppFloatingConfigurator, Button, Popover, Menu, AppFooter],
+    template: ` 
+     <div class="flex w-full items-center layout-topbar text-xl gap-4 ">
+            <button class="cursor-pointer layout-menu-button" (click)="layoutService.onMenuToggle()">
                 <i class="pi pi-bars"></i>
             </button>
-            <a class="layout-topbar-logo" routerLink="/">
-                <img src="/favicon.ico" alt="logo" class="w-6 h-6">
+     
+            <a class="flex-1 flex items-center gap-1" routerLink="/">
+                <i class="bi bi-bug text-xl hidden md:block"></i>
                 <span>Diagnostic Explorer</span>
             </a>
-        </div>
 
-        <div class="layout-topbar-actions">
-            <div class="layout-config-menu">
-                <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
-                    <i [ngClass]="{ 'pi ': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
-                </button>
-                <div class="relative">
-                    <button
-                        class="layout-topbar-action layout-topbar-action-highlight"
-                        pStyleClass="@next"
-                        enterFromClass="hidden"
-                        enterActiveClass="animate-scalein"
-                        leaveToClass="hidden"
-                        leaveActiveClass="animate-fadeout"
-                        [hideOnOutsideClick]="true">
-                        <i class="pi pi-palette"></i>
-                    </button>
-                    <app-configurator />
-                </div>
-            </div>
-
-            <button class="layout-topbar-menu-button layout-topbar-action" pStyleClass="@next" enterFromClass="hidden" enterActiveClass="animate-scalein" leaveToClass="hidden" leaveActiveClass="animate-fadeout" [hideOnOutsideClick]="true">
+            <button type="button" class="hidden md:block cursor-pointer" (click)="toggleDarkMode()">
+                <i class="pi" [class.pi-moon]="layoutService.isDarkTheme()" [class.pi-sun]="!layoutService.isDarkTheme()"></i>
+            </button>
+ 
+            <button class="hidden md:block cursor-pointer" pStyleClass="@next"
+                enterFromClass="hidden" enterActiveClass="animate-scalein"
+                leaveToClass="hidden" leaveActiveClass="animate-fadeout"
+                [hideOnOutsideClick]="true">
+                <i class="pi pi-palette"></i>
+            </button>
+            <app-configurator />
+         
+            
+            <button type="button" class="layout-topbar-action">
+                <i class="pi pi-user" (click)="menu.toggle($event)"></i>
+                <span>Profile</span>
+            </button>
+             <p-menu #menu [model]="items" [popup]="true" />
+                    
+            <button class="md:hidden" pStyleClass="@next" enterFromClass="hidden" enterActiveClass="animate-scalein" leaveToClass="hidden" leaveActiveClass="animate-fadeout" [hideOnOutsideClick]="true">
                 <i class="pi pi-ellipsis-v"></i>
             </button>
 
-            <div class="layout-topbar-menu hidden lg:block">
-                <div class="layout-topbar-menu-content">
-                    <button type="button" class="layout-topbar-action">
-                        <i class="pi pi-calendar"></i>
-                        <span>Calendar</span>
-                    </button>
-                    <button type="button" class="layout-topbar-action">
-                        <i class="pi pi-inbox"></i>
-                        <span>Messages</span>
-                    </button>
-                    <button type="button" class="layout-topbar-action">
+            <div class="layout-topbar-menu flex md:hidden flex-col items-start gap-y-2">
+                    <button type="button" class="flex gap-2 items-center">
                         <i class="pi pi-user"></i>
                         <span>Profile</span>
                     </button>
+                    <button type="button" class="flex gap-2 items-center" (click)="toggleDarkMode()">
+                        <i class="pi" [class.pi-moon]="layoutService.isDarkTheme()" [class.pi-sun]="!layoutService.isDarkTheme()"></i>
+                        <span>Light/Dark</span>
+                    </button>
+                   <button class="flex gap-2 items-center cursor-pointer" pStyleClass="@next"
+                            enterFromClass="hidden" enterActiveClass="animate-scalein"
+                            leaveToClass="hidden" leaveActiveClass="animate-fadeout"
+                            [hideOnOutsideClick]="true">
+                            <i class="pi pi-palette"></i>
+                            <span>Palette</span>
+                        </button>
+                        <app-configurator />
+                
+                
                 </div>
-            </div>
-        </div>
-    </div>`
+    </div>
+    `
 })
 export class AppTopbar {
-    items!: MenuItem[];
+    
+    #authSvc = inject(AppAuthService);
+    
+    items: MenuItem[] = [
+        {label: 'Logout', icon: 'pi pi-sign-out', styleClass: 'text-base', command: () => this.#authSvc.logout() },
+    ]
+    
+    
 
     constructor(public layoutService: LayoutService) {}
 
     toggleDarkMode() {
         this.layoutService.layoutConfig.update((state) => ({ ...state, darkTheme: !state.darkTheme }));
     }
+    
+    
+
+    protected readonly LayoutService = LayoutService;
 }

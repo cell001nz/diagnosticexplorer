@@ -1,1 +1,8 @@
 ﻿@import "tailwindcss";
+@import "tailwindcss-primeui";
+@import 'primeicons/primeicons.css';
+@import "bootstrap-icons/font/bootstrap-icons.css";
+
+@source './**/*.{html,ts,scss,css}';
+@custom-variant dark (&:where([class="app-dark"], [class="app-dark"] *));
+

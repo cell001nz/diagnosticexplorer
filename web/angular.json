@@ -30,7 +30,8 @@
                                 "glob": "**/*",
                                 "input": "public"
                             },
-                            "src/staticwebapp.config.json"
+                            "src/staticwebapp.config.json",
+                            "src/favicon.svg"
                         ],
                         "styles": [
                             "src/styles.scss",

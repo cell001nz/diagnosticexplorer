@@ -9,7 +9,7 @@ import { Router, RouterModule } from '@angular/router';
             <div class="grid grid-cols-12 gap-4">
                 <div class="col-span-12 md:col-span-2">
                     <a (click)="router.navigate(['/pages/landing'], { fragment: 'home' })" class="flex flex-wrap items-center justify-center md:justify-start md:mb-0 mb-6 cursor-pointer gap-2">
-                        <img src="/favicon.ico" class="w-6 h-6" alt="logo">
+                        <i class="bi bi-bug text-2xl"></i>
                         <h5 class="font-medium text-3xl text-surface-900 dark:text-surface-0">Diagnostic Explorer</h5>
                     </a>
                 </div>
@@ -43,8 +43,8 @@ import { Router, RouterModule } from '@angular/router';
                         <div class="col-span-12 md:col-span-3">
                             <h4 class="font-medium text-2xl leading-normal mb-6 text-surface-900 dark:text-surface-0">Legal</h4>
                             <a class="leading-normal text-xl block cursor-pointer mb-2 text-surface-700 dark:text-surface-100">Brand Policy</a>
-                            <a class="leading-normal text-xl block cursor-pointer mb-2 text-surface-700 dark:text-surface-100">Privacy Policy</a>
-                            <a class="leading-normal text-xl block cursor-pointer text-surface-700 dark:text-surface-100">Terms of Service</a>
+                            <a routerLink="/privacy" class="leading-normal text-xl block cursor-pointer mb-2 text-surface-700 dark:text-surface-100">Privacy Policy</a>
+                            <a routerLink="/terms" class="leading-normal text-xl block cursor-pointer text-surface-700 dark:text-surface-100">Terms of Service</a>
                         </div>
                     </div>
                 </div>

@@ -29,8 +29,8 @@ export class LayoutService {
     _config: layoutConfig = {
         preset: 'Aura',
         primary: 'emerald',
-        surface: null,
-        darkTheme: false,
+        surface: 'soho',
+        darkTheme: true,
         menuMode: 'static'
     };
 
@@ -135,7 +135,7 @@ export class LayoutService {
         });
     }
 
-    onMenuToggle() {
+  onMenuToggle() {
         if (this.isOverlay()) {
             this.layoutState.update((prev) => ({ ...prev, overlayMenuActive: !this.layoutState().overlayMenuActive }));
 
@@ -153,6 +153,7 @@ export class LayoutService {
                 this.overlayOpen.next(null);
             }
         }
+
     }
 
     isDesktop() {

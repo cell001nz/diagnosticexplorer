@@ -18,7 +18,7 @@ import { LayoutService } from '../service/layout.service';
             <div class="layout-main">
                 <router-outlet></router-outlet>
             </div>
-            <app-footer></app-footer>
+            <app-footer>{{ containerClass | json }}</app-footer>
         </div>
         <div class="layout-mask animate-fadein"></div>
     </div> `
@@ -41,6 +41,7 @@ export class AppLayout {
             if (!this.menuOutsideClickListener) {
                 this.menuOutsideClickListener = this.renderer.listen('document', 'click', (event) => {
                     if (this.isOutsideClicked(event)) {
+                        console.log('OUTSIDE CLICKED');
                         this.hideMenu();
                     }
                 });
@@ -98,6 +99,7 @@ export class AppLayout {
             'layout-mobile-active': this.layoutService.layoutState().staticMenuMobileActive
         };
     }
+
 
     ngOnDestroy() {
         if (this.overlayMenuOpenSubscription) {
