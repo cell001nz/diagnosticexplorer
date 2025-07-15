@@ -20,7 +20,7 @@ import {AppAuthService} from "../../../services/app-auth.service";
             <i class="pi pi-bars text-2xl!"></i>
         </a>
 
-        <div class="items-center bg-surface-0 dark:bg-surface-900 grow justify-between hidden lg:flex absolute lg:static w-full left-0 top-full px-12 lg:px-0 z-20 rounded-border">
+        <div class="items-center  grow justify-between hidden lg:flex absolute lg:static w-full left-0 top-full px-12 lg:px-0 z-20 rounded-border">
             <div class=" p-0 m-0 flex lg:items-center select-none flex-col lg:flex-row cursor-pointer gap-8">
                     <a routerLink="/" fragment="home" pRipple class="px-0 py-4 text-surface-900 dark:text-surface-0 font-medium text-xl">
                         <span>Home</span>

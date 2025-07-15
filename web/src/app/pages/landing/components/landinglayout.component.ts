@@ -14,7 +14,7 @@ import {AppFloatingConfigurator} from "../../../layout/component/app.floatingcon
 
 @Component({
     selector: 'landing-layout',
-    imports: [RouterModule, StyleClassModule, ButtonModule, RippleModule, TopbarWidget, AppFloatingConfigurator],
+    imports: [RouterModule, StyleClassModule, ButtonModule, RippleModule, TopbarWidget, AppFloatingConfigurator, FooterWidget],
     templateUrl: "./landinglayout.component.html",
     styleUrl: "./landinglayout.component.scss"
 })

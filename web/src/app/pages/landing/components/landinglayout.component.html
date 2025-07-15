@@ -1,13 +1,16 @@
 ﻿
 
-<div id="home" class="landing-wrapper h-full">
+<div id="home" class="landing-wrapper flex flex-col">
     <app-floating-configurator />
 
     <header class="sticky-header bg-(--surface-ground)">
-        <topbar-widget class="py-6 px-6 mx-0 md:mx-12 lg:mx-20 lg:px-20 flex items-center justify-between relative lg:static" />
+        <topbar-widget class="py-6 px-6 mx-0 md:mx-12 lg:mx-0 lg:px-0 flex items-center justify-between relative lg:static" />
     </header>
-    <main >
+    <div class="h-full">
+    <main class="grow-1">
         <ng-content></ng-content>
     </main>
+     <footer-widget />
+        </div>
     
 </div>

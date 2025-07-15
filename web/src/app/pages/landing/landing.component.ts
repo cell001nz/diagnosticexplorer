@@ -21,7 +21,6 @@ import {LandingLayout} from "./components/landinglayout.component";
             <features-widget id="features" class="scroll-mt-100" />
             <highlights-widget id="highlights" class="scroll-mt-200" />
             <pricing-widget id="pricing"  class="scroll-mt-100"  />
-            <footer-widget />
         </landing-layout>
     `
 })
