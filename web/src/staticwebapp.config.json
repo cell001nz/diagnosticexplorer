@@ -10,7 +10,7 @@
     },
      {
       "route": "/admin/*",
-      "allowedRoles": ["Application Administrator"]
+      "allowedRoles": ["admin"]
     }
   ],
   "responseOverrides": {

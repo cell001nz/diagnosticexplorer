@@ -3,8 +3,7 @@ import { StyleClassModule } from 'primeng/styleclass';
 import { Router, RouterModule } from '@angular/router';
 import { RippleModule } from 'primeng/ripple';
 import { ButtonModule } from 'primeng/button';
-import {NgOptimizedImage} from "@angular/common";
-import {AppAuthService} from "../../../services/app-auth.service";
+import {AuthService} from "../../../services/auth.service";
 
 @Component({
     selector: 'topbar-widget',
@@ -54,7 +53,7 @@ import {AppAuthService} from "../../../services/app-auth.service";
 })
 export class TopbarWidget {
 
-    #appAuth = inject(AppAuthService)
+    #appAuth = inject(AuthService)
 
     constructor() {
     }

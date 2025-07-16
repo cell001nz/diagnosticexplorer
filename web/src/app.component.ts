@@ -1,6 +1,6 @@
 import {Component, DestroyRef, inject, OnInit} from '@angular/core';
 import {Router, RouterModule} from '@angular/router';
-import {AppAuthService} from "./app/services/app-auth.service";
+import {AuthService} from "./app/services/auth.service";
 
 @Component({
     selector: 'app-root',
@@ -10,7 +10,7 @@ import {AppAuthService} from "./app/services/app-auth.service";
 })
 export class AppComponent {
     
-   #appAuth = inject(AppAuthService);
+   #appAuth = inject(AuthService);
    #router = inject(Router);
    
    constructor() {

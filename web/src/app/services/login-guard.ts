@@ -1,13 +1,11 @@
 ﻿import {inject, Injectable, Injector} from "@angular/core";
 import {ActivatedRouteSnapshot, CanActivate, GuardResult, MaybeAsync, Router, RouterStateSnapshot} from "@angular/router";
-import {toObservable} from "@angular/core/rxjs-interop";
-import {filter, map, take, tap} from "rxjs/operators";
-import {AppAuthService} from "./app-auth.service";
+import {AuthService} from "./auth.service";
 
 @Injectable({providedIn: 'root'})
-export class AuthGuard implements CanActivate {
+export class LoginGuard implements CanActivate {
     #injector = inject(Injector);
-    #auth = inject(AppAuthService);
+    #auth = inject(AuthService);
     #router = inject(Router);
     
     canActivate(route: ActivatedRouteSnapshot,
@@ -19,13 +17,8 @@ export class AuthGuard implements CanActivate {
             if (this.#auth.isLoggedIn())
                 return true;
 
-            return toObservable(this.#auth.account, {injector: this.#injector})
-                .pipe(
-                    filter(acct => !!acct),
-                    map(acct => acct.clientPrincipal ? true : this.#router.parseUrl(`/login?post_login_redirect_uri=${encodedRedirect}`)),
-                    take(1),
-                    tap(val => console.log("CanActivate", val))
-                );
+            return this.#auth.getAccount()
+                .then(acct => acct.clientPrincipal ? true : this.#router.parseUrl(`/login?post_login_redirect_uri=${encodedRedirect}`));
 
         } catch (err) {
             console.log(err);

@@ -5,12 +5,9 @@ import { CommonModule } from '@angular/common';
 import { StyleClassModule } from 'primeng/styleclass';
 import { AppConfigurator } from './app.configurator';
 import { LayoutService } from '../service/layout.service';
-import {AppFloatingConfigurator} from "./app.floatingconfigurator";
-import {Button} from "primeng/button";
-import {Popover} from "primeng/popover";
 import {Menu} from "primeng/menu";
 import {AppFooter} from "./app.footer";
-import {AppAuthService} from "../../services/app-auth.service";
+import {AuthService} from "../../services/auth.service";
 
 @Component({
     selector: 'app-topbar',
@@ -75,7 +72,7 @@ import {AppAuthService} from "../../services/app-auth.service";
 })
 export class AppTopbar {
     
-    #authSvc = inject(AppAuthService);
+    #authSvc = inject(AuthService);
     
     items: MenuItem[] = [
         {label: 'Logout', icon: 'pi pi-sign-out', styleClass: 'text-base', command: () => this.#authSvc.logout() },

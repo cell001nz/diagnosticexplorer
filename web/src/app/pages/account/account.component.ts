@@ -1,7 +1,7 @@
 import {Component, computed, inject} from '@angular/core';
-import {AppAuthService} from "../../services/app-auth.service";
 import {JsonPipe} from "@angular/common";
 import {ShowDataComponent} from "../../show-data/show-data.component";
+import {AuthService} from "../../services/auth.service";
 
 @Component({
   selector: 'app-account',
@@ -14,7 +14,7 @@ import {ShowDataComponent} from "../../show-data/show-data.component";
 })
 export class AccountComponent {
   
-  #authSvc = inject(AppAuthService);
+  #authSvc = inject(AuthService);
 
   
   account = computed(() => this.#authSvc.account());
