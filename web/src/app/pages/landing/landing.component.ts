@@ -14,7 +14,7 @@ import {LandingLayout} from "./components/landinglayout.component";
 @Component({
     selector: 'app-landing',
     standalone: true,
-    imports: [RouterModule, HomeWidget, FeaturesWidget, HighlightsWidget, PricingWidget, FooterWidget, RippleModule, StyleClassModule, ButtonModule, DividerModule, LandingLayout],
+    imports: [RouterModule, HomeWidget, FeaturesWidget, HighlightsWidget, PricingWidget, RippleModule, StyleClassModule, ButtonModule, DividerModule, LandingLayout],
     template: `
         <landing-layout>
             <home-widget id="home"  />            

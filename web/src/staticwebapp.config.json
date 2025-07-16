@@ -10,9 +10,9 @@
     }
   ],
   "responseOverrides": {
-    "401": {
+    "4010000": {
       "statusCode": 302,
-      "redirect": "/.auth/login/aad"
+      "redirect": "/login?post_login_redirect_uri=.referrer"
     }
   }
 }

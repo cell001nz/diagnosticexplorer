@@ -15,7 +15,7 @@ import {AppAuthService} from "../../services/app-auth.service";
 @Component({
     selector: 'app-topbar',
     standalone: true,
-    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, AppFloatingConfigurator, Button, Popover, Menu, AppFooter],
+    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, Menu],
     template: ` 
      <div class="flex w-full items-center layout-topbar text-xl gap-4 ">
             <button class="cursor-pointer layout-menu-button" (click)="layoutService.onMenuToggle()">
@@ -88,8 +88,5 @@ export class AppTopbar {
     toggleDarkMode() {
         this.layoutService.layoutConfig.update((state) => ({ ...state, darkTheme: !state.darkTheme }));
     }
-    
-    
 
-    protected readonly LayoutService = LayoutService;
 }

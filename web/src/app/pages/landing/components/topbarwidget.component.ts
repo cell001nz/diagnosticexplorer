@@ -47,7 +47,7 @@ import {AppAuthService} from "../../../services/app-auth.service";
                 @if (isLoggedIn()) {
                     <button pButton pRipple (click)="logoutClick()" [rounded]="true" [text]="true"><span pButtonLabel>Logout</span></button>
                 } @else {
-                    <button pButton pRipple routerLink="/app" [rounded]="true" [text]="true"><span pButtonLabel>Login</span></button>
+                    <button pButton pRipple (click)="loginClick()" [rounded]="true" [text]="true"><span pButtonLabel>Login</span></button>
                 }
             </div>
         </div> `

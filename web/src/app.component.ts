@@ -1,7 +1,6 @@
 import {Component, DestroyRef, inject, OnInit} from '@angular/core';
 import {Router, RouterModule} from '@angular/router';
 import {AppAuthService} from "./app/services/app-auth.service";
-import {MsalRedirectComponent} from "@azure/msal-angular";
 
 @Component({
     selector: 'app-root',
@@ -9,7 +8,7 @@ import {MsalRedirectComponent} from "@azure/msal-angular";
     imports: [RouterModule],
     template: `<router-outlet></router-outlet>`
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
     
    #appAuth = inject(AppAuthService);
    #router = inject(Router);
@@ -17,9 +16,5 @@ export class AppComponent implements OnInit {
    constructor() {
    }
    
-   async ngOnInit() {
-       await this.#appAuth.initialiseAsync();
-   }
-
 
 }
