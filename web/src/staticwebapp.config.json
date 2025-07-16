@@ -7,6 +7,10 @@
     {
       "route": "/api/*",
       "allowedRoles": [ "authenticated" ]
+    },
+     {
+      "route": "/admin/*",
+      "allowedRoles": ["Application Administrator"]
     }
   ],
   "responseOverrides": {

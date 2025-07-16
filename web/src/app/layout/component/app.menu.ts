@@ -31,13 +31,24 @@ export class AppMenu implements OnInit {
                 ]
             },
             {
-                label: 'UI Components',
+                label: 'Admin',
                 items: [
-                    { label: 'Form Layout', icon: 'pi pi-fw pi-id-card', routerLink: ['uikit/formlayout'] },
-                    { label: 'Panel', icon: 'pi pi-fw pi-tablet', routerLink: ['uikit/panel'] },
+                    { label: 'Accounts', icon: 'pi pi-fw pi-home', routerLink: ['admin', 'accounts'] },
                 ]
             },
             {
+                label: 'Get Started',
+                items: [
+                    {
+                        label: 'Documentation',
+                        icon: 'pi pi-fw pi-book',
+                        routerLink: ['documentation']
+                    },
+                  
+                ]
+            }
+
+/*            {
                 label: 'Hierarchy',
                 items: [
                     {
@@ -80,18 +91,7 @@ export class AppMenu implements OnInit {
                         ]
                     }
                 ]
-            },
-            {
-                label: 'Get Started',
-                items: [
-                    {
-                        label: 'Documentation',
-                        icon: 'pi pi-fw pi-book',
-                        routerLink: ['documentation']
-                    },
-                  
-                ]
-            }
+            },*/
         ];
     }
 }
