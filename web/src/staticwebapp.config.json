@@ -10,10 +10,9 @@
     }
   ],
   "responseOverrides": {
-    "4010000": {
+    "401_DISABLED": {
       "statusCode": 302,
       "redirect": "/login?post_login_redirect_uri=.referrer"
     }
   }
 }
-  
