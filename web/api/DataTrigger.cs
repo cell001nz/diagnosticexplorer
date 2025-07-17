@@ -40,7 +40,7 @@ public class DataTrigger
     {
         string? strconnection = Environment.GetEnvironmentVariable("CosmosDBConnection");
         if (strconnection == null)
-            return new BadRequestObjectResult($"Can't find connection string");
+            return new OkObjectResult($"Can't find connection string");
 
         try
         {
@@ -53,7 +53,7 @@ public class DataTrigger
         }
         catch (Exception ex)
         {
-            return new BadRequestObjectResult(ex.ToString());
+            return new OkObjectResult(ex.ToString());
         }
     }
 
