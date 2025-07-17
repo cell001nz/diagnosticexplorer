@@ -39,15 +39,22 @@ public class DataTrigger
         )
     {
         string? strconnection = Environment.GetEnvironmentVariable("CosmosDBConnection");
-        // return new OkObjectResult(strconnection);
+        if (strconnection == null)
+            return new BadRequestObjectResult($"Can't find connection string");
 
-        
-        CosmosClient client = new CosmosClient(strconnection);
+        try
+        {
+            CosmosClient client = new CosmosClient(strconnection);
 
-        var account = new Account(Guid.NewGuid(), Random.Shared.NextInt64(1000, 10000).ToString());
-        await client.GetContainer("diagnosticexplorer", "Account").CreateItemAsync(account);
-        
-        return new OkObjectResult($"Create account {account.Name}");
+            var account = new Account(Guid.NewGuid(), Random.Shared.NextInt64(1000, 10000).ToString());
+            await client.GetContainer("diagnosticexplorer", "Account").CreateItemAsync(account);
+
+            return new OkObjectResult($"Create account {account.Name}");
+        }
+        catch (Exception ex)
+        {
+            return new BadRequestObjectResult(ex.ToString());
+        }
     }
 
     class Account
