@@ -3,12 +3,24 @@
   "WorkspaceRootPath": "D:\\_Repos\\diagnosticexplorer\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|api.csproj|d:\\_repos\\diagnosticexplorer\\web\\api\\datatrigger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|api.csproj|solutionrelative:web\\api\\datatrigger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|d:\\_repos\\diagnosticexplorer\\web\\api\\datatrigger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|solutionrelative:web\\api\\datatrigger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|d:\\_repos\\diagnosticexplorer\\web\\api\\local.settings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|solutionrelative:web\\api\\local.settings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|d:\\_repos\\diagnosticexplorer\\web\\api\\local.settings.sample.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|solutionrelative:web\\api\\local.settings.sample.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|d:\\_repos\\diagnosticexplorer\\web\\api\\api.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|solutionrelative:web\\api\\api.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|d:\\_repos\\diagnosticexplorer\\web\\api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|solutionrelative:web\\api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -18,7 +30,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Bookmark",
@@ -42,15 +54,28 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "local.settings.json",
-              "DocumentMoniker": "D:\\_Repos\\diagnosticexplorer\\web\\api\\local.settings.json",
-              "RelativeDocumentMoniker": "web\\api\\local.settings.json",
-              "ToolTip": "D:\\_Repos\\diagnosticexplorer\\web\\api\\local.settings.json",
-              "RelativeToolTip": "web\\api\\local.settings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAABAAAAAAAAAA==",
+              "DocumentIndex": 3,
+              "Title": "api",
+              "DocumentMoniker": "D:\\_Repos\\diagnosticexplorer\\web\\api\\api.csproj",
+              "RelativeDocumentMoniker": "web\\api\\api.csproj",
+              "ToolTip": "D:\\_Repos\\diagnosticexplorer\\web\\api\\api.csproj",
+              "RelativeToolTip": "web\\api\\api.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2025-07-17T00:22:52.844Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "local.settings.sample.json",
+              "DocumentMoniker": "D:\\_Repos\\diagnosticexplorer\\web\\api\\local.settings.sample.json",
+              "RelativeDocumentMoniker": "web\\api\\local.settings.sample.json",
+              "ToolTip": "D:\\_Repos\\diagnosticexplorer\\web\\api\\local.settings.sample.json",
+              "RelativeToolTip": "web\\api\\local.settings.sample.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-07-15T23:31:07.392Z",
+              "WhenOpened": "2025-07-17T00:14:30.814Z",
               "EditorCaption": ""
             },
             {
@@ -61,9 +86,35 @@
               "RelativeDocumentMoniker": "web\\api\\DataTrigger.cs",
               "ToolTip": "D:\\_Repos\\diagnosticexplorer\\web\\api\\DataTrigger.cs",
               "RelativeToolTip": "web\\api\\DataTrigger.cs",
-              "ViewState": "AgIAAAgAAAAAAAAAAAAAAC8AAAAUAAAAAAAAAA==",
+              "ViewState": "AgIAABYAAAAAAAAAAAAMwDcAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-15T23:28:22.47Z",
+              "WhenOpened": "2025-07-16T23:54:03.268Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "local.settings.json",
+              "DocumentMoniker": "D:\\_Repos\\diagnosticexplorer\\web\\api\\local.settings.json",
+              "RelativeDocumentMoniker": "web\\api\\local.settings.json",
+              "ToolTip": "D:\\_Repos\\diagnosticexplorer\\web\\api\\local.settings.json",
+              "RelativeToolTip": "web\\api\\local.settings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-07-16T23:49:10.805Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\_Repos\\diagnosticexplorer\\web\\api\\Program.cs",
+              "RelativeDocumentMoniker": "web\\api\\Program.cs",
+              "ToolTip": "D:\\_Repos\\diagnosticexplorer\\web\\api\\Program.cs",
+              "RelativeToolTip": "web\\api\\Program.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAABUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-16T08:15:54.474Z",
               "EditorCaption": ""
             }
           ]

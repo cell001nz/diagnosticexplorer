@@ -26,6 +26,17 @@ import {ErrMsgPipe} from "../../../pipes/err-msg.pipe";
                         {{message.value()}}
                     }
                 </p>
+                <p class="font-normal text-2xl leading-normal md:mt-4 text-gray-700">
+                    @if (message2.isLoading()) {
+                        Loading
+                    }
+                    @else if (message2.error()) {
+                        {{message2.error()}}
+                    } 
+                    @else {                        
+                        {{message2.value()}}
+                    }
+                </p>
                 <button pButton pRipple [rounded]="true" type="button" label="Get Started" class="text-xl! mt-8 px-4!"></button>
             </div>
             <div class="flex justify-center md:justify-end">
@@ -39,6 +50,10 @@ export class HomeWidget {
     #dataSvc = inject(DataService);
     
     message = resource({
+        loader: () => firstValueFrom(this.#dataSvc.getData())
+    })    
+    
+    message2 = resource({
         loader: () => firstValueFrom(this.#dataSvc.getData())
     })    
     

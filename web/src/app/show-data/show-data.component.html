@@ -4,5 +4,10 @@
 @if (myData.error()) {
     <p>Error: {{myData.error() | errMsg}}</p>
 } @else {
-    {{myData.value()}}
+    <p>{{myData.value()}}</p>
+}
+@if (myData2.error()) {
+    <p>Error: {{myData2.error() | errMsg}}</p>
+} @else {
+    <pre>{{myData2.value()}}</pre>
 }

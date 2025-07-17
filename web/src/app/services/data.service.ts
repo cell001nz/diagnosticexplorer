@@ -17,5 +17,9 @@ export class DataService {
     return this.#http.get('api/DataTrigger', { responseType: 'text',  })
         .pipe(catchError(err => throwError(() => new Error(getErrorMsg(err)))));
   }
+  getData2(): Observable<string> {
+    return this.#http.get('api/DataTrigger2', { responseType: 'text',  })
+        .pipe(catchError(err => throwError(() => new Error(getErrorMsg(err)))));
+  }
   
 }

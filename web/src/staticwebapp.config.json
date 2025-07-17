@@ -1,27 +1,26 @@
 {
   "navigationFallback": {
     "rewrite": "index.html",
-    "exclude": ["/*.{png,jpg,gif,ico,svg}", "/images/*.{png,jpg,gif,ico,svg}", "/css/*"]
+    "exclude": [
+      "/*.{png,jpg,gif,ico,svg}",
+      "/images/*.{png,jpg,gif,ico,svg}",
+      "/css/*"
+    ]
   },
   "routes": [
     {
       "route": "/api/*",
-      "allowedRoles": [ "authenticated" ]
+      "allowedRoles": [
+        "authenticated"
+      ]
     },
-     {
+    {
       "route": "/admin/*",
-      "allowedRoles": ["admin"]
+      "allowedRoles": [
+        "admin"
+      ]
     }
   ],
   "responseOverrides": {
-
   }
 }
-
-/*
-    "401_DISABLED": {
-      "statusCode": 302,
-      "redirect": "/login?post_login_redirect_uri=.referrer"
-    }
-
-*/

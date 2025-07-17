@@ -7,7 +7,6 @@ import {ErrMsgPipe} from "../pipes/err-msg.pipe";
 @Component({
   selector: 'app-show-data',
   imports: [
-    JsonPipe,
     ErrMsgPipe
   ],
   templateUrl: './show-data.component.html',
@@ -20,6 +19,11 @@ export class ShowDataComponent {
   myData = resource({
     defaultValue: "234",
     loader: ({}) => firstValueFrom(this.#dataSvc.getData())  
+  })
+  
+  myData2 = resource({
+    defaultValue: "2468",
+    loader: ({}) => firstValueFrom(this.#dataSvc.getData2())  
   })
 
   protected readonly Object = Object;
