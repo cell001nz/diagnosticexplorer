@@ -1,0 +1,28 @@
+<div class="h-full flex flex-col">
+
+<!--    @if (site.isLoading()) {-->
+<!--        <p>Loading...</p>-->
+<!--    }    -->
+    @if (!site.isLoading() && site.hasValue()) {
+        <p-fluid class="grow-1">
+            <div class="card flex flex-col gap-4 md:w-1/2">
+                
+                <div class="font-semibold text-xl">{{title()}}</div>
+                <div class="flex flex-col gap-2">
+                    <label for="name1">Name</label>
+                    <input pInputText type="text" [(ngModel)]="site.value().name" />
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label for="email1">Code</label>
+                    <input pInputText type="text" [(ngModel)]="site.value().code" />
+                </div>
+            </div>
+        </p-fluid>
+
+        {{saveError()}}
+    <div class="mt-4">  
+        <p-button label="Save" (click)="save()" [disabled]="isBusy()"></p-button>
+    </div>
+    }
+
+</div>

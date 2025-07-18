@@ -4,10 +4,11 @@ import { RippleModule } from 'primeng/ripple';
 import {DataService} from "../../../services/data.service";
 import {firstValueFrom} from "rxjs";
 import {ErrMsgPipe} from "../../../pipes/err-msg.pipe";
+import {FloatLabel} from "primeng/floatlabel";
 
 @Component({
     selector: 'home-widget',
-    imports: [ButtonModule, RippleModule],
+    imports: [ButtonModule, RippleModule, FloatLabel],
     template: `
         <div
             class="flex flex-col pt-6 px-6 lg:px-20 overflow-hidden anchor-target"
@@ -15,29 +16,7 @@ import {ErrMsgPipe} from "../../../pipes/err-msg.pipe";
         >
             <div class="mx-6 md:mx-20 mt-0 md:mt-6">
                 <h1 class="text-6xl font-bold text-gray-900! leading-tight"><span class="font-light block">Eu sem integer</span>eget magna fermentum</h1>
-                <p class="font-normal text-2xl leading-normal md:mt-4 text-gray-700">
-                    @if (message.isLoading()) {
-                        Loading
-                    }
-                    @else if (message.error()) {
-                        {{message.error()}}
-                    } 
-                    @else {                        
-                        {{message.value()}}
-                    }
-                </p>
-                <p class="font-normal text-2xl leading-normal md:mt-4 text-gray-700">
-                    @if (message2.isLoading()) {
-                        Loading
-                    }
-                    @else if (message2.error()) {
-                        {{message2.error()}}
-                    } 
-                    @else {                        
-                        {{message2.value()}}
-                    }
-                </p>
-                <button pButton pRipple [rounded]="true" type="button" label="Get Started" class="text-xl! mt-8 px-4!"></button>
+                <button pButton pRipple [rounded]="true" type="button" class="text-xl! mt-8 px-4!"><p-float-label>asdf</p-float-label></button>
             </div>
             <div class="flex justify-center md:justify-end">
                 <img src="https://primefaces.org/cdn/templates/sakai/landing/screen-1.png" alt="Hero Image" class="w-9/12 md:w-auto" />
@@ -47,14 +26,6 @@ import {ErrMsgPipe} from "../../../pipes/err-msg.pipe";
 })
 export class HomeWidget {
     
-    #dataSvc = inject(DataService);
-    
-    message = resource({
-        loader: () => firstValueFrom(this.#dataSvc.getData())
-    })    
-    
-    message2 = resource({
-        loader: () => firstValueFrom(this.#dataSvc.getData())
-    })    
+  
     
 }

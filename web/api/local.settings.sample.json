@@ -3,6 +3,6 @@
     "Values": {
         "AzureWebJobsStorage": "",
         "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
-        "CosmosDBConnection": "NotSet"
+        "CosmosDBConnection": "AccountEndpoint=https://diagnosticexplorer.documents.azure.com:443/;AccountKey=<GetThisFromAzurePortal>;"
     }
 }

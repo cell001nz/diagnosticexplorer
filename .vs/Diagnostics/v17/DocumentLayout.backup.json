@@ -3,16 +3,8 @@
   "WorkspaceRootPath": "D:\\_Repos\\diagnosticexplorer\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|d:\\_repos\\diagnosticexplorer\\web\\api\\datatrigger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|solutionrelative:web\\api\\datatrigger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|d:\\_repos\\diagnosticexplorer\\web\\api\\local.settings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|solutionrelative:web\\api\\local.settings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|d:\\_repos\\diagnosticexplorer\\web\\api\\local.settings.sample.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|solutionrelative:web\\api\\local.settings.sample.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+      "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|d:\\_repos\\diagnosticexplorer\\web\\api\\triggers\\sitestrigger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|solutionrelative:web\\api\\triggers\\sitestrigger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|d:\\_repos\\diagnosticexplorer\\web\\api\\api.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
@@ -21,6 +13,50 @@
     {
       "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|d:\\_repos\\diagnosticexplorer\\web\\api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|solutionrelative:web\\api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|d:\\_repos\\diagnosticexplorer\\web\\api\\triggers\\accounttrigger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|solutionrelative:web\\api\\triggers\\accounttrigger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|d:\\_repos\\diagnosticexplorer\\web\\api\\domain\\siterole.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|solutionrelative:web\\api\\domain\\siterole.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|d:\\_repos\\diagnosticexplorer\\web\\api\\domain\\site.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|solutionrelative:web\\api\\domain\\site.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|d:\\_repos\\diagnosticexplorer\\web\\api\\triggers\\triggerbase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|solutionrelative:web\\api\\triggers\\triggerbase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|d:\\_repos\\diagnosticexplorer\\web\\api\\domain\\clientprincipal.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|solutionrelative:web\\api\\domain\\clientprincipal.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|d:\\_repos\\diagnosticexplorer\\web\\api\\domain\\siteroletype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|solutionrelative:web\\api\\domain\\siteroletype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|d:\\_repos\\diagnosticexplorer\\web\\api\\domain\\account.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|solutionrelative:web\\api\\domain\\account.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|d:\\_repos\\diagnosticexplorer\\web\\api\\local.settings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|solutionrelative:web\\api\\local.settings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|d:\\_repos\\diagnosticexplorer\\web\\api\\api.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|",
+      "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|solutionrelative:web\\api\\api.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|d:\\_repos\\diagnosticexplorer\\web\\api\\local.settings.sample.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|solutionrelative:web\\api\\local.settings.sample.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|d:\\_repos\\diagnosticexplorer\\web\\api\\host.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|web\\api\\api.csproj|solutionrelative:web\\api\\host.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     }
   ],
   "DocumentGroupContainers": [
@@ -30,7 +66,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 7,
+          "SelectedChildIndex": 8,
           "Children": [
             {
               "$type": "Bookmark",
@@ -54,20 +90,149 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
+              "Title": "SiteRole.cs",
+              "DocumentMoniker": "D:\\_Repos\\diagnosticexplorer\\web\\api\\Domain\\SiteRole.cs",
+              "RelativeDocumentMoniker": "web\\api\\Domain\\SiteRole.cs",
+              "ToolTip": "D:\\_Repos\\diagnosticexplorer\\web\\api\\Domain\\SiteRole.cs",
+              "RelativeToolTip": "web\\api\\Domain\\SiteRole.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-17T22:08:22.571Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "SiteRoleType.cs",
+              "DocumentMoniker": "D:\\_Repos\\diagnosticexplorer\\web\\api\\Domain\\SiteRoleType.cs",
+              "RelativeDocumentMoniker": "web\\api\\Domain\\SiteRoleType.cs",
+              "ToolTip": "D:\\_Repos\\diagnosticexplorer\\web\\api\\Domain\\SiteRoleType.cs",
+              "RelativeToolTip": "web\\api\\Domain\\SiteRoleType.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-17T22:08:18.309Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "TriggerBase.cs",
+              "DocumentMoniker": "D:\\_Repos\\diagnosticexplorer\\web\\api\\Triggers\\TriggerBase.cs",
+              "RelativeDocumentMoniker": "web\\api\\Triggers\\TriggerBase.cs",
+              "ToolTip": "D:\\_Repos\\diagnosticexplorer\\web\\api\\Triggers\\TriggerBase.cs",
+              "RelativeToolTip": "web\\api\\Triggers\\TriggerBase.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-17T05:30:46.342Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "SitesTrigger.cs",
+              "DocumentMoniker": "D:\\_Repos\\diagnosticexplorer\\web\\api\\Triggers\\SitesTrigger.cs",
+              "RelativeDocumentMoniker": "web\\api\\Triggers\\SitesTrigger.cs",
+              "ToolTip": "D:\\_Repos\\diagnosticexplorer\\web\\api\\Triggers\\SitesTrigger.cs",
+              "RelativeToolTip": "web\\api\\Triggers\\SitesTrigger.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAIUAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-17T05:29:59.993Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Site.cs",
+              "DocumentMoniker": "D:\\_Repos\\diagnosticexplorer\\web\\api\\Domain\\Site.cs",
+              "RelativeDocumentMoniker": "web\\api\\Domain\\Site.cs",
+              "ToolTip": "D:\\_Repos\\diagnosticexplorer\\web\\api\\Domain\\Site.cs",
+              "RelativeToolTip": "web\\api\\Domain\\Site.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-17T04:37:22.173Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
               "Title": "api",
               "DocumentMoniker": "D:\\_Repos\\diagnosticexplorer\\web\\api\\api.csproj",
               "RelativeDocumentMoniker": "web\\api\\api.csproj",
               "ToolTip": "D:\\_Repos\\diagnosticexplorer\\web\\api\\api.csproj",
               "RelativeToolTip": "web\\api\\api.csproj",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2025-07-17T04:07:50.496Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "Account.cs",
+              "DocumentMoniker": "D:\\_Repos\\diagnosticexplorer\\web\\api\\Domain\\Account.cs",
+              "RelativeDocumentMoniker": "web\\api\\Domain\\Account.cs",
+              "ToolTip": "D:\\_Repos\\diagnosticexplorer\\web\\api\\Domain\\Account.cs",
+              "RelativeToolTip": "web\\api\\Domain\\Account.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-17T04:07:23.023Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "ClientPrincipal.cs",
+              "DocumentMoniker": "D:\\_Repos\\diagnosticexplorer\\web\\api\\Domain\\ClientPrincipal.cs",
+              "RelativeDocumentMoniker": "web\\api\\Domain\\ClientPrincipal.cs",
+              "ToolTip": "D:\\_Repos\\diagnosticexplorer\\web\\api\\Domain\\ClientPrincipal.cs",
+              "RelativeToolTip": "web\\api\\Domain\\ClientPrincipal.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-17T04:07:18.855Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "host.json",
+              "DocumentMoniker": "D:\\_Repos\\diagnosticexplorer\\web\\api\\host.json",
+              "RelativeDocumentMoniker": "web\\api\\host.json",
+              "ToolTip": "D:\\_Repos\\diagnosticexplorer\\web\\api\\host.json",
+              "RelativeToolTip": "web\\api\\host.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAhAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-07-17T01:47:10.899Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "AccountTrigger.cs",
+              "DocumentMoniker": "D:\\_Repos\\diagnosticexplorer\\web\\api\\Triggers\\AccountTrigger.cs",
+              "RelativeDocumentMoniker": "web\\api\\Triggers\\AccountTrigger.cs",
+              "ToolTip": "D:\\_Repos\\diagnosticexplorer\\web\\api\\Triggers\\AccountTrigger.cs",
+              "RelativeToolTip": "web\\api\\Triggers\\AccountTrigger.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAcwC4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-16T23:54:03.268Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "api",
+              "DocumentMoniker": "D:\\_Repos\\diagnosticexplorer\\web\\api\\api.csproj",
+              "RelativeDocumentMoniker": "web\\api\\api.csproj",
+              "ToolTip": "D:\\_Repos\\diagnosticexplorer\\web\\api\\api.csproj",
+              "RelativeToolTip": "web\\api\\api.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAKAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
               "WhenOpened": "2025-07-17T00:22:52.844Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 12,
               "Title": "local.settings.sample.json",
               "DocumentMoniker": "D:\\_Repos\\diagnosticexplorer\\web\\api\\local.settings.sample.json",
               "RelativeDocumentMoniker": "web\\api\\local.settings.sample.json",
@@ -80,39 +245,26 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "DataTrigger.cs",
-              "DocumentMoniker": "D:\\_Repos\\diagnosticexplorer\\web\\api\\DataTrigger.cs",
-              "RelativeDocumentMoniker": "web\\api\\DataTrigger.cs",
-              "ToolTip": "D:\\_Repos\\diagnosticexplorer\\web\\api\\DataTrigger.cs",
-              "RelativeToolTip": "web\\api\\DataTrigger.cs",
-              "ViewState": "AgIAABMAAAAAAAAAAAAMwCoAAAAlAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-16T23:54:03.268Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 10,
               "Title": "local.settings.json",
               "DocumentMoniker": "D:\\_Repos\\diagnosticexplorer\\web\\api\\local.settings.json",
               "RelativeDocumentMoniker": "web\\api\\local.settings.json",
               "ToolTip": "D:\\_Repos\\diagnosticexplorer\\web\\api\\local.settings.json",
               "RelativeToolTip": "web\\api\\local.settings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAADHAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
               "WhenOpened": "2025-07-16T23:49:10.805Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 2,
               "Title": "Program.cs",
               "DocumentMoniker": "D:\\_Repos\\diagnosticexplorer\\web\\api\\Program.cs",
               "RelativeDocumentMoniker": "web\\api\\Program.cs",
               "ToolTip": "D:\\_Repos\\diagnosticexplorer\\web\\api\\Program.cs",
               "RelativeToolTip": "web\\api\\Program.cs",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAABUAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAAAB4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-07-16T08:15:54.474Z",
               "EditorCaption": ""

@@ -1,0 +1,37 @@
+
+@if (sites.isLoading()) {
+    <p>Loading...</p>
+}
+@else if (sites.error()) {
+    <p>Error {{sites.error() | json}}</p>
+}
+@else {
+    
+    <div class="pb-2">
+        <p-button routerLink="new" label="Create" severity="secondary" variant="outlined"><i class="pi pi-plus-circle"></i></p-button>
+    </div>
+    
+    <p-table [value]="sites.value()" [(selection)]="selected" dataKey="id" tableStyleClass="w-full">
+        <ng-template #header>
+            <tr>
+                <th style="width: 4rem"><p-tableHeaderCheckbox /></th>
+                <th>Id</th>
+                <th>Code</th>
+                <th>Name</th>
+            </tr>
+        </ng-template>
+        <ng-template #body let-site>
+            <tr [routerLink]="site.id">
+                <td>
+                    <p-tableCheckbox [value]="site" />
+                </td>
+                <td>{{site.id}}</td>
+                <td>{{site.code}}</td>
+                <td>{{site.name}}</td>
+            </tr>
+        </ng-template>
+         <ng-template pTemplate="emptymessage">
+            <tr><td colspan="4" class="text-center!">No records found</td></tr>
+          </ng-template>
+    </p-table>
+    }

@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ShowDataComponent } from './show-data.component';
+import { EditSiteComponent } from './edit-site.component';
 
-describe('ShowDataComponent', () => {
-  let component: ShowDataComponent;
-  let fixture: ComponentFixture<ShowDataComponent>;
+describe('EditSiteComponent', () => {
+  let component: EditSiteComponent;
+  let fixture: ComponentFixture<EditSiteComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ShowDataComponent]
+      imports: [EditSiteComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ShowDataComponent);
+    fixture = TestBed.createComponent(EditSiteComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

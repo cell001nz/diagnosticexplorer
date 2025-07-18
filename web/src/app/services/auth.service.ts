@@ -16,7 +16,8 @@ export class AuthService {
     
     account = signal<AuthMe | undefined>(undefined);
     isLoggedIn = computed(() => !!(this.account()?.clientPrincipal));
-    #account = firstValueFrom(this.#http.get<AuthMe>('/.auth/me').pipe(tap(v => this.account.set(v))));
+    #account = firstValueFrom(this.#http.get<AuthMe>('/.auth/me'));
+       
     
     getAccount(): Promise<AuthMe> {
         return this.#account;
@@ -28,5 +29,16 @@ export class AuthService {
   
     logout() {
         window.location.assign('/.auth/logout');
+    }
+
+    async initialiseAsync() {
+        this.#account.then(async v => {
+            this.account.set(v);
+            console.log(v);
+            if (v.clientPrincipal) {
+                let str = await firstValueFrom(this.#http.get('/api/Account/RegisterLogin', {responseType: 'text'}));
+                console.log('LoggedIn', str);
+            }
+        });
     }
 }

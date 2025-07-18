@@ -27,7 +27,7 @@ export class AppMenu implements OnInit {
                 label: 'Home',
                 items: [
                     { label: 'Account', icon: 'pi pi-fw pi-home', routerLink: ['account'] },
-                    { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['dashboard'] }
+                    { label: 'Sites', icon: 'pi pi-fw pi-home', routerLink: ['sites'], routerLinkActiveOptions: { exact: false} }
                 ]
             },
             {

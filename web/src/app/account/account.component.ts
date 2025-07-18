@@ -1,13 +1,11 @@
 import {Component, computed, inject} from '@angular/core';
 import {JsonPipe} from "@angular/common";
-import {ShowDataComponent} from "../../show-data/show-data.component";
-import {AuthService} from "../../services/auth.service";
+import {AuthService} from "../services/auth.service";
 
 @Component({
   selector: 'app-account',
     imports: [
         JsonPipe,
-        ShowDataComponent
     ],
   templateUrl: './account.component.html',
   styleUrl: './account.component.scss'

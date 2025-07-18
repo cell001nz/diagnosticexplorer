@@ -2,24 +2,26 @@ import { HttpClient } from '@angular/common/http';
 import {inject, Injectable} from '@angular/core';
 import {catchError, Observable, throwError} from "rxjs";
 import {getErrorMsg} from "../../util/errorUtil";
+import {Site} from "../model/site";
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataService {
-
   #http = inject(HttpClient)
 
-  constructor() { }
-  
-  
-  getData(): Observable<string> {
-    return this.#http.get('api/DataTrigger', { responseType: 'text',  })
-        .pipe(catchError(err => throwError(() => new Error(getErrorMsg(err)))));
+  getSites(): Observable<Site[]> {
+    return this.#http.get<Site[]>('api/Sites');
   }
-  getData2(): Observable<string> {
-    return this.#http.get('api/DataTrigger2', { responseType: 'text',  })
-        .pipe(catchError(err => throwError(() => new Error(getErrorMsg(err)))));
+
+  getSite(id: string): Observable<Site> {
+    return this.#http.get<Site>(`api/Sites/${id}`);
   }
-  
+
+  saveSite(site: Site): Observable<Site> {
+    if (site.id)
+      return this.#http.put<Site>(`api/Sites/${site.id}`, site);
+    else
+      return this.#http.post<Site>(`api/Sites`, site);
+  }
 }
