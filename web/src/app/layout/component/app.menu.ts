@@ -1,8 +1,9 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { AppMenuitem } from './app.menuitem';
+import {AuthService} from "../../services/auth.service";
 
 @Component({
     selector: 'app-menu',
@@ -20,8 +21,24 @@ import { AppMenuitem } from './app.menuitem';
 })
 export class AppMenu implements OnInit {
     model: MenuItem[] = [];
-
+    #authService = inject(AuthService);
+    
+    
+    
     ngOnInit() {
+        
+        let adminItems: MenuItem[] = [];
+        
+        if (this.#authService.account()?.clientPrincipal?.userRoles.some(r => r.toLowerCase() === 'admin'))
+            adminItems = [
+                {
+                    label: 'Admin',
+                    items: [
+                        { label: 'Accounts', icon: 'pi pi-fw pi-home', routerLink: ['admin', 'accounts'] },
+                    ]
+                }
+            ];
+        
         this.model = [
             {
                 label: 'Home',
@@ -30,12 +47,7 @@ export class AppMenu implements OnInit {
                     { label: 'Sites', icon: 'pi pi-fw pi-home', routerLink: ['sites'], routerLinkActiveOptions: { exact: false} }
                 ]
             },
-            {
-                label: 'Admin',
-                items: [
-                    { label: 'Accounts', icon: 'pi pi-fw pi-home', routerLink: ['admin', 'accounts'] },
-                ]
-            },
+            ...adminItems,
             {
                 label: 'Get Started',
                 items: [
