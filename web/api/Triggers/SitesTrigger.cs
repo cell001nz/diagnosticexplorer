@@ -25,7 +25,7 @@ public class SitesTrigger : TriggerBase
     #region GetSites => GET /api/Sites
     
     [Function("GetSites")]
-    public async Task<IActionResult> GetSites([HttpTrigger(AuthorizationLevel.User, "get", Route = "Sites")] HttpRequest req, ILogger log)
+    public async Task<IActionResult> GetSites([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Sites")] HttpRequest req, ILogger log)
     {
         var cp = GetClientPrincipal(req);
 
@@ -47,9 +47,10 @@ public class SitesTrigger : TriggerBase
     #region GetSite => GET /api/Sites/{id}
 
     [Function("GetSite")]
-    public async Task<IActionResult> GetSite([HttpTrigger(AuthorizationLevel.User, "get", Route = "Sites/{id}")] HttpRequest req, string id, ILogger log)
+    public async Task<IActionResult> GetSite([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Sites/{id}")] HttpRequest req, string id, ILogger log)
     {
         var cp = GetClientPrincipal(req);
+        
         var siteClient = _cosmosClient.GetContainer(DIAGNOSTIC_EXPLORER, "Site");
 
         var site = GetSite(siteClient, cp, id);
@@ -62,14 +63,14 @@ public class SitesTrigger : TriggerBase
     #region InsertSite => POST /api/Sites BODY
     
     [Function("InsertSite")]
-    public async Task<IActionResult> InsertSite([HttpTrigger(AuthorizationLevel.User, "post", Route = "Sites")] HttpRequest req, [FromBody] Site site, ILogger log)
+    public async Task<IActionResult> InsertSite([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Sites")] HttpRequest req, [FromBody] Site site, ILogger log)
     {
         try
         {
+            var cp = GetClientPrincipal(req);
+
             if (!string.IsNullOrWhiteSpace(site.Id))
                 return new BadRequestObjectResult("Can't put when Id is specified");
-            
-            var cp = GetClientPrincipal(req);
 
             site.Id = Guid.NewGuid().ToString();
             site.Roles.Add(new SiteRole
@@ -95,7 +96,7 @@ public class SitesTrigger : TriggerBase
     #region UpdateSite => PUT /api/Sites/{id} BODY
 
     [Function("UpdateSite")]
-    public async Task<IActionResult> UpdateSite([HttpTrigger(AuthorizationLevel.User, "put", Route = "Sites/{id}")] HttpRequest req, string id, [FromBody] Site site, ILogger log)
+    public async Task<IActionResult> UpdateSite([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "Sites/{id}")] HttpRequest req, string id, [FromBody] Site site, ILogger log)
     {
         try
         {
