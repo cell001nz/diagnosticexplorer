@@ -7,17 +7,11 @@
       "/css/*"
     ]
   },
-  "routes": [
-    {
-      "route": "/api/*",
-      "allowedRoles": [
-        "authenticated"
-      ]
-    },
+  "routes": [   
     {
       "route": "/admin/*",
       "allowedRoles": [
-        "admin"
+        "admin"       
       ]
     }
   ],

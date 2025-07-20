@@ -10,7 +10,7 @@ using System.Collections;
 using System.Text;
 using System.Text.Json;
 
-namespace api.Triggers;
+namespace DiagnosticExplorer.Api.Triggers;
 
 public class AccountTrigger : TriggerBase
 {

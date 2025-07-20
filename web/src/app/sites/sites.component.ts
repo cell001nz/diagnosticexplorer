@@ -1,6 +1,6 @@
 import {Component, inject, resource} from '@angular/core';
 import {TableModule} from "primeng/table";
-import {Site} from "../model/site";
+import {Site} from "../model/Site";
 import {DataService} from "../services/data.service";
 import {firstValueFrom} from "rxjs";
 import {JsonPipe} from "@angular/common";

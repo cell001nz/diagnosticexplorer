@@ -1,7 +1,7 @@
 import {Component, computed, inject, input, resource, signal} from '@angular/core';
 import {InputText} from "primeng/inputtext";
 import {Fluid} from "primeng/fluid";
-import {Site} from "../model/site";
+import {Site} from "../model/Site";
 import {DataService} from "../services/data.service";
 import {firstValueFrom, of} from "rxjs";
 import {rxResource} from "@angular/core/rxjs-interop";
@@ -11,6 +11,8 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {getErrorMsg} from "../../util/errorUtil";
 import {MessageService} from "primeng/api";
 import {Toast} from "primeng/toast";
+import {JsonPipe} from "@angular/common";
+import {Secret} from "../model/Secret";
 
 @Component({
   selector: 'app-edit-site',
@@ -19,7 +21,7 @@ import {Toast} from "primeng/toast";
     Fluid,
     FormsModule,
     Button,
-    Toast
+    JsonPipe
   ],
   templateUrl: './edit-site.component.html',
   styleUrl: './edit-site.component.scss',
@@ -42,7 +44,8 @@ export class EditSiteComponent {
     return {
       id: '',
       code: crypto.randomUUID(),
-      name: 'New Site'
+      name: 'New Site',
+      secrets: []
     }
   }
   
@@ -75,5 +78,16 @@ export class EditSiteComponent {
       this.isBusy.set(false);
     }
     
+  }
+
+  addSecret() {
+    this.#data.newSecret()
+        .subscribe(secret => {
+          this.site.value().secrets.push( {id: '',  name: "New Secret", value: secret})
+        })
+  }
+
+  removeSecret(secret: Secret) {
+    this.site.value().secrets = this.site.value().secrets.filter(s => s !== secret); 
   }
 }

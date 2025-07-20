@@ -8,5 +8,5 @@ public class Site
     public string Name { get; set; } = "";
     public string Code { get; set; } = "";
     public List<SiteRole> Roles { get; set; } = [];
+    public List<Secret> Secrets { get; set; } = [];
 }
-

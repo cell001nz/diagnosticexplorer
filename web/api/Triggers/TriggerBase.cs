@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Text;
 using System.Text.Json;
-using api.Triggers;
 using DiagnosticExplorer.Api.Domain;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +9,7 @@ using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
-namespace DiagnosticExplorer.Api;
+namespace DiagnosticExplorer.Api.Triggers;
 
 public class TriggerBase
 {

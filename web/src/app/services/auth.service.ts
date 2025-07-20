@@ -1,9 +1,8 @@
 import {computed, inject, Injectable, signal} from '@angular/core';
-import {filter, takeUntil, tap} from "rxjs/operators";
 import {ActivatedRoute, Router} from "@angular/router";
 import {HttpClient} from "@angular/common/http";
-import {AuthMe} from "../../AuthMe";
 import {firstValueFrom} from "rxjs";
+import {AuthMe} from "../model/AuthMe";
 
 @Injectable({
   providedIn: 'root'
@@ -16,8 +15,7 @@ export class AuthService {
     
     account = signal<AuthMe | undefined>(undefined);
     isLoggedIn = computed(() => !!(this.account()?.clientPrincipal));
-    #account = firstValueFrom(this.#http.get<AuthMe>('/.auth/me'));
-       
+    #account = firstValueFrom(this.#http.get<AuthMe>('/.auth/me'));       
     
     getAccount(): Promise<AuthMe> {
         return this.#account;

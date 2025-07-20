@@ -5,6 +5,7 @@
 /tmp
 /out-tsc
 /bazel-out
+bin
 
 # Node
 /node_modules
@@ -30,6 +31,7 @@ yarn-error.log
 
 # Miscellaneous
 /.angular/cache
+.azurite_data
 .sass-cache/
 /connect.lock
 /coverage
