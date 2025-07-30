@@ -2,7 +2,7 @@ import {computed, inject, Injectable, signal} from '@angular/core';
 import {ActivatedRoute, Router} from "@angular/router";
 import {HttpClient} from "@angular/common/http";
 import {firstValueFrom} from "rxjs";
-import {AuthMe} from "../model/AuthMe";
+import {AuthMe} from "@model/AuthMe";
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +17,10 @@ export class AuthService {
     isLoggedIn = computed(() => !!(this.account()?.clientPrincipal));
     #account = firstValueFrom(this.#http.get<AuthMe>('/.auth/me'));       
     
+    
+    constructor() {
+    }    
+    
     getAccount(): Promise<AuthMe> {
         return this.#account;
     }
@@ -28,7 +32,6 @@ export class AuthService {
     logout() {
         window.location.assign('/.auth/logout');
     }
-
     async initialiseAsync() {
         this.#account.then(async v => {
             this.account.set(v);

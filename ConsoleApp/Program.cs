@@ -8,8 +8,6 @@ var httpClient = new HttpClient();
 
 var nr = await httpClient.GetFromJsonAsync<NegotiateResponse>("http://localhost:4280/api/Negotiate");
 
-Console.WriteLine("Hello, World!");
-
 try
 {
     Console.WriteLine($"Negotiate Url: {nr.Url}");
@@ -17,15 +15,15 @@ try
     
     var hub = new HubConnectionBuilder().WithUrl(nr.Url, options =>
     {
-        // options.UseDefaultCredentials = true;
+        options.UseDefaultCredentials = true;
         options.AccessTokenProvider = () => Task.FromResult(nr.AccessToken)!;
     }).Build();
 
-    hub.On("newMessage", (string msg) => Console.WriteLine($"Received message {msg}"));
-    
+    hub.On("newMessage", (string msg) => Console.WriteLine($"Received message => {msg}"));
+
     hub.Closed += (error) =>
     {
-        Console.WriteLine(error);
+        Console.WriteLine($"Closed: {error}");
         return Task.CompletedTask;
     };
     
@@ -44,8 +42,21 @@ try
     await hub.StartAsync();
     Console.WriteLine("Connected to SignalR hub!");
 
-    await hub.SendCoreAsync("Broadcast", ["Hello from client!"]);
-    Console.WriteLine("Sent broadcast");
+    while (true)
+    {
+        Console.WriteLine($"Sending1");
+        await hub.InvokeAsync("broadcast1", "Calling broadcast1");
+        Console.WriteLine($"Sent broadcast1");
+
+        Console.WriteLine($"Sending2");
+        await httpClient.GetAsync("http://localhost:4280/api/Broadcast2?message=calling-broadcast-2");
+        // await hub.SendCoreAsync("broadcast1", ["Hello from client!"]);
+        Console.WriteLine("Sent broadcast2");
+
+        if (Console.ReadLine() == "exit") break;
+    }
+    
+
 
     Console.ReadLine();
 }

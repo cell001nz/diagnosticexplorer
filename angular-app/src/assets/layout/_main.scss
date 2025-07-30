@@ -10,5 +10,9 @@
 .layout-main {
     flex: 1 1 auto;
     height: 100%;
-    padding-bottom: 2rem;
+    //padding-bottom: 2rem;
+}
+
+.content-h-full {
+    height: calc(100vh - 6rem);
 }

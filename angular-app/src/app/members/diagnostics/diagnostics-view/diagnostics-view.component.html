@@ -1,0 +1,13 @@
+<p>diagnostics-view works!</p>
+<p>siteId: {{siteId}}</p>
+<p>processId: {{processId()}}</p>
+
+@if (diags().loading) {
+    <p>Loading...</p>
+}
+@else if (diags().error) {
+    <p>Error {{diags().error | errMsg}}</p>
+}
+@else {
+    <p>{{diags() | json}}</p>
+}

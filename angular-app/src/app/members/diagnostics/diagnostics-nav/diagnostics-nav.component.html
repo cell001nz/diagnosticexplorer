@@ -1,0 +1,28 @@
+@if (processes.isLoading()) {
+    <p>Loading...</p>
+}
+@else if (processes.error()) {
+    <p>Error {{processes.error() | errMsg}}</p>
+}
+@else {
+    <p-table [value]="processes.value()" [scrollable]="true" scrollHeight="100%" size="small">
+        <ng-template #header>
+            <tr>
+                <th>Name</th>
+                <th>Machine</th>
+                <th>ConnectionId</th>
+                <th>IsOnline</th>
+                <th>User</th>
+            </tr>
+        </ng-template>
+        <ng-template #body let-process let-ri="rowIndex">
+            <tr [routerLink]="process.id" class="cursor-pointer">
+                <td>{{ process.processName }} i-{{ri}}</td>
+                <td>{{ process.machineName }}</td>
+                <td>{{ process.connectionId }}</td>
+                <td>{{ process.isOnline }}</td>
+                <td>{{ process.userName }}</td>
+            </tr>
+        </ng-template>
+    </p-table>
+}

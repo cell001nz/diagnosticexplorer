@@ -16,6 +16,7 @@ dist-ssr
 *.local
 bin
 obj
+.azurite_data
 
 # Editor directories and files
 .vscode/*

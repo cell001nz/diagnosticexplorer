@@ -9,18 +9,20 @@ using Microsoft.Extensions.Logging;
 using System.Collections;
 using System.Text;
 using System.Text.Json;
+using DiagnosticExplorer.IO;
 
 namespace DiagnosticExplorer.Api.Triggers;
 
 public class AccountTrigger : TriggerBase
 {
 
-    public AccountTrigger(ILogger<AccountTrigger> logger, CosmosClient client) : base(logger, client)
+    public AccountTrigger(ILogger<AccountTrigger> logger, IDiagIO diagIo) : base(logger, diagIo)
     {
     }
 
     [Function("LoggedIn")]
-    public async Task<IActionResult> RegisterLogin([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "Account/RegisterLogin")] HttpRequest req)
+    public async Task<IActionResult> RegisterLogin(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "Account/RegisterLogin")] HttpRequest req)
     {
         Account acct = await GetOrCreateAccountAsync(req);
 
@@ -30,17 +32,14 @@ public class AccountTrigger : TriggerBase
     private async Task<Account> GetOrCreateAccountAsync(HttpRequest req)
     {
         ClientPrincipal cp = GetClientPrincipal(req);
-        var accounts = _cosmosClient.GetContainer(DIAGNOSTIC_EXPLORER, "Account");
 
-        try
+        var account = await DiagIO.Account.GetAccount(cp.UserId);
+        if (account == null)
         {
-            var found = await accounts.ReadItemAsync<Account>(cp.UserId, new PartitionKey(cp.UserId), new ItemRequestOptions() { });
-            return found.Resource;
+            account = new Account(cp.UserId, cp.UserDetails);
+            account = await DiagIO.Account.SaveAccount(account);
         }
-        catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
-        {
-            var created = await accounts.CreateItemAsync(new Account(cp.UserId, cp.UserDetails));
-            return created.Resource;
-        }
+
+        return account;
     }
 }

@@ -1,0 +1,16 @@
+{
+  "DiagnosticExplorer": {
+    "Sites": [
+      {
+        "Url": "http://localhost:4280/api/client/negotiate",
+        "Code": "f4f924a4-74ab-43ac-bd5f-fd0bfb2e48a8",
+        "Secret": "Ny2N2i0EPay9rUIxoIpUZHIE/i2r8x6ojz0YkSA0BSI=",
+        "Enabled": true
+      },
+      {
+        "Url": "http://localhost:2803/diagnostics",
+        "Enabled": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,18 @@
+<!--
+<p-splitter class="content-h-full" [panelSizes]="[10, 90]" [minSizes]="[500, -1]">
+    <ng-template #panel>
+        <app-diagnostics-nav class="min-w-200" [siteId]="siteId()"></app-diagnostics-nav>    
+    </ng-template>
+    <ng-template #panel>
+        <router-outlet></router-outlet>   
+    </ng-template>
+</p-splitter>
+-->
+<div class="flex flex-row content-h-full">
+    <app-diagnostics-nav class="min-w-150" [siteId]="siteId()"></app-diagnostics-nav>
+    <p-divider layout="vertical" class=""></p-divider>
+    <div class="h-full overflow-y-auto">
+        <router-outlet></router-outlet>
+    </div>
+</div>
+    
