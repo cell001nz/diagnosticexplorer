@@ -43,15 +43,12 @@ internal class HubServerAdapter : IDiagnosticHubClient
 
         _hubConn.On<string>("ReceiveMessage", msg => Trace.WriteLine($"***** ReceiveMessage {msg}"));
 
-        // _hubConn.On<string>("NotificationReceived", msg => Trace.WriteLine($"***** NotificationReceived {msg}"));
-
         _hubConn.On<int>("StartSending", StartSending);
         _hubConn.On("StopSending", StopSending);
 
         _hubConn.On<int>("SetRenewTime",
             time =>
             {
-                Trace.WriteLine($"Received renewTime {time}");
                 RenewTimeChanged?.Invoke(this, new RenewTimeEventArgs(TimeSpan.FromSeconds(time)));
             });
 
@@ -65,6 +62,24 @@ internal class HubServerAdapter : IDiagnosticHubClient
             async () => await UnsubscribeEvents());
     }
 
+    private void StartSending(int seconds)
+    {
+        lock (_syncLock)
+        {
+            _sendInterval = TimeSpan.FromSeconds(seconds);
+
+            if (_writeEventTask == null || _writeEventTask.IsCompleted)
+                SubscribeEvents();
+
+            if (_sendDiagnosticsTask == null || _sendDiagnosticsTask.IsCompleted)
+            {
+                CancellationTokenSource cancel = new CancellationTokenSource();
+                _sendDiagnosticsTask = Task.Run(() => SendDiagnosticsLoop(cancel.Token), cancel.Token);
+                _sendDiagnosticsCancel = cancel;
+            }
+        }
+    }
+
     private void StopSending()
     {
         lock (_syncLock)
@@ -73,26 +88,6 @@ internal class HubServerAdapter : IDiagnosticHubClient
             _sendDiagnosticsTask = null;
 
             UnsubscribeEvents();
-        }
-    }
-
-    private void StartSending(int seconds)
-    {
-        lock (_syncLock)
-        {
-            Trace.WriteLine($"StartSending {seconds}");
-            _sendInterval = TimeSpan.FromSeconds(seconds);
-
-            if (_writeEventTask == null || _writeEventTask.IsCompleted)
-                SubscribeEvents();
-
-            if (_sendDiagnosticsTask == null || _sendDiagnosticsTask.IsCompleted)
-            {
-                Trace.WriteLine("########## START SENDING");
-                CancellationTokenSource cancel = new CancellationTokenSource();
-                _sendDiagnosticsTask = Task.Run(() => SendDiagnosticsLoop(cancel.Token), cancel.Token);
-                _sendDiagnosticsCancel = cancel;
-            }
         }
     }
 
@@ -105,7 +100,6 @@ internal class HubServerAdapter : IDiagnosticHubClient
                 DiagnosticResponse response = DiagnosticManager.GetDiagnostics();
                 byte[] data = ProtobufUtil.Compress(response, 1024);
                 string stringData = Convert.ToBase64String(data);
-                Trace.WriteLine($"########## SendDiagnosticsLoop {data.Length} bytes verify {HashHelper.ComputeHashString(data)} data[0]: {data[0]}");
 
                 await _hubConn.InvokeAsync(nameof(IDiagnosticHubServer.ReceiveDiagnostics), stringData, cancel);
             }
@@ -124,8 +118,6 @@ internal class HubServerAdapter : IDiagnosticHubClient
             }
             catch {}
         }
-        Trace.WriteLine("########## STOP SENDING");
-
     }
 
     public Task SubscribeEvents()
@@ -146,7 +138,6 @@ internal class HubServerAdapter : IDiagnosticHubClient
     private async Task SendEventStream(CancellationToken cancel)
     {
         using EventSinkStream stream = EventSinkRepo.Default.CreateSinkStream(TimeSpan.FromMilliseconds(50), 100);
-        //TODO harden this so it keeps trying if there is a failure
         try
         {
             await _hubConn.InvokeAsync(nameof(IDiagnosticHubServer.ClearEventStream), cancel);
@@ -160,12 +151,10 @@ internal class HubServerAdapter : IDiagnosticHubClient
         }
         catch (OperationCanceledException)
         {
-            Trace.WriteLine("HubServerAdapter.SendEventStream cancelled");
         }
         catch (Exception ex)
         {
             Trace.WriteLine($"HubServerAdapter.SendEventStream error: {ex}");
-            
         }
     }
 
@@ -242,9 +231,16 @@ internal class HubServerAdapter : IDiagnosticHubClient
         return Task.CompletedTask;
     }
 
-    public async Task Register(Registration registration)
+    public async Task Register(Registration registration, CancellationToken cancel)
     {
-        await _hubConn.InvokeAsync(nameof(IDiagnosticHubServer.Register), registration);
+        try
+        {
+            await _hubConn.InvokeAsync(nameof(IDiagnosticHubServer.Register), registration, cancel);
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine($"########## Register EXCEPTION {ex}");
+        }
     }
 
     public async Task Deregister(Registration registration)

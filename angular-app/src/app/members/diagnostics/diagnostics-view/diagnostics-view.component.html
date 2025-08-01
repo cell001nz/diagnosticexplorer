@@ -1,13 +1,44 @@
-<p>diagnostics-view works!</p>
-<p>siteId: {{siteId}}</p>
-<p>processId: {{processId()}}</p>
+<div class="grid grid-rows-[auto_1fr] h-full">
 
-@if (diags().loading) {
-    <p>Loading...</p>
-}
-@else if (diags().error) {
-    <p>Error {{diags().error | errMsg}}</p>
-}
-@else {
-    <p>{{diags() | json}}</p>
-}
+    <div>
+        
+        <p class="float-left">siteId: {{siteId}} processId: {{processId()}}</p>
+
+        <p class="text-green-600 float-right opacity-50 hover:opacity-100">
+            @if (nextRefresh()) {
+                <span>{{nextRefresh() | number:'1.0-0'}}</span>
+                <span class="text-xs">{{nextRefresh() | numberFraction:'0.1-1'}}</span>
+            } @else {
+                <span>0</span>
+                <span class="text-xs">...</span>
+            }
+        </p>
+    </div>
+
+    <div class="tabs-right">
+        @if (diags.isLoading()) {
+            <p>Loading</p>    
+        }
+        @else if (diags.error()) {
+            <p>Error {{diags.error() | errMsg}}</p>
+        }
+        @if (diags.hasValue()) {
+
+       <p-tabs  [value]="realtime.categories[0].name" class="">
+           <p-tablist>
+             @for (cat of realtime.categories; track cat.name) {
+                <p-tab [value]="cat.name">{{ cat.name }}</p-tab>
+             }
+           </p-tablist>
+           <p-tabpanels>
+            @for (cat of realtime.categories; track cat.name) {
+                <p-tabpanel [value]="cat.name">
+                    <p class="m-0">{{ cat.name }}</p>
+                </p-tabpanel>   
+            }
+           </p-tabpanels>
+    </p-tabs>
+            
+        }
+    </div>
+</div>

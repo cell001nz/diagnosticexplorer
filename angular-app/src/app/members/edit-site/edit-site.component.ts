@@ -1,7 +1,7 @@
 import {Component, computed, inject, input, resource, signal} from '@angular/core';
 import {InputText} from "primeng/inputtext";
 import {Fluid} from "primeng/fluid";
-import {Site} from "@model/Site";
+import {Site} from "@domain/Site";
 import {firstValueFrom, of} from "rxjs";
 import {rxResource} from "@angular/core/rxjs-interop";
 import {FormsModule} from "@angular/forms";
@@ -9,7 +9,7 @@ import {Button} from "primeng/button";
 import {ActivatedRoute, Router} from "@angular/router";
 import {getErrorMsg} from "@util/errorUtil";
 import {MessageService} from "primeng/api";
-import {Secret} from "@model/Secret";
+import {Secret} from "@domain/Secret";
 import {SiteService} from "@services/site.service";
 
 @Component({

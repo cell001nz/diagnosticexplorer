@@ -76,17 +76,16 @@ internal class SiteIO : CosmosIOBase, ISiteIO
     public async Task<Site> SaveSite(Site site)
     {
         var response = await Container.UpsertItemAsync(site);
-        return IsSuccess(response.StatusCode)
-            ? response.Resource
-            : throw new ApplicationException($"Error saving site {site.Id}: {response.StatusCode}");
+        return response.Resource;
     }
 
+    #endregion
+    
+    #region GetSite(string siteId)
+    
     public async Task<Site> GetSite(string siteId)
     {
         var result = await Container.ReadItemAsync<Site>(siteId, new PartitionKey(siteId));
-        if (IsFailure(result))
-            throw new ApplicationException($"Error retrieving site {siteId}: {result.StatusCode}");
-        
         return result.Resource;
     }
 

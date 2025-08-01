@@ -5,5 +5,6 @@ namespace DiagnosticExplorer.IO;
 public interface IDiagValueIO
 {
     Task Save(DiagValues values);
-    Task<DiagValues> Get(string processId, string siteId);
+    Task<DiagValues?> Get(string processId, string siteId);
+    Task DeleteForProcess(string processId, string siteId);
 }

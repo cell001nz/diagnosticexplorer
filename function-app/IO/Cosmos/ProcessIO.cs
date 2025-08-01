@@ -1,4 +1,5 @@
 ﻿using DiagnosticExplorer.Api.Domain;
+using DiagnosticExplorer.Domain;
 using Microsoft.Azure.Cosmos;
 
 namespace DiagnosticExplorer.IO.Cosmos;
@@ -14,15 +15,15 @@ internal class ProcessIO(CosmosClient client) : CosmosIOBase(client, "Process"),
         QueryDefinition query = new QueryDefinition(queryString)
             .WithParameter("@connectionId", connectionId);
 
-        return await ReadSingle<DiagProcess>(Container, query,
-            () => $"Process for connectionId {connectionId}");
+            return await ReadSingle<DiagProcess>(Container, query,
+                () => $"Process for connectionId {connectionId}");
     }
     
     #endregion 
 
     #region SetProcessSending
     
-    public Task SetProcessSending(string processId, bool isSending)
+    public Task SetProcessSending(string processId, string siteId, bool isSending)
     {
         var patchOperations = new List<PatchOperation>
         {
@@ -31,7 +32,7 @@ internal class ProcessIO(CosmosClient client) : CosmosIOBase(client, "Process"),
         
         return Container.PatchItemAsync<DiagProcess>(
             processId,
-            new PartitionKey(processId),
+            new PartitionKey(siteId),
             patchOperations);
     }
 
@@ -39,14 +40,29 @@ internal class ProcessIO(CosmosClient client) : CosmosIOBase(client, "Process"),
     
     #region SetOnline(string processId, string siteId)
 
-    public async Task SetOnline(string processId, string siteId)
+    public async Task SetOnline(string processId, string siteId, DateTime date)
     {
         await Container.PatchItemAsync<DiagProcess>(
             processId,
             new PartitionKey(siteId),
             [
                 PatchOperation.Replace("/isOnline", true),
-                PatchOperation.Replace("/lastOnline", DateTime.UtcNow),
+                PatchOperation.Replace("/lastOnline", date),
+            ]);
+    }
+    #endregion
+
+    #region SetLastReceived(string processId, string siteId, DateTime date)
+
+    public async Task SetLastReceived(string processId, string siteId, DateTime date)
+    {
+        await Container.PatchItemAsync<DiagProcess>(
+            processId,
+            new PartitionKey(siteId),
+            [
+                PatchOperation.Replace("/isOnline", true),
+                PatchOperation.Replace("/lastOnline", date),
+                PatchOperation.Replace("/lastReceived", date),
             ]);
     }
     #endregion
@@ -60,6 +76,7 @@ internal class ProcessIO(CosmosClient client) : CosmosIOBase(client, "Process"),
             new PartitionKey(siteId),
             [
                 PatchOperation.Replace("/isOnline", false),
+                PatchOperation.Replace("/isSending", false),
                 PatchOperation.Remove("/instanceId"),
                 PatchOperation.Remove("/connectionId")
             ]);
@@ -109,11 +126,15 @@ internal class ProcessIO(CosmosClient client) : CosmosIOBase(client, "Process"),
     
     public async Task<DiagProcess?> GetProcess(string processId, string siteId)
     {
-        var result = await Container.ReadItemAsync<DiagProcess>(processId, new PartitionKey(siteId));
-        if (IsFailure(result))
-            throw new ApplicationException($"Error retrieving process {processId}: {result.StatusCode}");
-
-        return result.Resource;
+        try
+        {   
+            var result = await Container.ReadItemAsync<DiagProcess>(processId, new PartitionKey(siteId));
+            return result.Resource;
+        }
+        catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            return null;
+        }
     }
 
     #endregion
@@ -123,10 +144,16 @@ internal class ProcessIO(CosmosClient client) : CosmosIOBase(client, "Process"),
     public async Task<DiagProcess> SaveProcess(DiagProcess process)
     {
         var result = await Container.UpsertItemAsync(process, new PartitionKey(process.SiteId));
-        if (IsFailure(result))
-            throw new ApplicationException($"Error saving process {process.Id}: {result.StatusCode}");
-
         return result.Resource;
+    }
+
+    #endregion
+
+    #region Delete(string processId, string siteId)
+    
+    public async Task Delete(string processId, string siteId)
+    {
+        await Container.DeleteItemAsync<DiagProcess>(processId, new PartitionKey(siteId));
     }
 
     #endregion

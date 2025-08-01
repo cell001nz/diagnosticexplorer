@@ -7,4 +7,5 @@ public interface IDiagIO
     IAccountIO Account { get; }
     ISinkEventIO SinkEvent { get; }
     IDiagValueIO Values { get; }
+    IWebClientIO WebClient { get; }
 }

@@ -8,20 +8,17 @@
     <p-table [value]="processes.value()" [scrollable]="true" scrollHeight="100%" size="small">
         <ng-template #header>
             <tr>
-                <th>Name</th>
-                <th>Machine</th>
-                <th>ConnectionId</th>
-                <th>IsOnline</th>
-                <th>User</th>
+                <th class="w-full">Process</th>
+                <th class="w-auto">Machine</th>
+                <th class="w-auto">User</th>
             </tr>
         </ng-template>
         <ng-template #body let-process let-ri="rowIndex">
-            <tr [routerLink]="process.id" class="cursor-pointer">
-                <td>{{ process.processName }} i-{{ri}}</td>
-                <td>{{ process.machineName }}</td>
-                <td>{{ process.connectionId }}</td>
-                <td>{{ process.isOnline }}</td>
-                <td>{{ process.userName }}</td>
+            <tr [routerLink]="process.id" class="cursor-pointer" [class.text-green-600!]="process.isOnline"
+                pTooltip="Sending: {{process.isSending}} last online: {{process.lastOnline | dateDiff}}">
+                <td class="text-nowrap">{{ process.processName }} i-{{ri}}</td>
+                <td class="text-nowrap">{{ process.machineName }}</td>
+                <td class="text-nowrap">{{ process.userName }}</td>
             </tr>
         </ng-template>
     </p-table>

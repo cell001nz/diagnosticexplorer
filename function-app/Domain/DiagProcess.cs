@@ -10,15 +10,15 @@ public class DiagProcess
 {
     public string Id { get; set; }
     
-    public string SiteId { get; set; }
+    public string SiteId { get; set; } = "";
 
-    public string InstanceId { get; set; }
+    public string? InstanceId { get; set; }
 
-    public string ProcessName { get; set; }
-    public string ConnectionId { get; set; }
+    public string ProcessName { get; set; } = "";
+    public string? ConnectionId { get; set; }
 
-    public string UserName { get; set; }
-    public string MachineName { get; set; }
+    public string UserName { get; set; } = "";
+    public string MachineName { get; set; } = "";
 
     public DateTime LastOnline { get; set; }
 

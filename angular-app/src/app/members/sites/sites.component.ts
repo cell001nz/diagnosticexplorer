@@ -1,6 +1,6 @@
 import {Component, inject, OnInit, resource} from '@angular/core';
 import {TableModule} from "primeng/table";
-import {Site} from "@model/Site";
+import {Site} from "@domain/Site";
 import {firstValueFrom} from "rxjs";
 import {JsonPipe} from "@angular/common";
 import {RouterLink} from "@angular/router";

@@ -8,4 +8,68 @@
 
 .nav-menu .p-menu {
     border: none !important;
+    }
+
+
+
+.tabs-right.p-tabs, .tabs-right .p-tabs  {
+    display: flex !important;
+    flex-direction: row-reverse !important;
+    height: 100%; /* adjust this height as needed */
+}
+
+.tabs-right {
+    
+    .p-tablist-nav-button {
+        display: none;
+    }
+    
+    .p-tab {
+       text-overflow: ellipsis;
+    }
+    
+    .p-tablist {
+
+        border-bottom: none !important;
+        border-left: 1px solid var(--surface-border);
+        margin: 0;
+        padding: 0;
+        
+        max-height: unset !important;
+        min-width: 150px !important;
+        max-width: 300px !important;
+        height: 100% !important; /* or any fixed height */
+        overflow-y: hidden; /* allow scrolling if tabs exceed height */
+    }
+
+    .p-tablist-content {
+        height: 100% !important;
+    }
+
+    .p-tablist-tab-list {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+    }
+
+    .p-tablist button[pTabPanelHeader] {
+        writing-mode: vertical-rl;
+        transform: rotate(180deg);
+        padding: 1em 0.5em;
+        text-align: center;
+        white-space: nowrap;
+        border: none;
+        background: none;
+        cursor: pointer;
+        height: auto !important;
+        width: 100%;
+        display: block;
+    }
+
+
+
+    .p-tabpanels {
+        flex: 1;
+        padding-left: 1em !important;
+        overflow: auto;
+    }
 }

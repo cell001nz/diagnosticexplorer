@@ -145,7 +145,7 @@ public class RetroManager : IHostedService
             existingSearch.Cancel();
 
         RetroEvents.Info($"Retro search starting for connection {connectionId}", 
-            JsonSerializer.SerializeToElement(query).ToString());
+            JsonSerializer.SerializeToElement(query, DiagJsonOptions.Options).ToString());
 
         RetroSearchProcess search = new(this, connectionId, client, query);
         _searches.TryAdd(connectionId, search);
@@ -166,7 +166,7 @@ public class RetroManager : IHostedService
     {
         RetroSearchProcess search = (RetroSearchProcess) sender!;
         RetroEvents.Info($"Retro search complete for connection {search.ClientId} in {search.SearchTime.TotalSeconds:N2}s", 
-            JsonSerializer.SerializeToElement(search.Query).ToString());
+            JsonSerializer.SerializeToElement(search.Query, DiagJsonOptions.Options).ToString());
     }
 
     public Task CancelRetroSearch(int searchId, string connectionId)

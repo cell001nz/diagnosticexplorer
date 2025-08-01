@@ -13,11 +13,26 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Azure.Core.Serialization;
+
+
+JsonSerializerOptions jsonOptions = new JsonSerializerOptions
+{
+    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+    PropertyNameCaseInsensitive = true,
+    Converters = { new JsonStringEnumConverter() }
+};
 
 
 var builder = FunctionsApplication.CreateBuilder(args);
 
 builder.ConfigureFunctionsWebApplication();
+
+builder.Services.Configure<WorkerOptions>(workerOptions =>
+{
+    workerOptions.Serializer = new JsonObjectSerializer(jsonOptions);
+});
+
 
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
@@ -25,16 +40,9 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
-
-
 builder.Services
     .AddSingleton<CosmosClient>(services => new CosmosClientBuilder(Environment.GetEnvironmentVariable("CosmosDBConnection"))
-        .WithSystemTextJsonSerializerOptions(new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            PropertyNameCaseInsensitive = true,
-            Converters = { new JsonStringEnumConverter() }
-        }).Build())
+        .WithSystemTextJsonSerializerOptions(jsonOptions).Build())
     .AddSingleton<IDiagIO, DiagIO>()
     .AddApplicationInsightsTelemetryWorkerService()
     .ConfigureFunctionsApplicationInsights();

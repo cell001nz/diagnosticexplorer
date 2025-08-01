@@ -30,8 +30,6 @@ internal class SinkEventIO(CosmosClient client) : CosmosIOBase(client, "SinkEven
     
     public async Task Save(SystemEvent[] events)
     {
-        string processId = events[0].ProcessId;
-
         TransactionalBatch batch = Container.CreateTransactionalBatch(new PartitionKey(events[0].ProcessId));
         foreach (var evt in events)
         {
@@ -39,9 +37,7 @@ internal class SinkEventIO(CosmosClient client) : CosmosIOBase(client, "SinkEven
             batch.CreateItem(evt);
         }
 
-        TransactionalBatchResponse response = await batch.ExecuteAsync();
-        if (IsFailure(response.StatusCode))
-            throw new ApplicationException($"Failed to save events for process {processId}: {response.StatusCode} {response.ErrorMessage}");
+        await batch.ExecuteAsync();
     }
 
     #endregion

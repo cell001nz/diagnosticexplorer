@@ -7,7 +7,6 @@ import {Divider} from "primeng/divider";
 @Component({
   selector: 'app-diagnostics-main',
   imports: [
-    Splitter,
     DiagnosticsNavComponent,
     RouterOutlet,
     Divider

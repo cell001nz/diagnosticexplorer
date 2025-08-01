@@ -114,16 +114,19 @@ public partial class Form1 : Form, INotifyPropertyChanged
         txtContent.DataBindings.Add("Text", this, "InfoText", false, DataSourceUpdateMode.OnPropertyChanged);
 
 
-        _scopeTimer = new Timer(x => DoScopeTimerCode(), null, 500, 500);
+        // _scopeTimer = new Timer(x => DoScopeTimerCode(), null, 500, 500);
         _scopeTask = RunScopeTask();
     }
 
     private void StartDiagnostics()
     {
-        Debug.WriteLine($"Starting diagnostics with ????????????????????????????");
 
         var doc = JsonDocument.Parse(File.ReadAllText("config.json"));
         DiagnosticOptions options = JsonSerializer.Deserialize<DiagnosticOptions>(doc.RootElement.GetProperty("DiagnosticExplorer"));
+
+        string siteInfo = string.Join(", ", options.Sites.Where(s => s.Enabled).Select(s => s.Url));
+        
+        Debug.WriteLine($"Starting diagnostics with {siteInfo}");
             
         DiagnosticHostingService.Start(options, _flurlCache);
     }

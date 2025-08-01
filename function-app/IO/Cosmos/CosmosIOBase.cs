@@ -23,21 +23,21 @@ internal class CosmosIOBase
     
     #region ReadSingle
 
-    protected static async Task<T> ReadSingle<T>(Container container, QueryDefinition query, Func<string>? descr = null)
+    protected static async Task<T?> ReadSingle<T>(Container container, QueryDefinition query, Func<string>? descr = null) where T : class
     {
         var iterator = container.GetItemQueryIterator<T>(query);
         FeedResponse<T> response = await iterator.ReadNextAsync();
-        if (IsFailure(response.StatusCode))
-        {
-            string actualDescr = descr?.Invoke() ?? typeof(T).Name;
-            string msg = $"Error retrieving {actualDescr}: {response.StatusCode}";
-            throw new ApplicationException(msg);
-        }
 
-        return response.FirstOrDefault()
-               ?? throw new ApplicationException($"{descr} not found");
+        try
+        {
+            return response.FirstOrDefault();
+        }
+        catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        {
+            return null;
+        }
     }
-    
+
     #endregion
     
     #region ReadMulti
@@ -50,12 +50,6 @@ internal class CosmosIOBase
         while (iterator.HasMoreResults)
         {
             var next = await iterator.ReadNextAsync();
-            if (IsFailure(next.StatusCode))
-            {
-                string actualDescr = descr?.Invoke() ?? typeof(T).Name;
-                string msg = $"Error retrieving {actualDescr}: {next.StatusCode}";
-                throw new ApplicationException(msg);
-            }
             items.AddRange(next.Resource);
         }
 

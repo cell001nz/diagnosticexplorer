@@ -1,9 +1,10 @@
 import {inject, Injectable, resource} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
-import {Site} from "@model/Site";
+import {Site} from "@domain/Site";
 import {firstValueFrom, Observable} from "rxjs";
 import {rxResource} from "@angular/core/rxjs-interop";
-import {DiagProcess} from "@model/DiagProcess";
+import {DiagProcess} from "@domain/DiagProcess";
+import {DiagnosticResponse} from "@domain/DiagResponse";
 
 @Injectable({
   providedIn: 'root'
@@ -32,8 +33,8 @@ export class SiteService {
     return this.#http.get<DiagProcess[]>(`api/Sites/${siteId}/Processes`);
   }
 
-  getDiagnostics(siteId: string, processId: string): Observable<string> {
-    return this.#http.get(`api/Sites/${siteId}/Processes/${processId}/Diagnostics`, { responseType: "text"});
+  getDiagnostics(siteId: string, processId: string): Observable<DiagnosticResponse> {
+    return this.#http.get<DiagnosticResponse>(`api/Sites/${siteId}/Processes/${processId}/Diagnostics`);
   }
 
   newSecret() {

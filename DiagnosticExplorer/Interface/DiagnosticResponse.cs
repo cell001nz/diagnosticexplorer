@@ -42,5 +42,7 @@ public class DiagnosticResponse
     [ProtoMember(3)] public string ExceptionMessage { get; set; }
 
     [ProtoMember(4)] public string ExceptionDetail { get; set; }
+    [ProtoMember(5)] public DateTime Date { get; set; } = DateTime.UtcNow;
+    [ProtoMember(6)] public DateTime ServerDate { get; set; } = DateTime.UtcNow;
 
 }

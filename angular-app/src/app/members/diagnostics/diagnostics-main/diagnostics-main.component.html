@@ -9,9 +9,9 @@
 </p-splitter>
 -->
 <div class="flex flex-row content-h-full">
-    <app-diagnostics-nav class="min-w-150" [siteId]="siteId()"></app-diagnostics-nav>
+    <app-diagnostics-nav class="min-w-100" [siteId]="siteId()"></app-diagnostics-nav>
     <p-divider layout="vertical" class=""></p-divider>
-    <div class="h-full overflow-y-auto">
+    <div class="h-full w-full overflow-y-auto">
         <router-outlet></router-outlet>
     </div>
 </div>

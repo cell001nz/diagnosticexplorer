@@ -21,6 +21,7 @@ using Flurl.Http;
 using Flurl.Http.Configuration;
 using log4net;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.DependencyInjection;
 
 
 namespace DiagnosticExplorer;
@@ -76,12 +77,14 @@ public class RegistrationHandler
             .Where(evts => evts.Count != 0)
             .Subscribe(evts => _logChannel?.Writer.TryWrite(evts));
 
+        
         _registrationLoop = Task.Run(() => RunRegistrationProcess(_stopToken.Token));
         _loggingTask = Task.Run(() => RunLoggingProcess(_stopToken.Token));
 
         Debug.WriteLine($"Diagnostics RegistrationHandler for {UrlInfo} started");
     }
 
+    //TODO: Tighten this up to handle failure and cancellation better
     private async Task RunLoggingProcess(CancellationToken cancel)
     {
         try
@@ -104,7 +107,7 @@ public class RegistrationHandler
                     watch2.Stop();
                     Debug.WriteLine($"RegistrationHandler sent {data.Length} bytes, zip/send took {watch1.ElapsedMilliseconds}ms/{watch2.ElapsedMilliseconds}ms");
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (!cancel.IsCancellationRequested)
                 {
                     Debug.WriteLine($"Failed to log {messages.Count} messages: {ex.Message}");
                 }
@@ -118,37 +121,37 @@ public class RegistrationHandler
         }
     }
 
-    private async Task RunRegistrationProcess(CancellationToken cancelToken)
+    private async Task RunRegistrationProcess(CancellationToken cancel)
     {
         Stopwatch lastRenew = new Stopwatch();
         
-        while (!cancelToken.IsCancellationRequested)
+        while (!cancel.IsCancellationRequested)
         {
             try
             {
-                while (!cancelToken.IsCancellationRequested && lastRenew.IsRunning && lastRenew.Elapsed < _renewTime)
-                    await Task.Delay(TimeSpan.FromSeconds(5), cancelToken);
+                while (!cancel.IsCancellationRequested && lastRenew.IsRunning && lastRenew.Elapsed < _renewTime)
+                    await Task.Delay(TimeSpan.FromSeconds(5), cancel);
 
-                cancelToken.ThrowIfCancellationRequested();
+                cancel.ThrowIfCancellationRequested();
 
                 await OpenHub();
 
-                cancelToken.ThrowIfCancellationRequested();
+                cancel.ThrowIfCancellationRequested();
 
                 _registration.RenewTimeSeconds = (int)_renewTime.TotalSeconds;
-                await _hubAdapter.Register(_registration);
+                await _hubAdapter.Register(_registration, cancel);
             }
             catch (Exception ex)
             {
                 //Something went wrong, so kill the connection and try again
                 await CloseConnection();
 
-                if (cancelToken.IsCancellationRequested)
-                    return;
-
-                Debug.WriteLine($"RunRegistrationProcess exception {ex?.Message}");
-                string errorMessage = $"DiagnosticHostingService.RegistrationHandler for {UrlInfo} encountered an exception";
-                _log.Warn(errorMessage, ex);
+                if (!cancel.IsCancellationRequested)
+                {
+                    Trace.WriteLine(ex);
+                    string errorMessage = $"DiagnosticHostingService.RegistrationHandler for {UrlInfo} encountered an exception";
+                    _log.Warn(errorMessage, ex);
+                }
             }
             finally
             {
@@ -185,10 +188,13 @@ public class RegistrationHandler
         public string AccessToken { get; set; }
     }
 
+
     private async Task OpenHub()
     {
         if (_hubAdapter == null)
         {
+            
+            
             Debug.WriteLine("Diagnostic RegistrationHandler constructing connection");
             string accessToken = null;
             _resolvedUrl = _site.Url;
@@ -200,15 +206,7 @@ public class RegistrationHandler
                 isAzure = true;
                 string baseUrl = Regex.Replace(_site.Url, "/negotiate", "", RegexOptions.IgnoreCase);
                 flurlClient = _flurlCache.GetOrAdd($"Diagnostics_{baseUrl}", baseUrl,
-                    options => options.Settings.JsonSerializer = new DefaultJsonSerializer(new JsonSerializerOptions()
-                    {
-                        PropertyNameCaseInsensitive = true,
-                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                        Converters =
-                        {
-                            new JsonStringEnumConverter()
-                        }
-                    }));
+                    options => options.Settings.JsonSerializer = new DefaultJsonSerializer(DiagJsonOptions.Options));
 
                 var negResponse = await flurlClient
                     .Request("negotiate")
@@ -220,6 +218,7 @@ public class RegistrationHandler
             }
             
             _connection = new HubConnectionBuilder()
+                .AddJsonProtocol(options => options.PayloadSerializerOptions = DiagJsonOptions.Options)
                 .WithUrl(_resolvedUrl, options =>
                 {
                     options.UseDefaultCredentials = !isAzure;
@@ -275,6 +274,9 @@ public class RegistrationHandler
             
             Task loopTask = _registrationLoop;
             _stopToken?.Cancel();
+            
+            _hubAdapter?.Dispose();
+            _hubAdapter = null;
 
             _logSubject?.OnCompleted();
             _logSubject = null;

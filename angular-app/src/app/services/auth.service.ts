@@ -2,7 +2,7 @@ import {computed, inject, Injectable, signal} from '@angular/core';
 import {ActivatedRoute, Router} from "@angular/router";
 import {HttpClient} from "@angular/common/http";
 import {firstValueFrom} from "rxjs";
-import {AuthMe} from "@model/AuthMe";
+import {AuthMe} from "@domain/AuthMe";
 
 @Injectable({
   providedIn: 'root'

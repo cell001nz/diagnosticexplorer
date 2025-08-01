@@ -31,7 +31,7 @@ internal class DiagValueIO(CosmosClient client) : CosmosIOBase(client, "Values")
     
     #region Get(string processId, string siteId)
 
-    public async Task<DiagValues> Get(string processId, string siteId)
+    public async Task<DiagValues?> Get(string processId, string siteId)
     {
         if (string.IsNullOrEmpty(processId)) throw new ArgumentNullException(nameof(processId));
         if (string.IsNullOrEmpty(siteId)) throw new ArgumentNullException(nameof(siteId));
@@ -44,12 +44,25 @@ internal class DiagValueIO(CosmosClient client) : CosmosIOBase(client, "Values")
 
             return response.Resource;
         }
+        catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            return null;
+        }
         catch (CosmosException ex)
         {
             throw new ApplicationException($"CosmosDB error while retrieving DiagValue with ProcessId: {processId} and SiteId: {siteId}", ex);
         }
     }
+
+    #endregion
     
+    #region DeleteForProcess(string processId, string siteId)
+
+    public async Task DeleteForProcess(string processId, string siteId)
+    {
+        await Container.DeleteItemAsync<DiagValues>(processId, new PartitionKey(siteId));
+    }
+
     #endregion
     
 }

@@ -7,11 +7,20 @@ namespace DiagnosticExplorer.IO;
 public interface IProcessIO
 {
     Task<DiagProcess?> GetProcessForConnectionId(string connectionId);
-    Task SetProcessSending(string processId, bool isSending);
+    Task SetProcessSending(string processId, string siteId, bool isSending);
     Task<DiagProcess[]> GetProcessesForSite(string siteId);
-    Task SetOnline(string processId, string processSiteId);
+    Task SetLastReceived(string processId, string processSiteId, DateTime date);
+    Task SetOnline(string processId, string siteId, DateTime date);
     Task SetOffline(string processId, string siteId);
     Task<DiagProcess[]> GetCandidateProcesses(string siteId, string processName, string machineName, string userName);
     Task<DiagProcess?> GetProcess(string processId, string siteId);
     Task<DiagProcess> SaveProcess(DiagProcess process);
+    Task Delete(string processId, string siteId);
+}
+
+public interface IWebClientIO
+{
+    Task<WebClient> Save(WebClient client);
+    Task Delete(string clientId);
+
 }

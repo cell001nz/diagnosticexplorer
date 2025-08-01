@@ -6,6 +6,7 @@
         "baseUrl": "src",
         "paths": {
           "@model/*": ["app/model/*"],
+          "@domain/*": ["app/domain/*"],
           "@services/*": ["app/services/*"],
           "@pipes/*": ["app/pipes/*"],
           "@app/*": ["app/*"],

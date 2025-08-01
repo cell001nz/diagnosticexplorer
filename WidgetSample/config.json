@@ -2,14 +2,14 @@
   "DiagnosticExplorer": {
     "Sites": [
       {
-        "Url": "http://localhost:4280/api/client/negotiate",
-        "Code": "f4f924a4-74ab-43ac-bd5f-fd0bfb2e48a8",
-        "Secret": "Ny2N2i0EPay9rUIxoIpUZHIE/i2r8x6ojz0YkSA0BSI=",
+        "Url": "http://localhost:4280/api/processhub/negotiate",
+        "Code": "2faaea68-f8ec-447a-83c8-6b812ce87112",
+        "Secret": "QzsjMKodxNYyxoqy33apU+HtcmAcXfAH5b1prwkEw6Y=",
         "Enabled": true
       },
       {
         "Url": "http://localhost:2803/diagnostics",
-        "Enabled": true
+        "Enabled": false
       }
     ]
   }
