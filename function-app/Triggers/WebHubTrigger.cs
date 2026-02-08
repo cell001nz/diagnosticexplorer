@@ -20,7 +20,7 @@ namespace api.Triggers;
 public class WebHubTrigger : TriggerBase
 {
 
-    public WebHubTrigger(ILogger<WebHubTrigger> logger, IDiagIO diagIo) : base(logger, diagIo)
+    public WebHubTrigger(ILogger<WebHubTrigger> logger, IDiagIO diagIO) : base(logger, diagIO)
     {
     }
 
@@ -30,9 +30,10 @@ public class WebHubTrigger : TriggerBase
     public IActionResult Negotiate(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "webhub/negotiate")]
         HttpRequest req,
-        [SignalRConnectionInfoInput(HubName = WEB_HUB)]
+        [SignalRConnectionInfoInput(HubName = WEB_HUB, UserId = "{headers.x-ms-client-principal}")]
         SignalRConnectionInfo connectionInfo)
     {
+        _logger.LogWarning($"### HEADERS ### {string.Join(", ", req.Headers.Keys)}");
         return new OkObjectResult(connectionInfo);
     }
     
@@ -45,11 +46,20 @@ public class WebHubTrigger : TriggerBase
         [SignalRTrigger(WEB_HUB, "connections", "connected")] SignalRInvocationContext invocationContext, 
         FunctionContext context)
     {
+        
         var logger = context.GetLogger(nameof(OnConnected));
         logger.LogInformation($"----------------------------------- WebClient.OnConnected {invocationContext.ConnectionId}");
-        
-        // DiagIO.Process
-        
+
+        var cp = GetClientPrincipal(invocationContext.UserId);
+        var account = await DiagIO.Account.GetAccount(cp.UserId)
+            ?? throw new ApplicationException($"Account not found for user {invocationContext.UserId}");
+
+        WebClient client = new()
+        {
+            Id = invocationContext.ConnectionId,
+            AccountId = account.Id
+        };
+        await DiagIO.WebClient.Save(client);
     }
 
     #endregion
@@ -64,11 +74,21 @@ public class WebHubTrigger : TriggerBase
         var logger = context.GetLogger(nameof(OnDisconnected));
         logger.LogInformation($"----------------------------------- WebClient.OnDisconnected {invocationContext.ConnectionId}");
 
-        var process = await DiagIO.Process.GetProcessForConnectionId(invocationContext.ConnectionId);
-        if (process != null)
-            await DiagIO.Process.SetOffline(process.Id, process.SiteId);
+        WebClient? client = await DiagIO.WebClient.Get(invocationContext.ConnectionId);
 
+        if (client != null)
+        {
+            foreach (WebProcSub sub in client.Subscriptions.Values)
+            { 
+                await DiagIO.Process.DeleteWebSub(sub)
+                    .Catch(ex => logger.LogError(ex, $"WebHub_OnClientDisconnected failed to delete process WebSub"));
+            }
+        }
+
+        await DiagIO.WebClient.Delete(invocationContext.ConnectionId)
+            .Catch(ex => logger.LogError(ex, "WebHub_OnClientDisconnected failed to delete WebClient"));
     }
+    
     
     #endregion
     
@@ -85,7 +105,7 @@ public class WebHubTrigger : TriggerBase
         var logger = context.GetLogger("ClientHub_SubscribeSite");
         logger.LogWarning($"Connection {invokeContext.ConnectionId} SUBSCRIBE to {siteId}");
 
-        var processes = await DiagIO.Process.GetProcessesForSite(siteId);
+        // var processes = await DiagIO.Process.GetProcessesForSite(siteId);
 
         return
         [
@@ -94,19 +114,18 @@ public class WebHubTrigger : TriggerBase
                 GroupName = siteId,
                 ConnectionId = invokeContext.ConnectionId
             },
-            new SignalRMessageAction("say", ["hello from the server"]),
             // new SignalRMessageAction("receiveProcesses", [siteId, processes])
         ];
     }
 
     #endregion
 
-    #region SubscribeSite => SIGNALR/UnubscribeSite
+    #region UnsubscribeSite => SIGNALR/UnsubscribeSite
 
-    [Function("ClientHub_UnubscribeSite")]
+    [Function("ClientHub_UnsubscribeSite")]
     [SignalROutput(HubName = WEB_HUB)]
-    public SignalRGroupAction UnubscribeSite(
-        [SignalRTrigger(WEB_HUB, MESSAGES, nameof(UnubscribeSite), nameof(siteId))]
+    public SignalRGroupAction UnsubscribeSite(
+        [SignalRTrigger(WEB_HUB, MESSAGES, nameof(UnsubscribeSite), nameof(siteId))]
         SignalRInvocationContext invokeContext,
         string siteId,
         FunctionContext context)
@@ -124,5 +143,117 @@ public class WebHubTrigger : TriggerBase
 
     #endregion
 
+    #region SubscribeProcess => SIGNALR/SubscribeProcess
+
+    [Function("ClientHub_SubscribeProcess")]
+    public async Task<DualHubOutput> SubscribeProcess(
+        [SignalRTrigger(WEB_HUB, MESSAGES, nameof(SubscribeProcess), nameof(processId), nameof(siteId))]
+        SignalRInvocationContext invokeContext,
+        string processId, string siteId,
+        FunctionContext context)
+    {
+        var logger = context.GetLogger("ClientHub_SubscribeProcess");
+        logger.LogWarning($"Connection {invokeContext.ConnectionId} SUBSCRIBE to {processId}");
+
+        DiagProcess process = await DiagIO.Process.GetProcess(processId, siteId)
+                              ?? throw new ApplicationException($"Can't find Process {processId}/{siteId}");
+
+        WebProcSub sub = new()
+        {
+            ProcessId = process.Id,
+            SiteId = process.SiteId,
+            WebConnectionId = invokeContext.ConnectionId
+        };
+        await DiagIO.Process.SaveWebSub(sub);
+        await DiagIO.WebClient.SaveWebSub(sub);
+
+        DualHubOutput output = new();
+
+        //If the process is not sending already, instruct it to start sending diagnostics
+        if (!process.IsSending || process.LastReceived - DateTime.UtcNow > TimeSpan.FromSeconds(DIAG_SEND_FREQ * 2))
+        {
+            await DiagIO.Process.SetProcessSending(process.Id, process.SiteId, true);
+            output.ProcessClient.Add(new SignalRMessageAction(Messages.Process.StartSending, [DIAG_SEND_FREQ]) 
+                { ConnectionId = process.ConnectionId });
+        }
+
+        output.WebClient.Add(new SignalRGroupAction(SignalRGroupActionType.Add)
+        {
+            GroupName = processId,
+            ConnectionId = invokeContext.ConnectionId
+        });
+        
+        return output;
+    }
+
+    #endregion
+
+    #region UnsubscribeProcess => SIGNALR/UnsubscribeProcess
+
+    [Function("ClientHub_UnsubscribeProcess")]
+    public async Task<DualHubOutput> UnsubscribeProcess(
+        [SignalRTrigger(WEB_HUB, MESSAGES, nameof(UnsubscribeProcess), nameof(processId), nameof(siteId))]
+        SignalRInvocationContext invokeContext,
+        string processId,
+        string siteId,
+        FunctionContext context)
+    {
+        var logger = context.GetLogger("ClientHub_SubscribeProcess");
+        logger.LogWarning($"Connection {invokeContext.ConnectionId} UNSUBSCRIBE to {processId}");
+
+        DualHubOutput output = new();
+        
+        DiagProcess process = await DiagIO.Process.GetProcess(processId, siteId)
+                              ?? throw new ApplicationException($"Can't find Process {processId}/{siteId}");
+
+        WebProcSub sub = new()
+        {
+            ProcessId = processId,
+            SiteId = siteId,
+            WebConnectionId = invokeContext.ConnectionId
+        };
+
+        await DiagIO.Process.DeleteWebSub(sub).Catch(ex => logger.LogError(ex, $"DiagIO.Process.DeleteWebSub failed"));
+        await DiagIO.WebClient.DeleteWebSub(sub).Catch(ex => logger.LogError(ex, $"DiagIO.WebClient.DeleteWebSub failed"));
+
+        output.WebClient.Add(new SignalRGroupAction(SignalRGroupActionType.Remove) 
+            { ConnectionId = invokeContext.ConnectionId});
+
+        process.Subscriptions.Remove(invokeContext.ConnectionId);
+
+        if (process.Subscriptions.Count == 0)
+        {
+            output.ProcessClient.Add(new SignalRMessageAction(Messages.Process.StopSending)
+                { ConnectionId = process.ConnectionId });
+        }
+
+        return output;
+    }
+
+    #endregion
+
+    #region SetProperty => SIGNALR/SetProperty
+
+    [Function("ProcessHub_SetProperty")]
+    [SignalROutput(HubName = PROCESS_HUB)]
+    public async Task<SignalRMessageAction> SetProperty(
+        [SignalRTrigger(WEB_HUB, MESSAGES, nameof(SetProperty), nameof(request))]
+        SignalRInvocationContext invokeContext,
+        SetPropertyRequest request,
+        FunctionContext context)
+    {
+        var process = await DiagIO.Process.GetProcess(request.ProcessId, request.SiteId)
+            ?? throw new ApplicationException($"Process {request.ProcessId} not found for site {request.SiteId}");
+
+        if (string.IsNullOrWhiteSpace(process.ConnectionId))
+            throw new ApplicationException($"Process {request.ProcessId} is not connected");
+
+        return new SignalRMessageAction("SetProperty", ["asdf", request.Path, request.Value ?? ""])
+        {
+            ConnectionId = process.ConnectionId
+        };
+    }
+
+    #endregion
    
 }

@@ -1,11 +1,11 @@
 ﻿using DiagnosticExplorer.Api.Domain;
 using Microsoft.Azure.Cosmos;
 using System.Net;
-using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
+using Microsoft.Extensions.Logging;
 
 namespace DiagnosticExplorer.IO.Cosmos;
 
-internal class AccountIO(CosmosClient client) : CosmosIOBase(client, "Account"), IAccountIO
+internal class AccountIO(CosmosClient client, ILogger logger) : CosmosIOBase<Account>(client, "Account", logger), IAccountIO
 {
     public async Task<Account?> GetAccount(string userId)
     {

@@ -123,12 +123,14 @@ public class DiagnosticHub : Hub<IDiagnosticHubClient>, IDiagnosticHubServer
         return Task.CompletedTask;
     }
 
+    /*
     public Task StreamEvents(SystemEvent[] evts)
     {
         var client = _rtManager.GetClientHandler(Context.ConnectionId);
         client.StreamEvents(evts);
         return Task.CompletedTask;
     }
+    */
 
     public Task StreamEvents(byte[] eventData)
     {

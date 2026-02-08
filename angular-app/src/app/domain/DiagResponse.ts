@@ -1,4 +1,5 @@
 ﻿export interface DiagnosticResponse {
+    processId: string;
     propertyBags: PropertyBag[];
     events: EventResponse[];
     operationSets: OperationSet[];
@@ -46,13 +47,13 @@ export interface SystemEvent {
   sinkName: string;
   sinkCategory: string;
 }
-
+ 
 export interface OperationSet {
   id: string;
   operations: Operation[];
 }
 
-export interface Operation {
+export interface Operation { 
   returnType: string;
   signature: string;
   description: string;

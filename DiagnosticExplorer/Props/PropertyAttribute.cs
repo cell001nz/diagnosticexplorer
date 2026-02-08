@@ -55,7 +55,7 @@ public class PropertyAttribute : Attribute
 
     public string FormatString { get; set; }
 
-    public string Category { get; set; }
+    public string Category { get; set; } = "General";
 
     public string Description { get; set; }
 

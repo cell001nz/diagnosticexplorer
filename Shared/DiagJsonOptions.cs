@@ -10,7 +10,7 @@ namespace DiagnosticExplorer;
 
 public static class DiagJsonOptions
 {
-    public static JsonSerializerOptions Options = new JsonSerializerOptions()
+    public static JsonSerializerOptions Default = new JsonSerializerOptions()
     {
         PropertyNameCaseInsensitive = true,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

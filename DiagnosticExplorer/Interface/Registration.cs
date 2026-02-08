@@ -41,7 +41,6 @@ public class Registration
     public int ProcessId { get; set; }
     public string Uri { get; set; }
     public string MachineName { get; set; }
-    public int RenewTimeSeconds { get; set; } = 20;
 
     public override string ToString()
     {

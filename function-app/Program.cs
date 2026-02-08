@@ -14,6 +14,7 @@ using Microsoft.Extensions.Hosting;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Azure.Core.Serialization;
+using Microsoft.Extensions.Logging;
 
 
 JsonSerializerOptions jsonOptions = new JsonSerializerOptions

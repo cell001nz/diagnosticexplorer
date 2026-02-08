@@ -1,102 +1,105 @@
-import {ChangeDetectionStrategy, Component, computed, effect, inject, input, OnDestroy, OnInit, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, effect, inject, input, OnDestroy, Signal, signal} from '@angular/core';
 import {
-  catchError,
-  combineLatest,
-  combineLatestWith,
   concat,
-  concatAll,
-  concatMap,
-  delay, filter, finalize, fromEvent, interval,
-  map,
-  of, repeat, retry,
-  startWith,
-  switchMap, take,
-  takeUntil,
+  filter, finalize, map, of, pairwise, repeat, retry, startWith,
   tap,
   timer
 } from "rxjs";
-import {rxResource, takeUntilDestroyed, toObservable, toSignal} from "@angular/core/rxjs-interop";
-import {SiteService} from "@services/site.service";
-import {DatePipe, DecimalPipe, JsonPipe} from "@angular/common";
+import {rxResource, takeUntilDestroyed, toObservable} from "@angular/core/rxjs-interop";
+import {DecimalPipe, JsonPipe} from "@angular/common";
 import {ActivatedRoute} from "@angular/router";
 import {ErrMsgPipe} from "@pipes/err-msg.pipe";
 import {DiagHubService} from "@services/diag-hub.service";
 import {DiagnosticModelFactory} from "@model/DiagnosticModelFactory";
 import {RealtimeModel} from "@model/RealtimeModel";
-import {Divider} from "primeng/divider";
-import {DiagnosticResponse} from "@domain/DiagResponse";
-import {DateDiffPipe} from "@pipes/date-diff.pipe";
-import {DefValPipe} from "@pipes/def-val.pipe";
-import {NumberFractionPipe} from "@pipes/number-fraction.pipe";
 import {Tab, TabList, TabPanel, TabPanels, Tabs} from "primeng/tabs";
+import {CategoryViewComponent} from "@app/members/diagnostics/category-view/category-view.component";
+import {SiteIOService} from "@services/siteIO.service";
+import {AppContextService} from "@services/app-context.service";
+import {DiagProcess} from "@domain/DiagProcess";
 
 const REFRESH_INTERVAL = 5_000;
 
 @Component({
   selector: 'app-diagnostics-view',
   imports: [
-    JsonPipe,
-    ErrMsgPipe,
-    DecimalPipe,
-    NumberFractionPipe,
     Tabs,
     TabPanel,
     TabList,
     Tab,
     TabPanels,
+    CategoryViewComponent,
   ],
   templateUrl: './diagnostics-view.component.html',
   styleUrl: './diagnostics-view.component.scss',
   providers: [DiagnosticModelFactory, DecimalPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DiagnosticsViewComponent {
+export class DiagnosticsViewComponent implements OnDestroy {
   route = inject(ActivatedRoute);
-  processId = input.required<string>();  
-  #sitesService = inject(SiteService);
-  #hubService = inject(DiagHubService); 
-  modelFactory = inject(DiagnosticModelFactory);
+  processId = input.required<string>();
+  #siteIO = inject(SiteIOService);
+  #hubService = inject(DiagHubService);
+  #appContext = inject(AppContextService);
   realtime = inject(RealtimeModel)
-  isLoading = signal(false);
-  lastUpdated = signal(Date.now());
-  nextRefresh = signal<number | undefined>(undefined); 
+  nextRefresh = signal<number | undefined>(undefined);
+  process = computed(() => this.#appContext.processes.value().find(p => p.id === this.processId()));
 
   constructor() {
-    toObservable(this.diags.value)
-        .pipe(filter(d => !!d))
-        .subscribe(d => this.realtime.update(d));
+    toObservable(this.process)
+        .pipe(
+            filter(p => !!p),
+            takeUntilDestroyed(),
+            startWith(undefined),
+            pairwise(),
+            tap(x => this.realtime.clear()),
+            )
+        .subscribe(async ([prev, curr]) => {
+          await this.tryUnsubscribe(prev)
+          await this.trySubscribe(curr)
+        })
+        // .subscribe(processId => this.#appContext.processId.set(processId));
     
-    effect(() => console.log('status', this.diags.status()));
+    this.#appContext.diags$
+        .pipe(filter(d => d.processId === this.processId()))
+        .subscribe(d => this.realtime.update(d.response));
     
     timer(0, 100).subscribe(() => {
-      this.nextRefresh.set(this.isLoading() 
+      this.nextRefresh.set(this.#appContext.diagnosticsLoading() 
           ? undefined
-          : (REFRESH_INTERVAL - (Date.now() - this.lastUpdated())) / 1000)
+          : (REFRESH_INTERVAL - (Date.now() - this.#appContext.diagnosticsUpdated())) / 1000)
     });
   }
   
-  get siteId() {
-    return this.route.parent?.snapshot.params['siteId'];
-  } 
+  site = computed(() => this.#appContext.site());
   
-  diags = rxResource({
-    params: () => ({ processId: this.processId() }),
-    stream: ({params: p}) => 
-        concat(
-            of(null).pipe(tap(() => this.setIsLoading(true)), filter(x => false)),
-            this.#sitesService.getDiagnostics(this.siteId, p.processId),
-        ).pipe(
-            finalize(() => this.setIsLoading(false)),
-            tap({error: err => console.log('error', err)}),
-            retry({ delay: REFRESH_INTERVAL, resetOnSuccess: true }),
-            repeat({delay: REFRESH_INTERVAL})
-        )
+  
+  private async tryUnsubscribe(process: DiagProcess | undefined) {
+    try {
+      if (process)
+        await this.#hubService.unsubscribeProcess(process.id, process.siteId);
+    } catch (err) {
+      console.log(err);
     }
-  );
-  
-  setIsLoading(isLoading: boolean) {
-    this.isLoading.set(isLoading);
-    if (!isLoading)
-      this.lastUpdated.set(Date.now());
   }
+  
+  private async trySubscribe(process: DiagProcess | undefined) {
+        try {
+      if (process)
+        await this.#hubService.subscribeProcess(process.id, process.siteId);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+  
+  async ngOnDestroy() {
+    await this.tryUnsubscribe(this.process());
+  }
+  
+  expandCollapse() {
+    this.realtime.activeCat()?.expandCollapse();
+  }
+
+  protected readonly console = console;
+  protected readonly String = String;
 }

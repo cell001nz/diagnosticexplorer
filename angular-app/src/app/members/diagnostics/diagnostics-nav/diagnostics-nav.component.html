@@ -14,7 +14,7 @@
             </tr>
         </ng-template>
         <ng-template #body let-process let-ri="rowIndex">
-            <tr [routerLink]="process.id" class="cursor-pointer" [class.text-green-600!]="process.isOnline"
+            <tr [routerLink]="process.id" class="cursor-pointer" [class.text-lime-500!]="process.isOnline"
                 pTooltip="Sending: {{process.isSending}} last online: {{process.lastOnline | dateDiff}}">
                 <td class="text-nowrap">{{ process.processName }} i-{{ri}}</td>
                 <td class="text-nowrap">{{ process.machineName }}</td>

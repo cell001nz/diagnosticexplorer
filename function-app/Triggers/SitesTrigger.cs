@@ -50,8 +50,9 @@ public class SitesTrigger : TriggerBase
 
     [Function("InsertSite")]
     public async Task<IActionResult> InsertSite(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Sites")] HttpRequest req, 
-        [FromBody] Site site, 
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Sites")]
+        HttpRequest req,
+        [FromBody] Site site,
         ILogger log)
     {
         try
@@ -59,11 +60,11 @@ public class SitesTrigger : TriggerBase
             var cp = GetClientPrincipal(req);
 
             // if (!string.IsNullOrWhiteSpace(site.Id))
-                // return new BadRequestObjectResult("Can't put when Id is specified");
+            // return new BadRequestObjectResult("Can't put when Id is specified");
 
             if (string.IsNullOrWhiteSpace(site.Id))
                 site.Id = Guid.NewGuid().ToString();
-            
+
             site.Roles ??= [];
             site.Roles.Add(new SiteRole
             {
@@ -74,7 +75,7 @@ public class SitesTrigger : TriggerBase
             ProcessSecrets(site);
 
             Site saved = await DiagIO.Site.SaveSite(site);
-            
+
             return new OkObjectResult(saved);
         }
         catch (Exception ex)
@@ -104,8 +105,9 @@ public class SitesTrigger : TriggerBase
 
     [Function("UpdateSite")]
     public async Task<IActionResult> UpdateSite(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "Sites/{id}")] HttpRequest req, 
-        string id, [FromBody] Site site, 
+        [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "Sites/{id}")]
+        HttpRequest req,
+        string id, [FromBody] Site site,
         ILogger log)
     {
         try
@@ -133,9 +135,8 @@ public class SitesTrigger : TriggerBase
 
     #endregion
 
-   private void ProcessSecrets(Site site, Site? existing = null)
+    private void ProcessSecrets(Site site, Site? existing = null)
     {
-        
         foreach (var secret in site.Secrets ?? [])
         {
             Secret? existingSecret = existing?.Secrets?.FirstOrDefault(s => s.Id == secret.Id);
@@ -145,7 +146,6 @@ public class SitesTrigger : TriggerBase
                 secret.Hash = existingSecret.Hash;
                 secret.Value = existingSecret.Value;
             }
-
 
             if (string.IsNullOrWhiteSpace(secret.Id))
                 secret.Id = Guid.NewGuid().ToString();

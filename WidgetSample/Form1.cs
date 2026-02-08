@@ -59,7 +59,6 @@ public partial class Form1 : Form, INotifyPropertyChanged
     private Timer _counterTimer;
     private Timer _evtTimer;
 
-    private string _infoText;
     private Timer _listTestTimer;
     private Task _autoLogTask;
     private Timer _scopeTimer;
@@ -149,18 +148,24 @@ public partial class Form1 : Form, INotifyPropertyChanged
     [Property(Category = "Widgets")] public int WidgetIdCount { get; private set; }
 
     [Property(AllowSet = true)]
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
     public string InfoText
     {
-        get { return _infoText; }
-        set {
-            _infoText = value;
-            if (PropertyChanged != null) PropertyChanged(this, new PropertyChangedEventArgs("InfoText"));
+        get;
+        set
+        {
+            field = value;
+            if (PropertyChanged != null) PropertyChanged(this, new PropertyChangedEventArgs(nameof(InfoText)));
         }
     }
 
-    [Property(AllowSet = true)] public int SetMePlease { get; set; }
+    [Property(AllowSet = true)]
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)] 
+    public int SetMePlease { get; set; }
 
-    [Property(AllowSet = false)] public int Counter2 { get; set; }
+    [Property(AllowSet = false)]
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)] 
+    public int Counter2 { get; set; }
 
     [RateProperty(Category = "Widgets", ExposeRate = false, ExposeTotal = true)]
     public RateCounter WidgetEvents { get; } = new RateCounter(5);

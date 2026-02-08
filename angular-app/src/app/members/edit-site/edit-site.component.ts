@@ -10,7 +10,8 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {getErrorMsg} from "@util/errorUtil";
 import {MessageService} from "primeng/api";
 import {Secret} from "@domain/Secret";
-import {SiteService} from "@services/site.service";
+import {SiteIOService} from "@services/siteIO.service";
+import {AppContextService} from "@services/app-context.service";
 
 @Component({
   selector: 'app-edit-site',
@@ -29,7 +30,8 @@ export class EditSiteComponent {
   createNew = input(false, { transform: x => !!x});
   isBusy = signal(false);
   saveError = signal('');
-  #siteService = inject(SiteService);
+  #siteService = inject(SiteIOService);
+  #appContext = inject(AppContextService);
   #router = inject(Router);
   #route = inject(ActivatedRoute);
   messageService = inject(MessageService);  
@@ -75,7 +77,7 @@ export class EditSiteComponent {
     }
     finally {
       this.isBusy.set(false);
-      this.#siteService.sites.reload();
+      this.#appContext.sites.reload();
     }    
   }
 

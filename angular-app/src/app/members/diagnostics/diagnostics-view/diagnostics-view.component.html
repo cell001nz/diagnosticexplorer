@@ -1,44 +1,52 @@
+@if (process()) {
 <div class="grid grid-rows-[auto_1fr] h-full">
 
     <div>
         
-        <p class="float-left">siteId: {{siteId}} processId: {{processId()}}</p>
-
-        <p class="text-green-600 float-right opacity-50 hover:opacity-100">
-            @if (nextRefresh()) {
-                <span>{{nextRefresh() | number:'1.0-0'}}</span>
-                <span class="text-xs">{{nextRefresh() | numberFraction:'0.1-1'}}</span>
-            } @else {
-                <span>0</span>
-                <span class="text-xs">...</span>
-            }
+        <p class="float-left" (click)="expandCollapse()">
+            {{site()?.name}} 
+            / {{process()?.machineName}} 
+            / {{process()?.processName}}
+            <span class="text-xs">({{process()?.id}})</span>
         </p>
+
+        <span class="text-lime-500 float-right opacity-70 hover:opacity-100">
+            <span class="mr-6">{{realtime.titleMessage()}}</span>
+<!--            <span class="mr-2">Next refresh</span>-->
+            
+<!--            @if (nextRefresh()) {-->
+<!--                <span class="">{{nextRefresh() | number:'1.0-0'}}</span>-->
+<!--                <span class="inline-block w-3 text-xs">{{nextRefresh() | numberFraction:'0.1-1'}}</span>-->
+<!--            } @else {                -->
+<!--                <span class="">0</span>-->
+<!--                <span class="inline-block w-3 text-xs">...</span>-->
+<!--            }-->
+        </span>
     </div>
 
     <div class="tabs-right">
-        @if (diags.isLoading()) {
-            <p>Loading</p>    
-        }
-        @else if (diags.error()) {
-            <p>Error {{diags.error() | errMsg}}</p>
-        }
-        @if (diags.hasValue()) {
-
-       <p-tabs  [value]="realtime.categories[0].name" class="">
-           <p-tablist>
-             @for (cat of realtime.categories; track cat.name) {
-                <p-tab [value]="cat.name">{{ cat.name }}</p-tab>
-             }
-           </p-tablist>
-           <p-tabpanels>
-            @for (cat of realtime.categories; track cat.name) {
-                <p-tabpanel [value]="cat.name">
-                    <p class="m-0">{{ cat.name }}</p>
-                </p-tabpanel>   
-            }
-           </p-tabpanels>
-    </p-tabs>
+        
+        @if (realtime && process()) {
             
+            @if (realtime.categories().length) {
+           <p-tabs [(value)]="realtime.activeCatName" class="h-full max-h-[calc(100vh-120px)]">
+               <p-tablist>
+                 @for (cat of realtime.categories(); track cat.name()) {
+                    <p-tab [value]="cat.name()">{{ cat.name() }}</p-tab>
+                 }
+               </p-tablist>
+               <p-tabpanels>
+                @for (cat of realtime.categories(); track cat.name()) {
+                    <p-tabpanel [value]="cat.name()" class="">
+                        <div class=" overflow-y-auto">
+                            <app-category-view [category]="cat" [process]="process()!" />
+                        </div>
+                    </p-tabpanel>   
+                }
+               </p-tabpanels>
+            </p-tabs>
+            }
         }
     </div>
 </div>
+}

@@ -64,6 +64,7 @@ internal class HubServerAdapter : IDiagnosticHubClient
 
     private void StartSending(int seconds)
     {
+        Trace.WriteLine($"START SENDING {Process.GetCurrentProcess().Id}");
         lock (_syncLock)
         {
             _sendInterval = TimeSpan.FromSeconds(seconds);
@@ -80,10 +81,11 @@ internal class HubServerAdapter : IDiagnosticHubClient
         }
     }
 
-    private void StopSending()
+    public void StopSending()
     {
         lock (_syncLock)
         {
+            Trace.WriteLine($"StopSending {GetHashCode()} {_sendDiagnosticsCancel?.GetHashCode()}");
             _sendDiagnosticsCancel?.Cancel();
             _sendDiagnosticsTask = null;
 
@@ -95,12 +97,14 @@ internal class HubServerAdapter : IDiagnosticHubClient
     {
         while (!cancel.IsCancellationRequested)
         {
+            Trace.WriteLine($"SendDiagnosticsLoop {GetHashCode()} {_sendDiagnosticsCancel?.GetHashCode()}");
+
             try
             {
                 DiagnosticResponse response = DiagnosticManager.GetDiagnostics();
                 byte[] data = ProtobufUtil.Compress(response, 1024);
                 string stringData = Convert.ToBase64String(data);
-
+                Trace.WriteLine($"SENDING DIAGNOSTICS {Process.GetCurrentProcess().Id}");
                 await _hubConn.InvokeAsync(nameof(IDiagnosticHubServer.ReceiveDiagnostics), stringData, cancel);
             }
             catch when (cancel.IsCancellationRequested)
@@ -157,13 +161,6 @@ internal class HubServerAdapter : IDiagnosticHubClient
             Trace.WriteLine($"HubServerAdapter.SendEventStream error: {ex}");
         }
     }
-
-    public void Dispose()
-    {
-        UnsubscribeEvents();
-        StopSending();
-    }
-
 
     public Task GetDiagnostics(string requestId)
     {

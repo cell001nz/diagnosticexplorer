@@ -4,7 +4,9 @@ import * as signalR from '@microsoft/signalr';
 import { v4 as uuidv4 } from 'uuid';
 import {AuthService} from "@services/auth.service";
 import {DiagProcess} from "@domain/DiagProcess";
-import {Observable, Subject} from "rxjs"; // Install uuid package for UUID generation
+import {Observable, Subject} from "rxjs";
+import {OperationResponse, SetPropertyRequest} from "@domain/SetPropertyRequest";
+import {DiagnosticResponse} from "@domain/DiagResponse";
 
 const TAB_ID_KEY = "tabIdStorageKey"
 
@@ -18,7 +20,8 @@ export class DiagHubService implements OnDestroy {
   readonly #negotiateUrl = '/api/webhub/negotiate';
   #authService = inject(AuthService);
   #hubConnection?: Promise<signalR.HubConnection>;
-  $processArrived = new Subject<DiagProcess>();
+  processArrived$ = new Subject<DiagProcess>();
+  diagsArrived$ = new Subject<{processId: string, response: DiagnosticResponse}>();
   tabId = '';
   
   constructor() {
@@ -42,7 +45,11 @@ export class DiagHubService implements OnDestroy {
           });
           hub.on('ReceiveProcess', (process: DiagProcess) => {
             console.log('Process arrived', process);
-            this.$processArrived.next(process);
+            this.processArrived$.next(process);
+          });
+          hub.on('ReceiveDiagnostics', (processId: string, response: DiagnosticResponse) => {
+            console.log('Diagnostics arrived', response);
+            this.diagsArrived$.next({processId, response});
           });
           console.log('Hub connection configured');
           hub.onclose(error => console.log('Hub connection closed:', error));
@@ -82,13 +89,20 @@ export class DiagHubService implements OnDestroy {
     await hub.invoke("UnsubscribeSite", siteId);
   }
 
-  async subscribeProcess(processId: string) {
+  async subscribeProcess(processId: string, siteId: string) {
     let hub = await this.getHubConnection();
-    await hub.invoke("SubscribeProcess", processId);
+    await hub.invoke("SubscribeProcess", processId, siteId);
+    console.log('Subscribe process: ' + processId);
   }
 
-  async unsubscribeProcess(processId: string) {
+  async unsubscribeProcess(processId: string, siteId: string) {
+    console.log('unsubscribeProcess process: ' + processId);
     let hub = await this.getHubConnection();
-    await hub.invoke("UnsubscribeProcess", processId);
+    await hub.invoke("UnsubscribeProcess", processId, siteId);
   }
+    async setPropertyValue(request: SetPropertyRequest): Promise<void> {
+       let hub = await this.getHubConnection();
+       await hub.invoke("SetProperty", request);
+       // await hub.invoke("SetProperty2", request.processId, request.siteId, request.path, request.value);
+    }
 }

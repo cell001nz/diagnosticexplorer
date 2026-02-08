@@ -10,14 +10,14 @@ using System.Net;
 using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
-using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
+using Microsoft.Extensions.Logging;
 
 namespace DiagnosticExplorer.IO.Cosmos;
 
-internal class SiteIO : CosmosIOBase, ISiteIO
+internal class SiteIO : CosmosIOBase<Site>, ISiteIO
 {
     
-    public SiteIO(CosmosClient client) : base(client, "Site")
+    public SiteIO(CosmosClient client, ILogger logger) : base(client, "Site", logger)
     {
     }
 
@@ -42,7 +42,7 @@ internal class SiteIO : CosmosIOBase, ISiteIO
             .WithParameter("@siteId", siteId)
             .WithParameter("@userId", userId);
 
-        return await ReadSingle<Site>(Container, query, () => $"Site {siteId} for user {userId}");
+        return await ReadSingle(query, () => $"Site {siteId} for user {userId}");
     }
 
     #endregion
@@ -66,7 +66,7 @@ internal class SiteIO : CosmosIOBase, ISiteIO
             .WithParameter("@userId", userId);
 
         Trace.WriteLine($"Find sites for {userId}");
-        return await ReadMulti<Site>(Container, query, () => $"Sites for user {userId}");
+        return await ReadMulti(query, () => $"Sites for user {userId}");
     }
 
     #endregion

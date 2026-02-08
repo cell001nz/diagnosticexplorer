@@ -9,19 +9,18 @@ import {DiagnosticResponse} from "@domain/DiagResponse";
 @Injectable({
   providedIn: 'root'
 })
-export class SiteService {
+export class SiteIOService {
   
     #http = inject(HttpClient);
-    
-    sites = rxResource({
-        defaultValue: [],
-      stream: () => this.#http.get<Site[]>('api/Sites')
-    });
 
   getSite(id: string): Observable<Site> {
     return this.#http.get<Site>(`api/Sites/${id}`);
   }
 
+  getSites(): Observable<Site[]> {
+      return this.#http.get<Site[]>('api/Sites')
+  }  
+  
   insertSite(site: Site): Observable<Site> {
       return this.#http.post<Site>(`api/Sites`, site);
   }

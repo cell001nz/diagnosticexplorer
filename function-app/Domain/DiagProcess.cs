@@ -24,16 +24,10 @@ public class DiagProcess
 
     public bool IsOnline { get; set; }
     public bool IsSending { get; set; }
-
-    public SinkMarker SinkMarker { get; set; } = new();
+    
+    //Subscriptions by WebClient.ConnectionId
+    public Dictionary<string, WebProcSub> Subscriptions { get; set; } = [];
 
     public DateTime LastReceived { get; set; }
     public DateTime LastRequested { get; set; }
-
-}
-
-public class SinkMarker
-{
-    public string InstanceId { get; set; }
-    public long EventId { get; set; }
 }

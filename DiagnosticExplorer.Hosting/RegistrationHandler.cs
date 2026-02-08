@@ -138,8 +138,8 @@ public class RegistrationHandler
 
                 cancel.ThrowIfCancellationRequested();
 
-                _registration.RenewTimeSeconds = (int)_renewTime.TotalSeconds;
-                await _hubAdapter.Register(_registration, cancel);
+                // _registration.RenewTimeSeconds = (int)_renewTime.TotalSeconds;
+                // await _hubAdapter.Register(_registration, cancel);
             }
             catch (Exception ex)
             {
@@ -181,7 +181,6 @@ public class RegistrationHandler
     }
     
     
-    
     public class NegotiateResponse
     {
         public string Url { get; set; }
@@ -193,8 +192,6 @@ public class RegistrationHandler
     {
         if (_hubAdapter == null)
         {
-            
-            
             Debug.WriteLine("Diagnostic RegistrationHandler constructing connection");
             string accessToken = null;
             _resolvedUrl = _site.Url;
@@ -206,11 +203,11 @@ public class RegistrationHandler
                 isAzure = true;
                 string baseUrl = Regex.Replace(_site.Url, "/negotiate", "", RegexOptions.IgnoreCase);
                 flurlClient = _flurlCache.GetOrAdd($"Diagnostics_{baseUrl}", baseUrl,
-                    options => options.Settings.JsonSerializer = new DefaultJsonSerializer(DiagJsonOptions.Options));
+                    options => options.Settings.JsonSerializer = new DefaultJsonSerializer(DiagJsonOptions.Default));
 
                 var negResponse = await flurlClient
                     .Request("negotiate")
-                    .GetAsync()
+                    .PostJsonAsync(_registration)
                     .ReceiveJson<NegotiateResponse>();
                 
                 _resolvedUrl = negResponse.Url;
@@ -218,7 +215,7 @@ public class RegistrationHandler
             }
             
             _connection = new HubConnectionBuilder()
-                .AddJsonProtocol(options => options.PayloadSerializerOptions = DiagJsonOptions.Options)
+                .AddJsonProtocol(options => options.PayloadSerializerOptions = DiagJsonOptions.Default)
                 .WithUrl(_resolvedUrl, options =>
                 {
                     options.UseDefaultCredentials = !isAzure;
@@ -248,7 +245,7 @@ public class RegistrationHandler
 
         try
         {
-            currentAdapter?.Dispose();
+            currentAdapter?.StopSending();
         }
         catch (Exception ex2)
         {
@@ -270,12 +267,12 @@ public class RegistrationHandler
     {
         try
         {
-            await Deregister(_hubAdapter, _registration);
+            // await Deregister(_hubAdapter, _registration);
             
             Task loopTask = _registrationLoop;
             _stopToken?.Cancel();
             
-            _hubAdapter?.Dispose();
+            _hubAdapter?.StopSending();
             _hubAdapter = null;
 
             _logSubject?.OnCompleted();

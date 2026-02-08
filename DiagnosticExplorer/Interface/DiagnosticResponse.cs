@@ -35,6 +35,7 @@ namespace DiagnosticExplorer;
 public class DiagnosticResponse
 {
 
+
     [ProtoMember(1)] public List<PropertyBag> PropertyBags { get; set; } = [];
 
     [ProtoMember(2)] public List<OperationSet> OperationSets { get; set; } = [];

@@ -1,28 +1,30 @@
 ﻿using DiagnosticExplorer.Api.Domain;
-using DiagnosticExplorer.IO.Cosmos;
 using Microsoft.Azure.Cosmos;
-using System;
-using System.Collections;
-using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics;
-using System.Linq;
 using System.Net;
-using System.Net.Mail;
 using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
-using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 using WebClient = DiagnosticExplorer.Api.Domain.WebClient;
 
 namespace DiagnosticExplorer.IO.Cosmos;
 
-internal class WebClientIO : CosmosIOBase, IWebClientIO
+internal class WebClientIO : CosmosIOBase<WebClient>, IWebClientIO
 {
     
-    public WebClientIO(CosmosClient client) : base(client, "WebClient")
+    public WebClientIO(CosmosClient client, ILogger logger) : base(client, "WebClient", logger)
     {
     }
    
+    #region Get(string connectionId)
+
+    public async Task<WebClient?> Get(string connectionId)
+    {
+        return await GetItem(connectionId);
+    }
+
+
+    #endregion
+    
     #region Save(WebClient client)
 
     public async Task<WebClient> Save(WebClient client)
@@ -37,9 +39,46 @@ internal class WebClientIO : CosmosIOBase, IWebClientIO
 
     public async Task Delete(string clientId)
     {
-        await Container.DeleteItemAsync<WebClient>(clientId, new PartitionKey(clientId));
+        try
+        {
+            await Container.DeleteItemAsync<WebClient>(clientId, new PartitionKey(clientId));
+        }
+        catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        {
+            Logger.LogWarning($"Failed to delete WebClient {clientId}");
+        }
     }
-    
+
+    public async Task SaveWebSub(WebProcSub sub)
+    {
+        var patchOperations = new List<PatchOperation>
+        {
+            PatchOperation.Set($"/subscriptions/{sub.ProcessId}", sub),
+        };
+        
+        var response = await Container.PatchItemAsync<DiagProcess>(
+            sub.WebConnectionId,
+            new PartitionKey(sub.WebConnectionId),
+            patchOperations);
+        
+        Trace.WriteLine($"*** CHARGE *** {response.RequestCharge} SaveWebProcSub");
+    }
+
+    public async Task DeleteWebSub(WebProcSub sub)
+    {
+        var patchOperations = new List<PatchOperation>
+        {
+            PatchOperation.Set($"/subscriptions/{sub.ProcessId}", sub),
+        };
+        
+        var response = await Container.PatchItemAsync<DiagProcess>(
+            sub.WebConnectionId,
+            new PartitionKey(sub.WebConnectionId),
+            patchOperations);
+        
+        Trace.WriteLine($"*** CHARGE *** {response.RequestCharge} DeleteWebSub");
+    }
+
     #endregion
 }
 

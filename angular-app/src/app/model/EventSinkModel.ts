@@ -65,7 +65,7 @@ export class EventSinkModel {
         if (evt.detail === 2) {
             this.isExpanded = true;
             this.cat.eventSinks.forEach(c => c.isExpanded = c === this);
-            this.cat.subCats.forEach(c => c.isExpanded = false);
+            this.cat.subCats().forEach(c => c.isCollapsed.set(true));
         }
     }
 }

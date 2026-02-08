@@ -6,35 +6,34 @@ import {RealtimeModel} from './RealtimeModel';
 import * as _ from 'lodash-es';
 import {Level} from './Level';
 import {strEqCI} from '@util/stringUtil';
+import {Signal, signal, WritableSignal} from "@angular/core";
 
 export class CategoryModel {
-    name: string = '';
-    propData: PropertyBag[] = [];
+    name = signal('');
+    // propData = signal<PropertyBag[]>([]);
     eventData: EventResponse[] = [];
-    subCats: SubCat[] = [];
+    subCats = signal<SubCat[]>([]);
     eventSinks: EventSinkModel[] = [];
     realtimeModel: RealtimeModel;
     labelClass = '';
     worstSev = 0;
     worstSevDate = new Date();
 
-
     constructor(realtimeModel: RealtimeModel, name: string, props: PropertyBag[] = []) {
         this.realtimeModel = realtimeModel;
-        this.name = name;
+        this.name.set(name);
         if (props)
             this.update(props);
     }
 
     update(props: PropertyBag[]) {
-        this.propData = props;
-
-        this.subCats = customMerge(props,
-            this.subCats,
+        // this.propData.set(props);
+        this.subCats.set(customMerge(props,
+            this.subCats(),
             s => s.name,
-            t => t.name,
+            t => t.name(),
             s => new SubCat(this, s),
-            (s, t) => t.update(s));
+            (s, t) => t.update(s)));
     }
 
     getSink(name: string): EventSinkModel {
@@ -43,6 +42,16 @@ export class CategoryModel {
             this.eventSinks.push(sink = new EventSinkModel(this, name));
 
         return sink;
+    }
+        
+    expandCollapse(): void {
+        console.log('expandCollapse', this.name())
+        const expandable: { isCollapsed: WritableSignal<boolean> }[] = [];
+        expandable.push(...this.subCats());
+        // expandable.push(...this.eventSinks);
+
+        const allExpanded = expandable.every(item => !item.isCollapsed());
+        expandable.forEach(exp => exp.isCollapsed.set(allExpanded));
     }
 
     addEvents(evts: SystemEvent[]) {

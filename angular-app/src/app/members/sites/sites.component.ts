@@ -5,8 +5,8 @@ import {firstValueFrom} from "rxjs";
 import {JsonPipe} from "@angular/common";
 import {RouterLink} from "@angular/router";
 import {Button} from "primeng/button";
-import {rxResource, toObservable} from "@angular/core/rxjs-interop";
-import {SiteService} from "@services/site.service";
+import {AppContextService} from "@services/app-context.service";
+
 
 @Component({
   selector: 'app-sites',
@@ -22,12 +22,11 @@ import {SiteService} from "@services/site.service";
 export class SitesComponent implements OnInit {
     selected: Site[] = []
 
-    #data = inject(SiteService);
-    
+    #appContext = inject(AppContextService);   
     
     ngOnInit(): void {
         this.sites.reload();
     }
     
-    get sites() { return this.#data.sites; }
+    get sites() { return this.#appContext.sites; }
 }

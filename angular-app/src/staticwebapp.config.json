@@ -13,6 +13,24 @@
       "allowedRoles": [
         "admin"       
       ]
+    },
+    {
+      "route": "/api/processhub/negotiate",
+      "allowedRoles": [
+        "anonymous"
+      ]
+    },
+    {
+      "route": "/api/*",
+      "allowedRoles": [
+        "authenticated"
+      ]
+    },
+    {
+      "route": "/app/*",
+      "allowedRoles": [
+        "authenticated"
+      ]
     }
   ],
   "responseOverrides": {

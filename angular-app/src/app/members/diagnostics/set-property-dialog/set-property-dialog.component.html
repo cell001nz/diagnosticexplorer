@@ -1,0 +1,15 @@
+
+<div class="h-40 grid grid-rows-[auto_1fr_auto] items-center" (keyup)="handleKeyUp($event)">
+    <span class="">Set Property [{{value()}}] {{value}}</span>
+    
+    <p-floatlabel variant="on" class="w-full">
+        <input pInputText id="on_label" class="w-full h-14" [(ngModel)]="editValue" autocomplete="off" />
+        <label for="on_label">{{ text() }}</label>
+    </p-floatlabel>
+    
+    
+    <div class="">
+        <button pButton size="small" severity="secondary" type="submit" class="mx-4 float-right" (click)="onOkClick()">OK</button>
+        <button pButton size="small" severity="secondary" class="float-right" (click)="onCancelClick()">Cancel</button>
+    </div>
+    </div>

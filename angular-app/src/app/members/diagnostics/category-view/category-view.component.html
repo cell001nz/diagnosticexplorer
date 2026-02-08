@@ -1,0 +1,32 @@
+<!--<div class="h-full">-->
+@for (cat of category().subCats(); track cat.name) {
+    <p-panel [header]="cat.name()" [toggleable]="true" [(collapsed)]="cat.isCollapsed" class="mb-4">
+        
+        @for (grp of cat.groups(); track grp.name) {
+            
+            <div class="mb-4 last:mb-0">
+                <p-fieldset legend="{{grp.name()}}" toggleable="false">
+                    <div class="ml-4 grid grid-cols-[auto-1fr] lg:grid-cols-[minmax(10%,auto)_1fr_minmax(10%,auto)_1fr] gap-x-2 gap-y-2 items-center">
+                    @for (prop of grp.properties(); track prop.name()) {
+                        @if (prop.canSet()) {
+                            <span class="text-blue-400 text-s my-1" (click)="showSetPropertyDialog(prop)">{{ prop.name() }}</span>
+                        } @else {
+                            <span class="text-stone-400 text-s my-1">{{ prop.name() }}</span>
+                        }
+<!--                    <button *ngIf="prop.canSet" class="text-blue-500 text-xs text-left"-->
+<!--                            (click)="showSetPropertyDialog(prop)">{{ prop.name }}-->
+<!--                    </button>-->
+<!--                    <span class="prop-value" (dblclick)="handleDoubleClick(prop, $event)"-->
+<!--                          [matTooltip]="prop.value" [matTooltipShowDelay]="0" matTooltipPosition="below"-->
+<!--                          matTooltipClass="tooltips">{{ prop.value }}</span>-->
+                        <span class="text-lime-500 text-s my-1">{{ prop.value() }}</span>
+                    }
+            </div>
+                    
+                </p-fieldset>      
+            </div>
+        }
+        
+    </p-panel>
+}
+<!--</div>-->

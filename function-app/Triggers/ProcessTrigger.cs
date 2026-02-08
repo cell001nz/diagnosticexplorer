@@ -19,7 +19,7 @@ namespace DiagnosticExplorer.Api.Triggers;
 
 public class ProcessTrigger : TriggerBase
 {
-    public ProcessTrigger(ILogger<AccountTrigger> logger, IDiagIO diagIo) : base(logger, diagIo)
+    public ProcessTrigger(ILogger<ProcessTrigger> logger, IDiagIO diagIo) : base(logger, diagIo)
     {
     }
 
@@ -40,10 +40,10 @@ public class ProcessTrigger : TriggerBase
 
     #endregion
 
-    #region GetProcesses => GET /api/Sites/{siteId}/Processes/{processId}/Diagnostics"
+    #region GetDiagnostics => GET /api/Sites/{siteId}/Processes/{processId}/Diagnostics"
 
     [Function("GetDiagnostics")]
-    [SignalROutput(HubName = CLIENT_HUB)]
+    [SignalROutput(HubName = PROCESS_HUB)]
     public async Task<SignalRMessageAction?> GetDiagnostics(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Sites/{siteId}/Processes/{processId}/Diagnostics")]
         HttpRequest req,
@@ -61,7 +61,7 @@ public class ProcessTrigger : TriggerBase
                 ServerDate = DateTime.UtcNow
             };
             req.HttpContext.Response.Headers.Add("Content-Type", "application/json");
-            await req.HttpContext.Response.WriteAsync(JsonSerializer.Serialize(errorResponse, DiagJsonOptions.Options));
+            await req.HttpContext.Response.WriteAsync(JsonSerializer.Serialize(errorResponse, DiagJsonOptions.Default));
             return null;
         }
         
@@ -77,13 +77,12 @@ public class ProcessTrigger : TriggerBase
         }
         else
         {
-            byte[] data = Convert.FromBase64String(values.Response);
-            response = ProtobufUtil.Decompress<DiagnosticResponse>(data);
+            response = DeserialiseBase64Protobuf<DiagnosticResponse>(values.Response);
             response.ServerDate = DateTime.UtcNow;
         }
         
         req.HttpContext.Response.Headers.Add("Content-Type", "application/json");
-        await req.HttpContext.Response.WriteAsync(JsonSerializer.Serialize(response, DiagJsonOptions.Options));
+        await req.HttpContext.Response.WriteAsync(JsonSerializer.Serialize(response, DiagJsonOptions.Default));
 
         if (process.IsSending && process.LastReceived - DateTime.UtcNow < TimeSpan.FromSeconds(10))
         {

@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using DiagnosticExplorer;
 using DiagnosticExplorer.Common;
 using Diagnostics.Service.Common.Hubs;
+using Flurl.Http.Configuration;
 using Microsoft.Extensions.Options;
 
 public static class Program
@@ -32,6 +33,7 @@ public static class Program
         services.AddSignalR();
 
         services.AddSingleton<RealtimeManager>();
+        services.AddSingleton<IFlurlClientCache, FlurlClientCache>();
         services.AddSingleton<RetroManager>();
         services.AddSignalR().AddHubOptions<DiagnosticHub>(options => {
             options.MaximumReceiveMessageSize = int.MaxValue;
@@ -57,10 +59,9 @@ public static class Program
 
         app.UseRouting();
         app.UseCors(x => x.SetIsOriginAllowed(x => true).AllowAnyHeader().AllowAnyMethod().AllowCredentials());
-        app.UseEndpoints(endpoints => {
-            endpoints.MapHub<WebHub>("/web-hub");
-            endpoints.MapHub<DiagnosticHub>("/diagnostics");
-        });
+
+        app.MapHub<WebHub>("/web-hub");
+        app.MapHub<DiagnosticHub>("/diagnostics");
 
         if (!settings.UseSpaProxy && !Directory.Exists(spaPath))
             throw new ApplicationException($"Diagnostics SPA directory not found: {spaPath}");

@@ -8,17 +8,30 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
+using Microsoft.Extensions.Logging;
 
 namespace DiagnosticExplorer.IO.Cosmos;
 
-public class DiagIO(CosmosClient client) : IDiagIO
+public class DiagIO : IDiagIO
 {
-    public ISiteIO Site { get; } = new SiteIO(client);
-    public IProcessIO Process { get; } = new ProcessIO(client);
-    public IAccountIO Account { get; } = new AccountIO(client);
-    public ISinkEventIO SinkEvent { get; } = new SinkEventIO(client);
-    public IDiagValueIO Values { get; } = new DiagValueIO(client);
-    public IWebClientIO WebClient { get; } = new WebClientIO(client);
+
+    public DiagIO(CosmosClient client, ILogger<DiagIO> logger)
+    {
+        Trace.WriteLine($"****************************************************************************************** Got logger {logger}");
+        
+        Site = new SiteIO(client, logger);
+        Process = new ProcessIO(client, logger);
+        Account = new AccountIO(client, logger);
+        SinkEvent = new SinkEventIO(client, logger);
+        Values = new DiagValueIO(client, logger);
+        WebClient = new WebClientIO(client, logger);
+    }
+
+    public ISiteIO Site { get; }
+    public IProcessIO Process { get; }
+    public IAccountIO Account { get; }
+    public ISinkEventIO SinkEvent { get; }
+    public IDiagValueIO Values { get; }
+    public IWebClientIO WebClient { get; }
 }
 

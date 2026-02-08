@@ -1,9 +1,14 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/Environment/Hierarchy/Build/SolBuilderDuo/UseMsbuildSolutionBuilder/@EntryValue">NewVersion</s:String>
+	<s:Boolean x:Key="/Default/RunConfigs/Config/=86ACC94440EA1D4DA9D13ACBFD1711A1/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/RunConfigs/Config/=86ACC94440EA1D4DA9D13ACBFD1711A1/Name/@EntryValue">DiagService</s:String>
+	<s:String x:Key="/Default/RunConfigs/Config/=86ACC94440EA1D4DA9D13ACBFD1711A1/ProjectGuid/@EntryValue">EDB2FF2433C6E7C1A7FBF6621DA35A3A</s:String>
+	<s:String x:Key="/Default/RunConfigs/Config/=86ACC94440EA1D4DA9D13ACBFD1711A1/Type/@EntryValue">project</s:String>
 	<s:Boolean x:Key="/Default/RunConfigs/Config/=B41E30A9840B0D4D9586AE84BD7ABAF1/@KeyIndexDefined">True</s:Boolean>
 	<s:String x:Key="/Default/RunConfigs/Config/=B41E30A9840B0D4D9586AE84BD7ABAF1/Type/@EntryValue">project</s:String>
 	<s:String x:Key="/Default/RunConfigs/Config/=B41E30A9840B0D4D9586AE84BD7ABAF1/Name/@EntryValue">ConsoleApp</s:String>
 	<s:String x:Key="/Default/RunConfigs/Config/=B41E30A9840B0D4D9586AE84BD7ABAF1/ProjectGuid/@EntryValue">FDFBA3B877A83AAB3856A3E51268C209</s:String>
-	<s:String x:Key="/Default/RunConfigs/Active/@EntryValue">CCE7729F549FBA4EB38DDF1E964285A0</s:String>
+	<s:String x:Key="/Default/RunConfigs/Active/@EntryValue">86ACC94440EA1D4DA9D13ACBFD1711A1</s:String>
 	<s:Boolean x:Key="/Default/RunConfigs/Config/=CCE7729F549FBA4EB38DDF1E964285A0/@KeyIndexDefined">True</s:Boolean>
 	<s:String x:Key="/Default/RunConfigs/Config/=CCE7729F549FBA4EB38DDF1E964285A0/Name/@EntryValue">WidgetSample</s:String>
 	<s:String x:Key="/Default/RunConfigs/Config/=CCE7729F549FBA4EB38DDF1E964285A0/ProjectGuid/@EntryValue">EF1F3B0EEB5CA1152B07FEF6F5F7E131</s:String>

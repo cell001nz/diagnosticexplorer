@@ -16,11 +16,7 @@ public interface IProcessIO
     Task<DiagProcess?> GetProcess(string processId, string siteId);
     Task<DiagProcess> SaveProcess(DiagProcess process);
     Task Delete(string processId, string siteId);
-}
-
-public interface IWebClientIO
-{
-    Task<WebClient> Save(WebClient client);
-    Task Delete(string clientId);
-
+    Task SaveWebSub(WebProcSub sub);
+    Task DeleteWebSub(WebProcSub sub);
+    Task SetConnectionId(string processId, string siteId, string connectionId);
 }

@@ -14,5 +14,5 @@ export const appRoutes: Routes = [
     { path: 'terms', component: TermsComponent },
     { path: 'privacy', component: PrivacyComponent },
     { path: 'not-authorized', component: NotAuthorizedComponent },
-    { path: '**', redirectTo: '/notfound' }
+    // { path: '**', redirectTo: '/notfound' }
 ];

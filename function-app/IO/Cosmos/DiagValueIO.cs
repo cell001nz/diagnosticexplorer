@@ -1,10 +1,11 @@
 ﻿using System.Diagnostics;
 using DiagnosticExplorer.Domain;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Logging;
 
 namespace DiagnosticExplorer.IO.Cosmos;
 
-internal class DiagValueIO(CosmosClient client) : CosmosIOBase(client, "Values"), IDiagValueIO
+internal class DiagValueIO(CosmosClient client, ILogger logger) : CosmosIOBase<DiagValues>(client, "Values", logger), IDiagValueIO
 {
     
     #region Save(DiagValue value)

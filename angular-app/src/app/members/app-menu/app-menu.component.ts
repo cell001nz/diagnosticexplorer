@@ -2,8 +2,8 @@ import {Component, computed, inject, OnInit} from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import {AuthService} from "@services/auth.service";
 import {Menu} from "primeng/menu";
-import {firstValueFrom} from "rxjs";
-import {SiteService} from "@services/site.service";
+import {SiteIOService} from "@services/siteIO.service";
+import {AppContextService} from "@services/app-context.service";
 
 @Component({
   selector: 'app-menu',
@@ -15,17 +15,23 @@ import {SiteService} from "@services/site.service";
 })
 export class AppMenuComponent {
     #authService = inject(AuthService);
-    #siteService = inject(SiteService);
+    #siteIO = inject(SiteIOService);
+    #appContext = inject(AppContextService);
 
     menuItems = computed(() => {
         let adminItems: MenuItem[] = [];
-        let sites = this.#siteService.sites.value();
+        let sites = this.#appContext.sites.value();
 
         let siteItems: MenuItem[] = sites.map(s => (
-            {label: s.name, icon: 'pi pi-fw pi-home', routerLink: ['diagnostics', s.id]}
+            {
+                label: s.name,
+                icon: 'pi pi-fw pi-home',
+                routerLink: ['diagnostics', s.id],
+                routerLinkActiveOptions: {exact: false}
+            }
         ));
 
-        if (this.#siteService.sites.isLoading() && this.#siteService.sites.value().length === 0)
+        if (this.#appContext.sites.isLoading() && this.#appContext.sites.value().length === 0)
             siteItems = [{label: '...', icon: 'pi pi-fw pi-home'}];
         else if (!siteItems.length)
             siteItems = [{label: 'No Sites', icon: 'pi pi-fw pi-home'}];

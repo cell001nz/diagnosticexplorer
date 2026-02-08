@@ -2,24 +2,25 @@
 import {Category} from '@domain/DiagResponse';
 import {customMerge} from '@util/merge';
 import {SubCat} from './SubCat';
+import {signal} from "@angular/core";
 
-export class PropGroup {
+export class PropGroupModel {
     subCat: SubCat;
-    name = '';
-    properties: PropModel[] = [];
+    name = signal('');
+    properties = signal<PropModel[]>([]);
 
     constructor(subCat: SubCat, propCat: Category) {
         this.subCat = subCat;
-        this.name = propCat.name;
+        this.name.set(propCat.name);
         this.update(propCat);
     }
 
     update(propCat: Category) {
-        this.properties = customMerge(propCat.properties,
-            this.properties,
+        this.properties.set(customMerge(propCat.properties,
+            this.properties(),
             s => s.name,
-            t => t.name,
+            t => t.name(),
             s => new PropModel(this, s),
-            (s, t) => t.update(s));
+            (s, t) => t.update(s)));
     }
 }
