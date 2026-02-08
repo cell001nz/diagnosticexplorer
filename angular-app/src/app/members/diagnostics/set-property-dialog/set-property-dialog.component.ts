@@ -3,7 +3,6 @@ import {DynamicDialogRef} from "primeng/dynamicdialog";
 import {PromptResult} from "@util/PromptData";
 import {Card} from "primeng/card";
 import {FormsModule} from "@angular/forms";
-import {Fieldset} from "primeng/fieldset";
 import {toObservable} from "@angular/core/rxjs-interop";
 import {FloatLabel} from "primeng/floatlabel";
 import {InputText} from "primeng/inputtext";
@@ -15,9 +14,7 @@ import {ButtonDirective} from "primeng/button";
     styleUrls: ['./set-property-dialog.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
-        Card,
         FormsModule,
-        Fieldset,
         FloatLabel,
         InputText,
         ButtonDirective

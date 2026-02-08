@@ -1,7 +1,7 @@
 import {Component, inject} from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { RouterModule } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { StyleClassModule } from 'primeng/styleclass';
 import { AppConfigurator } from '@app/app-configurator/app.configurator';
 import { LayoutService } from '@services/layout.service';
@@ -11,7 +11,7 @@ import {AuthService} from "@services/auth.service";
 @Component({
     selector: 'app-topbar',
     standalone: true,
-    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, Menu],
+    imports: [RouterModule, StyleClassModule, AppConfigurator, Menu],
     template: ` 
      <div class="flex w-full items-center layout-topbar text-xl gap-4 ">
             <button class="cursor-pointer layout-menu-button" (click)="layoutService.onMenuToggle()">

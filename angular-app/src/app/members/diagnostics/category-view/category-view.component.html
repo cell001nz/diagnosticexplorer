@@ -1,8 +1,8 @@
 <!--<div class="h-full">-->
-@for (cat of category().subCats(); track cat.name) {
+@for (cat of category().subCats(); track cat.name()) {
     <p-panel [header]="cat.name()" [toggleable]="true" [(collapsed)]="cat.isCollapsed" class="mb-4">
         
-        @for (grp of cat.groups(); track grp.name) {
+        @for (grp of cat.groups(); track grp.name()) {
             
             <div class="mb-4 last:mb-0">
                 <p-fieldset legend="{{grp.name()}}" toggleable="false">

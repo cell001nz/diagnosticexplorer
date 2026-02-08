@@ -12,8 +12,7 @@ import {AppContextService} from "@services/app-context.service";
   imports: [
     DiagnosticsNavComponent,
     RouterOutlet,
-    Divider,
-    DiagnosticsViewComponent
+    Divider
   ],
   templateUrl: './diagnostics-main.component.html',
   styleUrl: './diagnostics-main.component.scss'
