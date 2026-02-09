@@ -69,11 +69,9 @@ public class Gadget : INotifyPropertyChanged
         return items[index];
     }
 
-    private static string[] _names = new[]
-        {"Gadget X", "Gadget Y", "Gadget Z", "Gadget W"};
+    private static string[] _names = ["Gadget X", "Gadget Y", "Gadget Z", "Gadget W"];
 
-    private static string[] _purposes = new[]
-        {"Technical", "Muckabout", "Stuff"};
+    private static string[] _purposes = ["Technical", "Muckabout", "Stuff"];
 
     public override string ToString()
     {

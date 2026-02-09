@@ -90,8 +90,8 @@ public partial class Form1 : Form, INotifyPropertyChanged
         Closed += StopDiagnostics;
 
         //Exposure the remoting interface
-        _gadgets = new BindingList<Gadget>();
-        _widgets = new BindingList<Widget>();
+        _gadgets = [];
+        _widgets = [];
 
         gadgetGrid.DataSource = _gadgets;
         widgetGrid.DataSource = _widgets;
@@ -99,7 +99,7 @@ public partial class Form1 : Form, INotifyPropertyChanged
         gadgetGrid.RowsRemoved += HandleGadgetRemoved;
         widgetGrid.RowsRemoved += HandleWidgetRemoved;
 
-        UpdateList = new List<int> { 1, 2, 4, 5 };
+        UpdateList = [1, 2, 4, 5];
 
         //RegisterAsync this class with diagnostics
         DiagnosticManager.Register(this, "Main Form", "Form 1");
@@ -240,7 +240,7 @@ public partial class Form1 : Form, INotifyPropertyChanged
     public string LogLotsOfStuff(string msg1, string msg2, string msg3, string msg4, string msg5, string msg6,
         string msg7)
     {
-        string[] vals = { msg1, msg2, msg3, msg4, msg5, msg6, msg7 };
+        string[] vals = [msg1, msg2, msg3, msg4, msg5, msg6, msg7];
         string[] toLog = vals.Where(x => !string.IsNullOrEmpty(x)).ToArray();
         foreach (string msg in toLog)
             _formLog.Info(msg);
@@ -524,8 +524,10 @@ public partial class Form1 : Form, INotifyPropertyChanged
             Report("In the async bit A");
 
             Enumerable.Range(1, 20).AsParallel().WithDegreeOfParallelism(3).ForAll(async x => {
-                List<string> ids = new();
-                ids.Add(Task.CurrentId?.ToString() ?? "X");
+                List<string> ids =
+                [
+                    Task.CurrentId?.ToString() ?? "X"
+                ];
                 using var scope2 = new TraceScope("Doing the parallel bit");
                 Report($"Parallel...{x}...A");
                 ids.Add(Task.CurrentId?.ToString() ?? "X");
@@ -569,12 +571,12 @@ public partial class Form1 : Form, INotifyPropertyChanged
         {
             // using (var scope = new TraceScope("SYNC BLAH 1"))
             {
-                string message = $"£$%£$%£$%£$%£$%£$%£$%£$%£$%£$% SCOPE TASK {InvokeRequired} {DateTime.Now:d MMM yyyy HH:mm:ss} £$%£$%£$%£$%£$%£$%£$%£$%£$%£$%";
+                string message = $"ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$% SCOPE TASK {InvokeRequired} {DateTime.Now:d MMM yyyy HH:mm:ss} ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%";
                 TraceScope.Trace(message);
             }
             // using (var scope = new AsyncTraceScope("ASYNC BLAH 1"))
             {
-                string message = $"£$%£$%£$%£$%£$%£$%£$%£$%£$%£$% SCOPE TASK {InvokeRequired} {DateTime.Now:d MMM yyyy HH:mm:ss} £$%£$%£$%£$%£$%£$%£$%£$%£$%£$%";
+                string message = $"ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$% SCOPE TASK {InvokeRequired} {DateTime.Now:d MMM yyyy HH:mm:ss} ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%";
                 TraceScope.Trace(message);
             }
 
@@ -588,7 +590,7 @@ public partial class Form1 : Form, INotifyPropertyChanged
             using (var scope = new TraceScope("SYNC BLAH 2"))
             {
 
-                string message = $"£$%£$%£$%£$%£$%£$%£$%£$%£$%£$% SCOPE TIMER {InvokeRequired} {DateTime.Now:d MMM yyyy HH:mm:ss} £$%£$%£$%£$%£$%£$%£$%£$%£$%£$% ";
+                string message = $"ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$% SCOPE TIMER {InvokeRequired} {DateTime.Now:d MMM yyyy HH:mm:ss} ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$% ";
                 TraceScope.Trace(message);
             }
         });
@@ -596,7 +598,7 @@ public partial class Form1 : Form, INotifyPropertyChanged
             using (var scope = new TraceScope("ASYNC BLAH 2"))
             {
 
-                string message = $"£$%£$%£$%£$%£$%£$%£$%£$%£$%£$% SCOPE TIMER {InvokeRequired} {DateTime.Now:d MMM yyyy HH:mm:ss} £$%£$%£$%£$%£$%£$%£$%£$%£$%£$% ";
+                string message = $"ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$% SCOPE TIMER {InvokeRequired} {DateTime.Now:d MMM yyyy HH:mm:ss} ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$%ï¿½$% ";
                 TraceScope.Trace(message);
             }
         });

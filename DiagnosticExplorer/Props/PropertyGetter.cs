@@ -188,7 +188,7 @@ internal class PropertyGetter
         if (count == 0) 
             return "0 items";
 	
-        List<string> values = new List<string>();
+        List<string> values = [];
         if (maxItems <= 0)
             maxItems = MaxConcatItems;
 

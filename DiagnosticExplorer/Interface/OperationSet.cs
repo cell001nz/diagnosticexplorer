@@ -9,7 +9,7 @@ public class OperationSet
 {
     public OperationSet()
     {
-        Operations = new List<Operation>();
+        Operations = [];
     }
 
     [ProtoMember(1)]

@@ -10,7 +10,7 @@ internal static class Messages
 {
     
     public static WebMessageNames Web { get; } = new();
-    public static ProcessClientNames Process{ get; } = new();
+    public static ProcessClientNames Process { get; } = new();
 
 
     internal class ProcessClientNames
@@ -24,6 +24,8 @@ internal static class Messages
     {
         public string ReceiveProcess => nameof(ReceiveProcess);
         public string ReceiveDiagnostics => nameof(ReceiveDiagnostics);
+        public string ClearEventStream => nameof(ClearEventStream);
+        public string StreamEvents => nameof(StreamEvents);
     }
     
 }

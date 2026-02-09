@@ -46,7 +46,7 @@ public interface IDiagnosticHubServer
     Task ReceiveDiagnostics(byte[] diagnostics);
     Task ExecuteOperationReturn(RpcResult<OperationResponse> response);
     Task SetPropertyReturn(RpcResult<OperationResponse> response);
-    Task ClearEventStream();
+    Task ClearEvents();
     Task StreamEvents(byte[] eventData);
 }
 

@@ -1,4 +1,5 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003ASignalRMessageAction_002Ecs_002Fl_003AC_0021_003FUsers_003Fcamer_003FAppData_003FRoaming_003FJetBrains_003FRider2025_002E3_003Fresharper_002Dhost_003FSourcesCache_003F8a21172f4e7269b68bac351f4b79107a6a9128ed2b96ffbbd8c6d82737eeab_003FSignalRMessageAction_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
 	<s:String x:Key="/Default/Environment/Hierarchy/Build/SolBuilderDuo/UseMsbuildSolutionBuilder/@EntryValue">NewVersion</s:String>
 	<s:Boolean x:Key="/Default/RunConfigs/Config/=86ACC94440EA1D4DA9D13ACBFD1711A1/@KeyIndexDefined">True</s:Boolean>
 	<s:String x:Key="/Default/RunConfigs/Config/=86ACC94440EA1D4DA9D13ACBFD1711A1/Name/@EntryValue">DiagService</s:String>
@@ -8,8 +9,9 @@
 	<s:String x:Key="/Default/RunConfigs/Config/=B41E30A9840B0D4D9586AE84BD7ABAF1/Type/@EntryValue">project</s:String>
 	<s:String x:Key="/Default/RunConfigs/Config/=B41E30A9840B0D4D9586AE84BD7ABAF1/Name/@EntryValue">ConsoleApp</s:String>
 	<s:String x:Key="/Default/RunConfigs/Config/=B41E30A9840B0D4D9586AE84BD7ABAF1/ProjectGuid/@EntryValue">FDFBA3B877A83AAB3856A3E51268C209</s:String>
-	<s:String x:Key="/Default/RunConfigs/Active/@EntryValue">86ACC94440EA1D4DA9D13ACBFD1711A1</s:String>
+	<s:String x:Key="/Default/RunConfigs/Active/@EntryValue">CCE7729F549FBA4EB38DDF1E964285A0</s:String>
 	<s:Boolean x:Key="/Default/RunConfigs/Config/=CCE7729F549FBA4EB38DDF1E964285A0/@KeyIndexDefined">True</s:Boolean>
 	<s:String x:Key="/Default/RunConfigs/Config/=CCE7729F549FBA4EB38DDF1E964285A0/Name/@EntryValue">WidgetSample</s:String>
 	<s:String x:Key="/Default/RunConfigs/Config/=CCE7729F549FBA4EB38DDF1E964285A0/ProjectGuid/@EntryValue">EF1F3B0EEB5CA1152B07FEF6F5F7E131</s:String>
-	<s:String x:Key="/Default/RunConfigs/Config/=CCE7729F549FBA4EB38DDF1E964285A0/Type/@EntryValue">project</s:String></wpf:ResourceDictionary>
+	<s:String x:Key="/Default/RunConfigs/Config/=CCE7729F549FBA4EB38DDF1E964285A0/Type/@EntryValue">project</s:String>
+	<s:Boolean x:Key="/Default/UnloadedProject/UnloadedProjects/=24ffb2ed_002Dc633_002Dc1e7_002Da7fb_002Df6621da35a3a_0023Diagnostic_002EService/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>

@@ -6,7 +6,7 @@ import {AuthService} from "@services/auth.service";
 import {DiagProcess} from "@domain/DiagProcess";
 import {Observable, Subject} from "rxjs";
 import {OperationResponse, SetPropertyRequest} from "@domain/SetPropertyRequest";
-import {DiagnosticResponse} from "@domain/DiagResponse";
+import {DiagnosticResponse, SystemEvent} from "@domain/DiagResponse";
 
 const TAB_ID_KEY = "tabIdStorageKey"
 
@@ -22,6 +22,8 @@ export class DiagHubService implements OnDestroy {
   #hubConnection?: Promise<signalR.HubConnection>;
   processArrived$ = new Subject<DiagProcess>();
   diagsArrived$ = new Subject<{processId: string, response: DiagnosticResponse}>();
+  clearEvents$ = new Subject<{processId: string}>();
+  streamEvents$ = new Subject<{processId: string, events: SystemEvent[] }>();
   tabId = '';
   
   constructor() {
@@ -50,6 +52,14 @@ export class DiagHubService implements OnDestroy {
           hub.on('ReceiveDiagnostics', (processId: string, response: DiagnosticResponse) => {
             console.log('Diagnostics arrived', response);
             this.diagsArrived$.next({processId, response});
+          });
+          hub.on('ClearEvents', (processId: string) => {
+            console.log('ClearEvents', processId);
+            this.clearEvents$.next({processId});
+          });
+          hub.on('StreamEvents', (processId: string, events: SystemEvent[]) => {
+            console.log('StreamEvents', processId, events);
+            this.streamEvents$.next({processId, events});
           });
           console.log('Hub connection configured');
           hub.onclose(error => console.log('Hub connection closed:', error));

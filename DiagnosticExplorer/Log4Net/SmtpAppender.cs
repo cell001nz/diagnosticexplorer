@@ -69,7 +69,7 @@ public class SmtpAppender : AppenderSkeleton
         if (FailTimeout < TimeSpan.Zero)
             FailTimeout = hosts.Length == 1 ? TimeSpan.Zero : TimeSpan.FromMinutes(5);
 
-        Proxies = new List<SmtpAppenderProxy>();
+        Proxies = [];
 
         foreach (string host in hosts)
         {

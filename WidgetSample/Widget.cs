@@ -33,7 +33,7 @@ namespace WidgetSample;
 public class Widget : IDisposable, INotifyPropertyChanged
 {
     private static readonly Random _rand = new Random();
-    private static readonly string[] _names = new[] {"Widget X", "Widget Y", "Widget Z", "Widget W"};
+    private static readonly string[] _names = ["Widget X", "Widget Y", "Widget Z", "Widget W"];
     private readonly int _id;
     private DateTime _dateCreated;
     private string _name;

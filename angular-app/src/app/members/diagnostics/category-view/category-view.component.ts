@@ -33,24 +33,23 @@ export class CategoryViewComponent {
     #appContext = inject(AppContextService);
     #hubService = inject(DiagHubService);
     dialogService = inject(DialogService);
-    ref: DynamicDialogRef | undefined;
     messageService = inject(MessageService);  
 
   showSetPropertyDialog(prop: PropModel): void {
         const data = new PromptData(prop.getPropertyPath(), prop.value());
 
-        this.ref = this.dialogService.open(SetPropertyDialogComponent, {
-            maximizable: false,
-            // styleClass: "h-full",
-            width: '500px',
-            // height: '250px',
-            inputValues: {
-                text: prop.getPropertyPath(),
-                value: prop.value()
-            }
-        });
+      const ref = this.dialogService.open(SetPropertyDialogComponent, {
+          maximizable: false,
+          // styleClass: "h-full",
+          width: '500px',
+          // height: '250px',
+          inputValues: {
+              text: prop.getPropertyPath(),
+              value: prop.value()
+          }
+      });
 
-        this.ref.onClose.subscribe(async (result: PromptResult) => {
+      ref?.onClose.subscribe(async (result: PromptResult) => {
             if (result.button === 'OK')
                 await this.setPropertyValue(prop, result.value);
         });

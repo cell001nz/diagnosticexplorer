@@ -1,0 +1,16 @@
+<Solution>
+  <Folder Name="/SolutionItems/">
+    <File Path="README.txt" />
+  </Folder>
+  <Project Path="angular-app/angular-app.esproj">
+    <Build Solution="Release|*" />
+    <Deploy Solution="Release|*" />
+  </Project>
+  <Project Path="ConsoleApp/ConsoleApp.csproj" />
+  <Project Path="DiagnosticExplorer.Hosting/DiagnosticExplorer.Hosting.csproj" />
+  <Project Path="DiagnosticExplorer/DiagnosticExplorer.csproj" />
+  <Project Path="DiagnosticService/Diagnostic.Service.csproj" />
+  <Project Path="function-app/function-app.csproj" />
+  <Project Path="Shared/Shared.shproj" />
+  <Project Path="WidgetSample/WidgetSample.csproj" />
+</Solution>

@@ -289,17 +289,6 @@ public class ProcessHubTrigger : TriggerBase
         var logger = context.GetLogger(typeof(ProcessHubTrigger).FullName!);
         logger.LogWarning($"ReceiveDiagnostics", stringData);
         DualHubOutput output = new DualHubOutput();
-
-        // DiagValues values = new DiagValues()
-        // {
-        // Id = process.Id,
-        // SiteId = process.SiteId,
-        // Date = DateTime.UtcNow,
-        // Response = stringData
-        // };
-        // await DiagIO.Values.Save(values);
-        // await DiagIO.Process.SetLastReceived(process.Id, process.SiteId, DateTime.UtcNow);
-
         var (processId, siteId) = GetProcessAndSiteId(invokeContext);
 
         // if (!process.IsSending)
@@ -325,44 +314,51 @@ public class ProcessHubTrigger : TriggerBase
 
     #endregion
 
-    #region ClearEvents => SIGNALR/ClearEventStream
+    #region ClearEventStream => SIGNALR/ClearEventStream
 
-    /*[Function("ProcessHub_ClearEventStream")]
-    public async Task<IActionResult> ClearEventStream(
+    [Function("ProcessHub_ClearEventStream")]
+    [SignalROutput(HubName = WEB_HUB)]
+
+    public async Task<SignalRMessageAction> ClearEventStream(
         [SignalRTrigger(PROCESS_HUB, MESSAGES, nameof(ClearEventStream))]
         SignalRInvocationContext invokeContext,
         FunctionContext context)
     {
-        DiagProcess process = await GetProcess(invokeContext);
+        // DiagProcess process = await GetProcess(invokeContext);
+        var logger = context.GetLogger(typeof(ProcessHubTrigger).FullName!);
+        logger.LogWarning($"ClearEventStream");
+        DualHubOutput output = new DualHubOutput();
 
-        await DiagIO.SinkEvent.DeleteForProcess(process.Id);
-        
-        var result = new RpcResult
+        var (processId, siteId) = GetProcessAndSiteId(invokeContext);
+
+        return new SignalRMessageAction(Messages.Web.ClearEventStream, [processId])
         {
-            IsSuccess = true
+            GroupName = processId
         };
-        return new OkObjectResult(result);
-    }*/
-    
+    }
+
     #endregion
 
     #region StreamEvents => SIGNALR/StreamEvents
 
     [Function("ProcessHub_StreamEvents")]
-    public async Task StreamEvents(
+      [SignalROutput(HubName = WEB_HUB)]
+      public async Task<SignalRMessageAction> StreamEvents(
         [SignalRTrigger(PROCESS_HUB, MESSAGES, nameof(StreamEvents), nameof(events))]
         SignalRInvocationContext invokeContext,
         SystemEvent[] events,
         FunctionContext context)
     {
-        
-        DiagProcess process = await GetProcess(invokeContext);
-        // byte[] data = Convert.FromBase64String(eventData);
-        // SystemEvent[] events = ProtobufUtil.Decompress<SystemEvent[]>(data);
-        foreach (var evt in events)
-            evt.ProcessId = process.Id;
+        // DiagProcess process = await GetProcess(invokeContext);
+        var logger = context.GetLogger(typeof(ProcessHubTrigger).FullName!);
+        logger.LogWarning($"StreamEvents");
 
-        await DiagIO.SinkEvent.Save(events);
+        var (processId, siteId) = GetProcessAndSiteId(invokeContext);
+
+        return new SignalRMessageAction(Messages.Web.ClearEventStream, [processId, events])
+        {
+            GroupName = processId
+        };
     }
 
     #endregion

@@ -3,12 +3,12 @@
     "Sites": [
       {
         "Url": "http://localhost:4280/api/processhub/negotiate",
-        "Code": "2faaea68-f8ec-447a-83c8-6b812ce87112",
-        "Secret": "QzsjMKodxNYyxoqy33apU+HtcmAcXfAH5b1prwkEw6Y=",
+        "Code": "e583dfd6-f8a0-4881-84e8-c6cab745c12c",
+        "Secret": "2ynL9kSns/MX3TcHiyjmYYFBAkE0CPRfy1r3O/K/X2Q=",
         "Enabled": true
       },
       {
-        "Url": "http://localhost:2803/diagnostics",
+        "Url": "http://localhost:280399999/diagnostics",
         "Enabled": false
       }
     ]

@@ -7,7 +7,7 @@ namespace DiagnosticExplorer;
 
 internal class ScopeStack
 {
-    private readonly List<TraceScope> _scopes = new();
+    private readonly List<TraceScope> _scopes = [];
     private readonly ReaderWriterLockSlim _lock = new();
 
     public TraceScope Current

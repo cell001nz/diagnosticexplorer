@@ -21,7 +21,7 @@ public static class DiagnosticManager
 
     static DiagnosticManager()
     {
-        RegisteredObjects = new List<RegisteredObject>();
+        RegisteredObjects = [];
     }
 
     internal static void Clear()
@@ -102,7 +102,7 @@ public static class DiagnosticManager
             response.PropertyBags.AddRange(
                 registeredObjects.Select(x => ObjectToPropertyBag(x.Object, x.BagName, x.BagCategory)));
 
-            HashSet<OperationSet> operationSets = new();
+            HashSet<OperationSet> operationSets = [];
 
             foreach (PropertyBag bag in response.PropertyBags)
             {
@@ -203,7 +203,7 @@ public static class DiagnosticManager
 
     public static RegisteredObject[] GetRegisteredObjects()
     {
-        List<RegisteredObject> list = new();
+        List<RegisteredObject> list = [];
 
         lock (RegisteredObjects)
         {
@@ -243,7 +243,7 @@ public static class DiagnosticManager
 
     internal static List<PropertyGetter> GetPropertyGetters(object obj)
     {
-        if (obj == null) return new List<PropertyGetter>();
+        if (obj == null) return [];
 
         Type type = obj.GetType();
         string typeKey = type.AssemblyQualifiedName;
@@ -256,7 +256,7 @@ public static class DiagnosticManager
         List<PropertyGetter> propertyList;
         if (!_typeHash.TryGetValue(typeKey, out propertyList))
         {
-            propertyList = new List<PropertyGetter>();
+            propertyList = [];
 
             bool isStatic = obj is Type;
             IEnumerable<PropertyInfo> properties = isStatic ? GetStaticProperties(type) : GetInstanceProperties(type, null);
@@ -384,7 +384,7 @@ public static class DiagnosticManager
         try
         {
             if (arguments == null)
-                arguments = new string[0];
+                arguments = [];
 
             PropIdent ident = PropIdent.Parse(path);
             object sourceObject = GetSourceObject(registeredObjects, ident);
@@ -651,12 +651,12 @@ public static class DiagnosticManager
     {
         parsed = null;
 
-        MethodInfo method = type.GetMethod("Parse", PublicStaticMethods, null, new[] {typeof (string)}, null);
+        MethodInfo method = type.GetMethod("Parse", PublicStaticMethods, null, [typeof (string)], null);
 
         if (method == null)
             return false;
 
-        parsed = method.Invoke(null, new object[] {value});
+        parsed = method.Invoke(null, [value]);
         return true;
     }
 }

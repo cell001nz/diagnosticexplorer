@@ -52,7 +52,7 @@ internal class HubServerAdapter : IDiagnosticHubClient
                 RenewTimeChanged?.Invoke(this, new RenewTimeEventArgs(TimeSpan.FromSeconds(time)));
             });
 
-        _hubConn.On<string, string, string, string[]>(nameof(IDiagnosticHubClient.ExecuteOperation),
+        _hubConn.On<string, string, string, string[]>("ExecuteOperation",
             async (requestId, path, operation, args) => await ExecuteOperation(requestId, path, operation, args));
 
         _hubConn.On(nameof(IDiagnosticHubClient.SubscribeEvents),
@@ -62,12 +62,12 @@ internal class HubServerAdapter : IDiagnosticHubClient
             async () => await UnsubscribeEvents());
     }
 
-    private void StartSending(int seconds)
+    private void StartSending(int millis)
     {
-        Trace.WriteLine($"START SENDING {Process.GetCurrentProcess().Id}");
+        Trace.WriteLine($"START SENDING PID {Process.GetCurrentProcess().Id} ({millis} ms)");
         lock (_syncLock)
         {
-            _sendInterval = TimeSpan.FromSeconds(seconds);
+            _sendInterval = TimeSpan.FromMilliseconds(millis);
 
             if (_writeEventTask == null || _writeEventTask.IsCompleted)
                 SubscribeEvents();
@@ -144,7 +144,7 @@ internal class HubServerAdapter : IDiagnosticHubClient
         using EventSinkStream stream = EventSinkRepo.Default.CreateSinkStream(TimeSpan.FromMilliseconds(50), 100);
         try
         {
-            await _hubConn.InvokeAsync(nameof(IDiagnosticHubServer.ClearEventStream), cancel);
+            await _hubConn.InvokeAsync(nameof(IDiagnosticHubServer.ClearEvents), cancel);
 
             while (await stream.EventChannel.Reader.WaitToReadAsync(cancel))
             {

@@ -8,22 +8,6 @@
       <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net48'">
-    <DefineConstants>NET48</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net5.0-windows'">
-    <DefineConstants>NET5</DefineConstants>
-  </PropertyGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
-    <Reference Include="System.Windows.Forms" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0-windows'">
-       <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
-  </ItemGroup>
-
     <ItemGroup>
     <PackageReference Include="log4net">
       <Version>3.2.0</Version>

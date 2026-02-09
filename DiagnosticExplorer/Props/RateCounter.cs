@@ -34,7 +34,7 @@ namespace DiagnosticExplorer;
 public class RateCounter
 {
     private static readonly Timer _timer;
-    private static readonly List<WeakReference> _counters = new List<WeakReference>();
+    private static readonly List<WeakReference> _counters = [];
     private DateTime _lastCheck = DateTime.UtcNow;
     private readonly int[] _counts;
     private readonly TimeSpan[] _times;

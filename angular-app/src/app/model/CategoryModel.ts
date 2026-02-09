@@ -67,6 +67,13 @@ export class CategoryModel {
         for (const sinkName in grouped)
             this.getSink(sinkName).addEvents(grouped[sinkName]);
     }
+    
+    clearEvents() {
+        for (let sink of this.eventSinks) {
+            sink.events = [];
+        }            
+    }
+
 
     checkEventSeverityLevels() {
         if (this.worstSev > 0) {

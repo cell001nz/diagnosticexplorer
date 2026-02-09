@@ -60,6 +60,10 @@ export class DiagnosticsViewComponent implements OnDestroy {
         })
         // .subscribe(processId => this.#appContext.processId.set(processId));
     
+    this.#hubService.clearEvents$
+      .pipe(filter(d => d.processId === this.processId()), takeUntilDestroyed())
+      .subscribe(d => this.realtime.clearEvents());
+    
     this.#appContext.diags$
         .pipe(filter(d => d.processId === this.processId()))
         .subscribe(d => this.realtime.update(d.response));

@@ -22,7 +22,7 @@ public class TriggerBase
     
     protected const int PROCESS_RENEW_TIME = 20;
     protected const int PROCESS_STALE_TIME = 60;
-    protected const int DIAG_SEND_FREQ = 5;
+    protected const int DIAG_SEND_FREQ = 1_500;
 
     
     protected IDiagIO DiagIO { get; }

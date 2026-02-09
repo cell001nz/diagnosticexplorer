@@ -13,7 +13,7 @@ public class Category
 {
     public Category()
     {
-        Properties = new List<Property>();
+        Properties = [];
     }
 
     public Category(string name) : this()

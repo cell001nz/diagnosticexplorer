@@ -12,6 +12,7 @@ import {DiagnosticModelFactory} from "@model/DiagnosticModelFactory";
 @Injectable({providedIn: 'root'})
 export class RealtimeModel implements ObservableDisposable {
 
+
     #modelFactory = inject(DiagnosticModelFactory);
     selectedEvent?: EventModel;
     titleMessage = signal('');
@@ -61,6 +62,13 @@ export class RealtimeModel implements ObservableDisposable {
         if (!this.activeCatName() && this.categories().length)
             this.activeCatName.set(this.categories()[0].name());        
     }
+    
+    clearEvents(): void {
+        for (let cat of this.categories())        {
+            cat.clearEvents();
+        }
+    }
+
     dispose(): void {}
     disposed$ = new Subject<true>();
     //region process list

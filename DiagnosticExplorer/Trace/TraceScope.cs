@@ -50,7 +50,7 @@ public class TraceScope : IDisposable
 		
     private DateTime _created = DateTime.UtcNow;
     private DateTime? _disposed;
-    private List<ATraceItem> _traceItems = new();
+    private List<ATraceItem> _traceItems = [];
     private ReaderWriterLockSlim _traceItemsLock = new();
     private bool _forceTrace;
     private bool _isRoot;

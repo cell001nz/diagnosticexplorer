@@ -60,7 +60,7 @@ public class ProcessTrigger : TriggerBase
                 ExceptionMessage = "Process not found",
                 ServerDate = DateTime.UtcNow
             };
-            req.HttpContext.Response.Headers.Add("Content-Type", "application/json");
+            req.HttpContext.Response.Headers.Append("Content-Type", "application/json");
             await req.HttpContext.Response.WriteAsync(JsonSerializer.Serialize(errorResponse, DiagJsonOptions.Default));
             return null;
         }
@@ -81,7 +81,7 @@ public class ProcessTrigger : TriggerBase
             response.ServerDate = DateTime.UtcNow;
         }
         
-        req.HttpContext.Response.Headers.Add("Content-Type", "application/json");
+        req.HttpContext.Response.Headers.Append("Content-Type", "application/json");
         await req.HttpContext.Response.WriteAsync(JsonSerializer.Serialize(response, DiagJsonOptions.Default));
 
         if (process.IsSending && process.LastReceived - DateTime.UtcNow < TimeSpan.FromSeconds(10))
@@ -92,7 +92,7 @@ public class ProcessTrigger : TriggerBase
         {
             await DiagIO.Process.SetProcessSending(process.Id, process.SiteId, true);
 
-            return new SignalRMessageAction("StartSending", [2])
+            return new SignalRMessageAction(Messages.Process.StartSending, [DIAG_SEND_FREQ])
             {
                 ConnectionId = process.ConnectionId
             };

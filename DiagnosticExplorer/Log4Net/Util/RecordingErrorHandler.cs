@@ -10,7 +10,7 @@ namespace DiagnosticExplorer.Log4Net;
 
 public class MultiErrorHandler : IErrorHandler
 {
-    private List<IErrorHandler> _handlers = new List<IErrorHandler>();
+    private List<IErrorHandler> _handlers = [];
 	
     public MultiErrorHandler()
     {

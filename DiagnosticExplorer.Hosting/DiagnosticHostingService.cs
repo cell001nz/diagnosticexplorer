@@ -117,8 +117,10 @@ public class DiagnosticHostingService
     {
         DiagnosticHostingService instance = _instance;
         if (instance != null)
+        {
             // Debug.WriteLine($"Sending to {instance._registrationHandlers?.Length} registration handlers");
-            foreach (RegistrationHandler handler in instance._registrationHandlers ?? Array.Empty<RegistrationHandler>())
+            foreach (RegistrationHandler handler in instance._registrationHandlers ?? [])
                 handler.LogEvent(evt);
+        }
     }
 }

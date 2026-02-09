@@ -10,7 +10,7 @@ namespace DiagnosticExplorer;
 public class EventSinkRepo
 {
 
-    private readonly List<EventSinkStream> _sinkStreams = new();
+    private readonly List<EventSinkStream> _sinkStreams = [];
     private readonly ReaderWriterLockSlim _eventStreamLock = new(LockRecursionPolicy.NoRecursion);
     private readonly ConcurrentDictionary<string, EventSink> _sinks = new();
 
