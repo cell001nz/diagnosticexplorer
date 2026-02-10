@@ -1,24 +1,19 @@
-using Azure.Messaging.EventGrid;
 using DiagnosticExplorer;
 using DiagnosticExplorer.Api.Domain;
 using DiagnosticExplorer.Api.Security;
 using DiagnosticExplorer.Api.Triggers;
 using DiagnosticExplorer.Domain;
 using DiagnosticExplorer.IO;
-using DiagnosticExplorer.Util;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.SignalR.Management;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics;
+using System.IO;
 using System.Security.Claims;
 using System.Text.Json;
-using Microsoft.AspNetCore.Components.Forms;
+using System.Threading;
 using Microsoft.AspNetCore.Http.Connections;
-using FromBodyAttribute = Microsoft.Azure.Functions.Worker.Http.FromBodyAttribute;
 
 namespace api.Triggers;
 

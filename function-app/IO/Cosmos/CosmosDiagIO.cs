@@ -12,10 +12,10 @@ using Microsoft.Extensions.Logging;
 
 namespace DiagnosticExplorer.IO.Cosmos;
 
-public class DiagIO : IDiagIO
+public class CosmosDiagIO : IDiagIO
 {
 
-    public DiagIO(CosmosClient client, ILogger<DiagIO> logger)
+    public CosmosDiagIO(CosmosClient client, ILogger<CosmosDiagIO> logger)
     {
         Trace.WriteLine($"****************************************************************************************** Got logger {logger}");
         

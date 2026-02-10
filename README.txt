@@ -12,10 +12,11 @@ ng serve --port 4200
 swa start http://localhost:4200 --api-location api
 
 //not required
-#azurite --location ./.azurite_data
+
 
 ng serve
 asrs-emulator start -c function-app\asrs.emulator.settings.json --port 7072
+azurite --location ./.azurite_data
 func start
 swa start http://localhost:4200 --api-location  http://localhost:7071/api
 
