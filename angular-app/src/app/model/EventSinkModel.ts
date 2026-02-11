@@ -2,16 +2,17 @@
 import {CategoryModel} from './CategoryModel';
 import {EventModel} from './EventModel';
 import {FilterCriteria} from './FilterCriteria';
+import {signal} from '@angular/core';
 
 import pluralize from 'pluralize-esm';
 
 export class EventSinkModel {
     name = '';
-    events: EventModel[] = [];
-    filteredEvents: EventModel[] = [];
+    events = signal<EventModel[]>([]);
+    filteredEvents = signal<EventModel[]>([]);
     private latestReceived = 0;
     message = '';
-    isExpanded = true;
+    isCollapsed = false
 
     filterVisible = false;
     watchEnabled = false;
@@ -28,16 +29,25 @@ export class EventSinkModel {
         // this.latestReceived = evt;
 
         const evtModels = evts.map(evt => new EventModel(evt));
+        const currentEvents = this.events();
 
+        let newEvents: EventModel[];
         if (this.filterCriteria.isBlank) {
-            this.events = [...evtModels, ...this.events];
+            newEvents = [...evtModels, ...currentEvents];
         } else {
-            this.events.unshift(...evtModels);
+            newEvents = [...evtModels, ...currentEvents];
         }
-        if (this.events.length > 500)
-            this.events = this.events.slice(0, 500);
+        if (newEvents.length > 500)
+            newEvents = newEvents.slice(0, 500);
 
+        this.events.set(newEvents);
         this.filterEvents();
+    }
+
+    public clearEvents(): void {
+        this.events.set([]);
+        this.filteredEvents.set([]);
+        this.message = '';
     }
 
     private onCriteriaChanged(): void {
@@ -45,12 +55,14 @@ export class EventSinkModel {
     }
 
     private filterEvents(): void {
+        const currentEvents = this.events();
         if (this.filterCriteria.isBlank) {
-            this.filteredEvents = this.events;
-            this.message = pluralize('events', this.events.length, true);
+            this.filteredEvents.set(currentEvents);
+            this.message = pluralize('events', currentEvents.length, true);
         } else {
-            this.filteredEvents = this.events.filter(evt => this.filterCriteria.filter(evt));
-            this.message = `${this.filteredEvents.length} of ${this.events.length} ` + pluralize('event', this.events.length);
+            const filtered = currentEvents.filter(evt => this.filterCriteria.filter(evt));
+            this.filteredEvents.set(filtered);
+            this.message = `${filtered.length} of ${currentEvents.length} ` + pluralize('event', currentEvents.length);
         }
 
         if (this.latestReceived)
@@ -63,10 +75,9 @@ export class EventSinkModel {
 
     handleDoubleClick(evt: MouseEvent) {
         if (evt.detail === 2) {
-            this.isExpanded = true;
-            this.cat.eventSinks.forEach(c => c.isExpanded = c === this);
+            this.isCollapsed = false;
+            this.cat.eventSinks().forEach(c => c.isCollapsed = c !== this);
             this.cat.subCats().forEach(c => c.isCollapsed.set(true));
         }
     }
 }
-

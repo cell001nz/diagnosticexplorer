@@ -63,16 +63,18 @@ export class FilterCriteria {
         }
 
         return evt => {
-            if (!info && evt.level <= Level.INFO)
+            const levelNum = evt.level;
+            
+            if (!info && levelNum <= Level.Info)
                 return false;
 
-            if (!notice && evt.level > Level.INFO && evt.level <= Level.NOTICE)
+            if (!notice && levelNum > Level.Info && levelNum <= Level.Notice)
                 return false;
 
-            if (!warn && evt.level > Level.NOTICE && evt.level <= Level.WARN)
+            if (!warn && levelNum > Level.Notice && levelNum <= Level.Warn)
                 return false;
 
-            if (!error && evt.level >= Level.ERROR)
+            if (!error && levelNum >= Level.Error)
                 return false;
 
             if (evt.user && matcher?.test(evt.user)) return true;

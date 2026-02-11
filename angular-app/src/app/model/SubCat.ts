@@ -34,7 +34,7 @@ export class SubCat {
         if (evt.detail === 2) {
             this.isCollapsed.set(false);
             this.cat.subCats().forEach(c => c.isCollapsed.set(c !== this));
-            this.cat.eventSinks.forEach(c => c.isExpanded = false);
+            this.cat.eventSinks().forEach(c => c.isCollapsed = true);
         }
     }
 }

@@ -65,7 +65,7 @@ public class DiagnosticAppender : AppenderSkeleton
 
         string message = GetMessage(loggingEvent);
 
-        _sink.LogEvent(loggingEvent.Level.Value, message, detail);
+        _sink.LogEvent(GetLogLevel(loggingEvent.Level), message, detail);
     }
 
     private string GetMessage(LoggingEvent loggingEvent)
@@ -81,6 +81,32 @@ public class DiagnosticAppender : AppenderSkeleton
         return message;
     }
 
+    private LogLevel GetLogLevel(Level level)
+    {
+        if (level.Value <= Level.Verbose.Value)
+            return LogLevel.Verbose;
+        
+        if (level.Value <= Level.Debug.Value)
+            return LogLevel.Debug;
+        
+        if (level.Value <= Level.Info.Value)
+            return LogLevel.Info;
+        
+        if (level.Value <= Level.Notice.Value)
+            return LogLevel.Notice;
+        
+        if (level.Value <= Level.Warn.Value)
+            return LogLevel.Warn;
+        
+        if (level.Value <= Level.Error.Value)
+            return LogLevel.Error;
+        
+        if (level.Value <= Level.Critical.Value)
+            return LogLevel.Critical;
+        
+            return LogLevel.Fatal;
+}    
+    
     private EventSeverity GetSeverity(Level level)
     {
         switch (level.Name.ToUpper())

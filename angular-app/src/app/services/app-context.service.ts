@@ -26,7 +26,7 @@ export class AppContextService {
   constructor() {
       this.#hubService.processArrived$.pipe(
         takeUntilDestroyed(),
-        tap(p => console.log('process arrived', p, p.siteId, this.siteId())),
+        tap(p => console.log('AppContextService.ProcessArrived', p, p.siteId, this.siteId())),
         filter(p => p.siteId === this.siteId()),
         filter(p => this.processes.hasValue())
     ).subscribe(process => this.updateProcesses(process));

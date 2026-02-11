@@ -118,30 +118,30 @@ public class EventSink : IDisposable
 	
     public void Info(string message, string detail = null)
     {
-        LogEvent(Level.Info.Value, message, detail);
+        LogEvent(LogLevel.Info, message, detail);
     }
 
     public void Notice(string message, string detail = null)
     {
-        LogEvent(Level.Notice.Value, message, detail);
+        LogEvent(LogLevel.Notice, message, detail);
     }
 
     public void Warn(string message, string detail = null)
     {
-        LogEvent(Level.Warn.Value, message, detail);
+        LogEvent(LogLevel.Warn, message, detail);
     }
 
     public void Error(string message, string detail = null)
     {
-        LogEvent(Level.Error.Value, message, detail);
+        LogEvent(LogLevel.Error, message, detail);
     }
 
     public void Fatal(string message, string detail = null)
     {
-        LogEvent(Level.Fatal.Value, message, detail);
+        LogEvent(LogLevel.Fatal, message, detail);
     }
 
-    public void LogEvent(int level, string message, string detail)
+    public void LogEvent(LogLevel level, string message, string detail)
     {
         try
         {

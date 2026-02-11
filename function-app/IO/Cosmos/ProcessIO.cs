@@ -108,6 +108,7 @@ internal class ProcessIO(CosmosClient client, ILogger logger) : CosmosIOBase<Dia
             ]);
         Trace.WriteLine($"*** CHARGE *** {response.RequestCharge} SetOffline");
     }
+    
     #endregion
     
     #region GetProcessesForSite(string siteId)
@@ -222,6 +223,24 @@ internal class ProcessIO(CosmosClient client, ILogger logger) : CosmosIOBase<Dia
             patchOperations);
         
         Trace.WriteLine($"*** CHARGE *** {response.RequestCharge} DeleteWebSub");
+    }
+
+    #endregion
+
+    #region GetStaleOnlineProcesses(DateTime cutoffTime)
+    
+    public async Task<DiagProcess[]> GetStaleOnlineProcesses(DateTime cutoffTime)
+    {
+        string queryString = """
+                              SELECT *
+                              FROM c
+                              WHERE c.isOnline = true AND c.lastOnline < @cutoffTime
+                              """;
+
+        QueryDefinition query = new QueryDefinition(queryString)
+            .WithParameter("@cutoffTime", cutoffTime);
+
+        return await ReadMulti(query, () => "Stale online processes");
     }
 
     #endregion

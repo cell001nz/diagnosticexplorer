@@ -9,18 +9,20 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using DiagnosticExplorer.Domain;
 using DiagnosticExplorer.Hosting;
 
 namespace DiagWebService.Hubs;
 
-internal class HubServerAdapter : IDiagnosticHubClient
+internal class ProcessHubHandler : IDiagnosticHubClient
 {
-    private static readonly ILog _log = LogManager.GetLogger(typeof(HubServerAdapter));
+    private static readonly ILog _log = LogManager.GetLogger(typeof(ProcessHubHandler));
     private Task _writeEventTask;
     private Task _sendDiagnosticsTask;
     private TimeSpan _sendInterval = TimeSpan.FromSeconds(2);
     private CancellationTokenSource _sendDiagnosticsCancel;
     private CancellationTokenSource _writeEventCancel;
+    private readonly AutoResetEvent _sendNowEvent = new(false);
     public event EventHandler<RenewTimeEventArgs> RenewTimeChanged;
     private object _syncLock = new();
     
@@ -29,7 +31,7 @@ internal class HubServerAdapter : IDiagnosticHubClient
     private readonly IFlurlClient _flurlClient;
     private readonly bool _isAzure;
 
-    public HubServerAdapter(HubConnection hubConn, IFlurlClient flurlClient, bool isAzure)
+    public ProcessHubHandler(HubConnection hubConn, IFlurlClient flurlClient, bool isAzure)
     {
         _hubConn = hubConn ?? throw new ArgumentNullException(nameof(hubConn));
         _isAzure = isAzure;
@@ -38,15 +40,15 @@ internal class HubServerAdapter : IDiagnosticHubClient
         _hubConn.On<string>(nameof(IDiagnosticHubClient.GetDiagnostics),
             async (requestId) => await GetDiagnostics(requestId));
 
-        _hubConn.On<string, string, string>(nameof(IDiagnosticHubClient.SetProperty),
+        _hubConn.On<string, string, string>(Messages.Process.SetProperty,
             async (requestId, context, value) => await SetProperty(requestId, context, value));
 
-        _hubConn.On<string>("ReceiveMessage", msg => Trace.WriteLine($"***** ReceiveMessage {msg}"));
+        _hubConn.On<string>(Messages.Process.ReceiveMessage, msg => Trace.WriteLine($"***** ReceiveMessage {msg}"));
 
-        _hubConn.On<int>("StartSending", StartSending);
-        _hubConn.On("StopSending", StopSending);
+        _hubConn.On<int>(Messages.Process.StartSending, StartSending);
+        _hubConn.On(Messages.Process.StopSending, StopSending);
 
-        _hubConn.On<int>("SetRenewTime",
+        _hubConn.On<int>(Messages.Process.SetRenewTime,
             time =>
             {
                 RenewTimeChanged?.Invoke(this, new RenewTimeEventArgs(TimeSpan.FromSeconds(time)));
@@ -78,6 +80,11 @@ internal class HubServerAdapter : IDiagnosticHubClient
                 _sendDiagnosticsTask = Task.Run(() => SendDiagnosticsLoop(cancel.Token), cancel.Token);
                 _sendDiagnosticsCancel = cancel;
             }
+            else
+            {
+                // Signal the loop to send immediately
+                _sendNowEvent.Set();
+            }
         }
     }
 
@@ -97,7 +104,7 @@ internal class HubServerAdapter : IDiagnosticHubClient
     {
         while (!cancel.IsCancellationRequested)
         {
-            Trace.WriteLine($"SendDiagnosticsLoop {GetHashCode()} {_sendDiagnosticsCancel?.GetHashCode()}");
+            Trace.WriteLine($"SendDiagnosticsLoop {GetHashCode()} {cancel.GetHashCode()}/{_sendDiagnosticsCancel?.GetHashCode()}");
 
             try
             {
@@ -116,11 +123,15 @@ internal class HubServerAdapter : IDiagnosticHubClient
                 Trace.WriteLine(ex);
             }
 
+            // Wait on the AutoResetEvent with timeout, allowing immediate trigger via Set()
             try
             {
-                await Task.Delay(_sendInterval, cancel);
+                await Task.Run(() => _sendNowEvent.WaitOne(_sendInterval), cancel);
             }
-            catch {}
+            catch (OperationCanceledException)
+            {
+                return;
+            }
         }
     }
 
@@ -144,13 +155,24 @@ internal class HubServerAdapter : IDiagnosticHubClient
         using EventSinkStream stream = EventSinkRepo.Default.CreateSinkStream(TimeSpan.FromMilliseconds(50), 100);
         try
         {
-            await _hubConn.InvokeAsync(nameof(IDiagnosticHubServer.ClearEvents), cancel);
+            await _hubConn.InvokeAsync("ClearEventStream", cancel);
+        }
+        catch (OperationCanceledException)
+        {
+            return;
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine($"HubServerAdapter.ClearEvents error: {ex}");
+        }
 
+        try
+        {
             while (await stream.EventChannel.Reader.WaitToReadAsync(cancel))
             {
                 IList<SystemEvent> item = await stream.EventChannel.Reader.ReadAsync(cancel);
                 if (item.Any())
-                    await _hubConn.InvokeAsync(nameof(IDiagnosticHubServer.StreamEvents), item, cancel);
+                    await _hubConn.InvokeAsync("StreamEvents", item, cancel);
             }
         }
         catch (OperationCanceledException)

@@ -33,7 +33,7 @@ public class RegistrationHandler
     private DiagnosticSite _site;
     private string _resolvedUrl;
     private Registration _registration;
-    private HubServerAdapter _hubAdapter;
+    private ProcessHubHandler _processHubAdapter;
     private HubConnection _connection;
     private TimeSpan _renewTime = TimeSpan.FromSeconds(25);
 
@@ -99,11 +99,11 @@ public class RegistrationHandler
                     watch1.Stop();
 
                     Stopwatch watch2 = Stopwatch.StartNew();
-                    while (_hubAdapter == null)
+                    while (_processHubAdapter == null)
                         await Task.Delay(TimeSpan.FromSeconds(1), cancel);
 
                     Debug.WriteLine($"RegistrationHandler sending {data.Length} bytes");
-                    await _hubAdapter.LogEvents(data).ConfigureAwait(false);
+                    await _processHubAdapter.LogEvents(data).ConfigureAwait(false);
                     watch2.Stop();
                     Debug.WriteLine($"RegistrationHandler sent {data.Length} bytes, zip/send took {watch1.ElapsedMilliseconds}ms/{watch2.ElapsedMilliseconds}ms");
                 }
@@ -164,7 +164,7 @@ public class RegistrationHandler
 
     private async Task CloseConnection()
     {
-        _hubAdapter = null;
+        _processHubAdapter = null;
         Debug.WriteLine($"CloseConnection _hubAdapter set to null");
 
         HubConnection connection = _connection;
@@ -190,7 +190,7 @@ public class RegistrationHandler
 
     private async Task OpenHub()
     {
-        if (_hubAdapter == null)
+        if (_processHubAdapter == null)
         {
             Debug.WriteLine("Diagnostic RegistrationHandler constructing connection");
             string accessToken = null;
@@ -229,8 +229,8 @@ public class RegistrationHandler
             await _connection.StartAsync(_stopToken.Token);
 
             Debug.WriteLine("Diagnostic RegistrationHandler connection started");
-            _hubAdapter = new HubServerAdapter(_connection, flurlClient, isAzure);
-            _hubAdapter.RenewTimeChanged += (sender, args) => _renewTime = args.Time;
+            _processHubAdapter = new ProcessHubHandler(_connection, flurlClient, isAzure);
+            _processHubAdapter.RenewTimeChanged += (sender, args) => _renewTime = args.Time;
         }
     }
 
@@ -238,10 +238,10 @@ public class RegistrationHandler
     {
         Debug.WriteLine($"RegistrationHandler.HandleClosed {ex?.Message}");
         HubConnection currentConnection = _connection;
-        HubServerAdapter currentAdapter = _hubAdapter;
+        ProcessHubHandler currentAdapter = _processHubAdapter;
 
         _connection = null;
-        _hubAdapter = null;
+        _processHubAdapter = null;
 
         try
         {
@@ -272,8 +272,8 @@ public class RegistrationHandler
             Task loopTask = _registrationLoop;
             _stopToken?.Cancel();
             
-            _hubAdapter?.StopSending();
-            _hubAdapter = null;
+            _processHubAdapter?.StopSending();
+            _processHubAdapter = null;
 
             _logSubject?.OnCompleted();
             _logSubject = null;
@@ -296,14 +296,14 @@ public class RegistrationHandler
         }
     }
 
-    private async Task Deregister(HubServerAdapter hubAdapter, Registration registration)
+    private async Task Deregister(ProcessHubHandler processHubAdapter, Registration registration)
     {
         try
         {
-            if (hubAdapter != null)
+            if (processHubAdapter != null)
             {
                 _log.Info("DiagnosticHostingService Deregistered");
-                await hubAdapter.Deregister(registration);
+                await processHubAdapter.Deregister(registration);
                 Debug.WriteLine("Deregistered successfully");
             }
         }

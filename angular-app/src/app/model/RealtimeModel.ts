@@ -1,4 +1,4 @@
-﻿import {DiagnosticResponse, OperationSet, PropertyBag} from '@domain/DiagResponse';
+﻿import {DiagnosticResponse, OperationSet, PropertyBag, SystemEvent} from '@domain/DiagResponse';
 import * as _ from 'lodash-es';
 import {computed, inject, Injectable, signal} from '@angular/core';
 import {CategoryModel} from './CategoryModel';
@@ -8,6 +8,7 @@ import {format} from "date-fns";
 import {ObservableDisposable} from "@model/ObservableDisposable";
 import {Subject} from "rxjs";
 import {DiagnosticModelFactory} from "@model/DiagnosticModelFactory";
+import {strEqCI} from "@util/stringUtil";
 
 @Injectable({providedIn: 'root'})
 export class RealtimeModel implements ObservableDisposable {
@@ -53,8 +54,8 @@ export class RealtimeModel implements ObservableDisposable {
 
         cats = _.sortBy(cats, c => c.name);
             
-        if (cats.filter(c => !c.subCats().length && !c.eventSinks.length))
-            cats = cats.filter(c => c.subCats().length || c.eventSinks.length);
+        if (cats.filter(c => !c.subCats().length && !c.eventSinks().length))
+            cats = cats.filter(c => c.subCats().length || c.eventSinks().length);
 
         this.categories.set(cats);
         this.operationSets.set(response.operationSets);
@@ -68,6 +69,26 @@ export class RealtimeModel implements ObservableDisposable {
             cat.clearEvents();
         }
     }
+    
+   streamEvents(evts: SystemEvent[]) {
+
+        // evts.forEach(evt => this.setEventLevel(evt));
+        evts.reverse();
+
+        var grouped = _.groupBy<SystemEvent>(evts, evt => evt.cat);
+        for (const cat in grouped)
+            this.getCat(cat).addEvents(grouped[cat]);
+    }
+    
+   private getCat(name: string): CategoryModel {
+        let cat = this.categories().find(c => strEqCI(c.name(), name));
+        if (!cat) {
+            cat = new CategoryModel(this, name);
+            this.categories.update(val => _.sortBy([...this.categories(), cat!], c => c.name()));
+        }
+
+        return cat;
+   }
 
     dispose(): void {}
     disposed$ = new Subject<true>();

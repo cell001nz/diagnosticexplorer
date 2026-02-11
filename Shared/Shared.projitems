@@ -10,6 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)DiagJsonOptions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProtobufUtil.cs" />
   </ItemGroup>
 </Project>

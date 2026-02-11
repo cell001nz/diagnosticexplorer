@@ -1,12 +1,12 @@
 import {ChangeDetectionStrategy, Component, inject, input, Input} from '@angular/core';
 import {CategoryModel} from "@model/CategoryModel";
-import {JsonPipe} from "@angular/common";
+import {DatePipe, JsonPipe, NgClass, LowerCasePipe} from "@angular/common";
 import {Accordion, AccordionContent, AccordionHeader, AccordionPanel} from "primeng/accordion";
 import {Panel} from "primeng/panel";
 import {Fieldset} from "primeng/fieldset";
 import {PropModel} from "@model/PropModel";
 import {PromptData, PromptResult} from "@util/PromptData";
-import {DialogService, DynamicDialogRef} from "primeng/dynamicdialog";
+import {DialogService } from "primeng/dynamicdialog";
 import {SetPropertyDialogComponent} from "@app/members/diagnostics/set-property-dialog/set-property-dialog.component";
 import {AppContextService} from "@services/app-context.service";
 import {DiagHubService} from "@services/diag-hub.service";
@@ -14,12 +14,16 @@ import {MessageService} from "primeng/api";
 import {getErrorMsg} from "@util/errorUtil";
 import {SetPropertyRequest} from "@domain/SetPropertyRequest";
 import {DiagProcess} from "@domain/DiagProcess";
+import {LevelToStringPipe} from "@app/pipes/level-to-string.pipe";
 
 @Component({
   selector: 'app-category-view',
     imports: [
         Panel,
-        Fieldset
+        Fieldset,
+        DatePipe,
+        LevelToStringPipe,
+        LowerCasePipe
     ],
   templateUrl: './category-view.component.html',
   styleUrl: './category-view.component.scss',

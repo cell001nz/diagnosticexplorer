@@ -19,4 +19,5 @@ public interface IProcessIO
     Task SaveWebSub(WebProcSub sub);
     Task DeleteWebSub(WebProcSub sub);
     Task SetConnectionId(string processId, string siteId, string connectionId);
+    Task<DiagProcess[]> GetStaleOnlineProcesses(DateTime cutoffTime);
 }

@@ -170,13 +170,12 @@ public class WebHubTrigger : TriggerBase
         DualHubOutput output = new();
 
         //If the process is not sending already, instruct it to start sending diagnostics
-        if (!process.IsSending || process.LastReceived - DateTime.UtcNow > TimeSpan.FromSeconds(DIAG_SEND_FREQ * 2))
-        {
+        if (!process.IsSending)
             await DiagIO.Process.SetProcessSending(process.Id, process.SiteId, true);
-            output.ProcessClient.Add(new SignalRMessageAction(Messages.Process.StartSending, [DIAG_SEND_FREQ]) 
-                { ConnectionId = process.ConnectionId });
-        }
 
+        output.ProcessClient.Add(new SignalRMessageAction(Messages.Process.StartSending, [DIAG_SEND_FREQ])
+            { ConnectionId = process.ConnectionId });
+        
         output.WebClient.Add(new SignalRGroupAction(SignalRGroupActionType.Add)
         {
             GroupName = processId,

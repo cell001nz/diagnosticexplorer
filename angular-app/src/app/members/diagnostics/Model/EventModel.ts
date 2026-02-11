@@ -6,10 +6,10 @@ export class SystemEventModel {
   date = signal(new Date());
   message = signal('');
   detail = signal('');
-  level = signal(0);
+  level = signal('');
   severity = signal('');
-  sinkName = signal('');
-  sinkCategory = signal('');
+  sink = signal('');
+  cat = signal('');
   
   constructor(event?: SystemEvent) {
     if (event) {
@@ -23,7 +23,7 @@ export class SystemEventModel {
     this.detail.set(event.detail);
     this.level.set(event.level);
     this.severity.set(event.severity);
-    this.sinkName.set(event.sinkName);
-    this.sinkCategory.set(event.sinkCategory);
+    this.sink.set(event.sink);
+    this.cat.set(event.cat);
   }
 }

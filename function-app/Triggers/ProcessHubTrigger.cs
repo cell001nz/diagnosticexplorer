@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using DiagnosticExplorer;
 using DiagnosticExplorer.Api.Domain;
 using DiagnosticExplorer.Api.Security;
@@ -78,6 +79,16 @@ public class ProcessHubTrigger : TriggerBase
         return new OkObjectResult(info);
     }
     
+    private bool VerifyClientSecret(Site site, Registration registration)
+    {
+        if (site is not { Secrets.Count: > 0 })
+            return false;
+
+        PasswordHasher hasher = new PasswordHasher();
+        string secretHash = hasher.HashSecret(registration.Secret);
+        return site.Secrets.Any(secret => secret.Hash == secretHash);
+    }
+    
     #endregion
     
     #region OnConnected => SIGNALR/connections/connected
@@ -88,12 +99,9 @@ public class ProcessHubTrigger : TriggerBase
         SignalRInvocationContext invokeContext,
         FunctionContext context)
     {
-        var logger = context.GetLogger(typeof(ProcessHubTrigger).FullName!);
-        
         var (processId, siteId) = GetProcessAndSiteId(invokeContext);
-        logger.LogInformation($"----------------------------------- ProcessHubTrigger.OnConnected {invokeContext.ConnectionId}/{processId}/{siteId}");
+        _logger.LogWarning($"----------------------------------- ProcessHubTrigger.OnConnected {invokeContext.ConnectionId}/{processId}/{siteId}");
 
-        // var logger = context.GetLogger(nameof(OnConnected));
         await DiagIO.Process.SetConnectionId(processId, siteId, invokeContext.ConnectionId);
 
         DiagProcess process = await GetProcess(invokeContext);
@@ -125,8 +133,8 @@ public class ProcessHubTrigger : TriggerBase
         [SignalRTrigger(PROCESS_HUB, "connections", "disconnected")] SignalRInvocationContext invokeContext, 
         FunctionContext context)
     {
-        var logger = context.GetLogger(nameof(OnDisconnected));
-        logger.LogInformation($"----------------------------------- ClientTrigger.OnDisconnected {invokeContext.ConnectionId}");
+
+        _logger.LogWarning($"----------------------------------- ClientTrigger.OnDisconnected {invokeContext.ConnectionId}");
         var process = await GetProcess(invokeContext);
         // var process = await DiagIO.Process.GetProcessForConnectionId(invokeContext.ConnectionId);
         // if (process != null)
@@ -138,7 +146,7 @@ public class ProcessHubTrigger : TriggerBase
             process.ConnectionId = null;
             process.InstanceId = null;
             
-            logger.LogWarning($"OnDisconnected sending ReceiveProcess to GroupName {process.SiteId}");
+            _logger.LogWarning($"OnDisconnected sending ReceiveProcess to GroupName {process.SiteId}");
             return new SignalRMessageAction("ReceiveProcess", [process]) { GroupName = process.SiteId };
         // }
 
@@ -147,102 +155,8 @@ public class ProcessHubTrigger : TriggerBase
     
     #endregion
     
-    
-    #region Register => SIGNALR/Register
-
-    /*[Function("ProcessHub_Register")]
-    public async Task<DualHubOutput> Register(
-        [SignalRTrigger(PROCESS_HUB, MESSAGES, nameof(Register), nameof(registration))]
-        SignalRInvocationContext invokeContext,
-        Registration registration,
-        FunctionContext context)
-    {
-        DualHubOutput output = new DualHubOutput();
-        var logger = context.GetLogger(typeof(ProcessHubTrigger).FullName);
-        try
-        {
-            
-            DiagProcess process = await RegisterProcess(registration);
-            if (process.IsSending)
-            {
-                output.ProcessClient.Add(new SignalRMessageAction(Messages.Process.StartSending, [DIAG_SEND_FREQ]) 
-                    { ConnectionId = invokeContext.ConnectionId });
-            }
-
-            DiagProcess[] processes = await DiagIO.Process
-                .GetCandidateProcesses(registration.Code, registration.ProcessName, registration.MachineName, registration.UserName);
-
-            var process = processes.FirstOrDefault(p => p.ConnectionId == invokeContext.ConnectionId && p.InstanceId == registration.InstanceId);
-            bool wasOnline = process?.IsOnline ?? false;
-
-            //If we've found exactly the process we want, just make sure it's online and update the lastOnline time
-            if (process != null)
-            {
-                await DiagIO.Process.SetOnline(process.Id, process.SiteId, DateTime.UtcNow);
-            }
-            else
-            {
-                Site site = await DiagIO.Site.GetSite(registration.Code);
-                VerifyClientSecret(site, registration);
-
-                process = processes.FirstOrDefault(p => p.InstanceId == registration.InstanceId)
-                          ?? processes.FirstOrDefault(p => !p.IsOnline)
-                          ?? processes.FirstOrDefault(p => DateTime.UtcNow - p.LastOnline > TimeSpan.FromSeconds(PROCESS_STALE_TIME))
-                          ?? new DiagProcess
-                          {
-                              Id = Guid.NewGuid().ToString("N"),
-                              SiteId = registration.Code,
-                              ProcessName = registration.ProcessName,
-                              MachineName = registration.MachineName,
-                              UserName = registration.UserName
-                          };
-
-                process.ConnectionId = invokeContext.ConnectionId;
-                process.InstanceId = registration.InstanceId;
-                process.LastOnline = DateTime.UtcNow;
-                process.IsOnline = true;
-
-                await DiagIO.Process.SaveProcess(process);
-
-                //If it's a new connection or has come through on a different connectionId, we may have to tell it to start sending
-                if (process.IsSending)
-                {
-                    output.ProcessClient.Add(new SignalRMessageAction(Messages.Process.StartSending, [DIAG_SEND_FREQ]) 
-                        { ConnectionId = invokeContext.ConnectionId });
-                }
-            }
-
-            if (!wasOnline)
-            {
-                output.WebClient.Add(new SignalRMessageAction(Messages.Web.ReceiveProcess, [process]) { GroupName = process.SiteId });
-            }
-
-            if (registration.RenewTimeSeconds != PROCESS_RENEW_TIME)
-            {
-                output.ProcessClient.Add(new SignalRMessageAction(Messages.Process.SetRenewTime, [PROCESS_RENEW_TIME])
-                {
-                    ConnectionId = invokeContext.ConnectionId
-                });
-            }
-            
-            DiagProcess[] remaining = processes
-                .Where(p => p != process)
-                .Where(p => !p.IsOnline || DateTime.UtcNow - p.LastOnline > TimeSpan.FromSeconds(PROCESS_STALE_TIME))
-                .ToArray();
-
-            DeleteProcesses(remaining, logger);
-
-            return output;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError($"Register failed {ex}");
-            throw;
-        }
-    }*/
-
    
-    private void DeleteProcesses(DiagProcess[] processes, ILogger logger)
+    private void DeleteProcesses(DiagProcess[] processes)
     {
         foreach (var process in processes)
         {
@@ -254,22 +168,10 @@ public class ProcessHubTrigger : TriggerBase
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, $"Failed to delete processes");
+                _logger.LogError(ex, $"Failed to delete processes");
             }
         }
     }
-
-    private bool VerifyClientSecret(Site site, Registration registration)
-    {
-        if (site is not { Secrets.Count: > 0 })
-            return false;
-
-        PasswordHasher hasher = new PasswordHasher();
-        string secretHash = hasher.HashSecret(registration.Secret);
-        return site.Secrets.Any(secret => secret.Hash == secretHash);
-    }
-
-    #endregion
 
     #region ReceiveDiagnostics => SIGNALR/ReceiveDiagnostics
 
@@ -281,8 +183,7 @@ public class ProcessHubTrigger : TriggerBase
         FunctionContext context)
     {
         // DiagProcess process = await GetProcess(invokeContext);
-        var logger = context.GetLogger(typeof(ProcessHubTrigger).FullName!);
-        logger.LogWarning($"ReceiveDiagnostics", stringData);
+        _logger.LogWarning($"ReceiveDiagnostics", stringData);
         DualHubOutput output = new DualHubOutput();
         var (processId, siteId) = GetProcessAndSiteId(invokeContext);
 
@@ -320,10 +221,7 @@ public class ProcessHubTrigger : TriggerBase
         FunctionContext context)
     {
         // DiagProcess process = await GetProcess(invokeContext);
-        var logger = context.GetLogger(typeof(ProcessHubTrigger).FullName!);
-        logger.LogWarning($"ClearEventStream");
-        DualHubOutput output = new DualHubOutput();
-
+        _logger.LogWarning($"ClearEventStream");
         var (processId, siteId) = GetProcessAndSiteId(invokeContext);
 
         return new SignalRMessageAction(Messages.Web.ClearEventStream, [processId])
@@ -337,20 +235,19 @@ public class ProcessHubTrigger : TriggerBase
     #region StreamEvents => SIGNALR/StreamEvents
 
     [Function("ProcessHub_StreamEvents")]
-      [SignalROutput(HubName = WEB_HUB)]
-      public async Task<SignalRMessageAction> StreamEvents(
+    [SignalROutput(HubName = WEB_HUB)]
+    public async Task<SignalRMessageAction> StreamEvents(
         [SignalRTrigger(PROCESS_HUB, MESSAGES, nameof(StreamEvents), nameof(events))]
         SignalRInvocationContext invokeContext,
         SystemEvent[] events,
         FunctionContext context)
     {
         // DiagProcess process = await GetProcess(invokeContext);
-        var logger = context.GetLogger(typeof(ProcessHubTrigger).FullName!);
-        logger.LogWarning($"StreamEvents");
+        _logger.LogWarning($"StreamEvents");
 
         var (processId, siteId) = GetProcessAndSiteId(invokeContext);
 
-        return new SignalRMessageAction(Messages.Web.ClearEventStream, [processId, events])
+        return new SignalRMessageAction(Messages.Web.StreamEvents, [processId, events])
         {
             GroupName = processId
         };

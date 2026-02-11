@@ -62,7 +62,7 @@ builder.Services
             });
     })
     // .AddScoped<IDiagIO, CosmosDiagIO>()
-    .AddScoped<IDiagIO, EfCoreDiagIO>()
+    .AddScoped<IDiagIO, CosmosDiagIO>()
     .AddApplicationInsightsTelemetryWorkerService()
     .ConfigureFunctionsApplicationInsights();
 

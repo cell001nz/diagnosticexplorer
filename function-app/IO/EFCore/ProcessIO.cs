@@ -178,5 +178,12 @@ internal class ProcessIO : IProcessIO
             await _context.SaveChangesAsync();
         }
     }
+
+    public async Task<DiagProcess[]> GetStaleOnlineProcesses(DateTime cutoffTime)
+    {
+        return await _context.Processes
+            .Where(p => p.IsOnline && p.LastOnline < cutoffTime)
+            .ToArrayAsync();
+    }
 }
 

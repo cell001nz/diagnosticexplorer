@@ -73,7 +73,6 @@ public partial class Form1 : Form, INotifyPropertyChanged
         string log4net = Path.GetFullPath("log4net.config");
         XmlConfigurator.ConfigureAndWatch(new FileInfo(log4net));
 
-        Trace.Listeners.Add(new TextWriterTraceListener(Console.Error));
         Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
             
         _flurlCache = new FlurlClientCache();
@@ -295,25 +294,31 @@ public partial class Form1 : Form, INotifyPropertyChanged
     private void SendEvents(object o)
     {
         if (chkSystem.Checked)
+        {
             using (new TraceScope(_formLog.Info))
             {
                 TraceScope.Trace($"Form Trace Scope {_evtCount1++}");
                 Task.Run(TraceScopeExample.TestTraceScope1);
             }
+        }
 
         if (chkWidgets.Checked)
+        {
             using (new TraceScope(_widgetLog.Info))
             {
                 TraceScope.Trace($"Widget Trace Scope {_evtCount1++}");
                 Task.Run(TraceScopeExample.TestTraceScope1);
             }
+        }
 
         if (chkGadgets.Checked)
+        {
             using (new TraceScope(_gadgetLog.Info))
             {
                 TraceScope.Trace($"Gadget Trace Scope {_evtCount1++}");
                 Task.Run(TraceScopeExample.TestTraceScope1);
             }
+        }
     }
 
     private void SendInitial()

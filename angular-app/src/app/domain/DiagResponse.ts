@@ -39,13 +39,14 @@ export interface EventResponse {
 
 export interface SystemEvent {
   id: number;
+  sinkSeq: number;
   date: string | Date;
   message: string;
   detail: string;
   level: number;
   severity: string;
-  sinkName: string;
-  sinkCategory: string;
+  sink: string;
+  cat: string;
 }
  
 export interface OperationSet {

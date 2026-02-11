@@ -35,6 +35,16 @@ public class ProcessTrigger : TriggerBase
         await VerifySiteAccess(cp, siteId);
         
         DiagProcess[] processes = await DiagIO.Process.GetProcessesForSite(siteId);
+        
+        foreach (DiagProcess process in processes)
+        {
+            if (process.IsSending && process.LastReceived - DateTime.UtcNow > TimeSpan.FromSeconds(PROCESS_RENEW_TIME))
+            {
+                await DiagIO.Process.SetProcessSending(process.Id, process.SiteId, false);
+                process.IsSending = false;
+            }
+        }
+        
         return new OkObjectResult(processes);
     }
 

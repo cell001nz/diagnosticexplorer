@@ -24,6 +24,7 @@
 
 using System;
 using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 using ProtoBuf;
 
 namespace DiagnosticExplorer;
@@ -57,7 +58,8 @@ public class SystemEvent
     public string Detail { get; set; }
 
     [ProtoMember(6)]
-    public int Level { get; set; }
+    [JsonConverter(typeof(JsonNumberEnumConverter<LogLevel>))]
+    public LogLevel Level { get; set; }
 
     [ProtoMember(7)]
     public string Sink { get; set; }

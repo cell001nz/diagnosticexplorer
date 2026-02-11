@@ -29,4 +29,38 @@
         
     </p-panel>
 }
+
+
+@for (sink of category().eventSinks(); track sink.name) {
+    <p-panel [header]="sink.name" [toggleable]="true" [(collapsed)]="sink.isCollapsed" class="mb-4">
+        <div class="h-[300px] overflow-y-auto border border-gray-700 rounded">
+            <table class="w-full border-collapse text-sm">
+                <thead class="sticky top-0 bg-gray-800 z-10">
+                    <tr>
+                        <th class="p-2 text-left w-20">Id</th>
+                        <th class="p-2 text-left w-44 whitespace-nowrap">Date</th>
+                        <th class="p-2 text-left w-20">Level</th>
+                        <th class="p-2 text-left">Message</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (event of sink.filteredEvents(); track event.sinkSeq) {
+                        <tr class="border-b border-gray-700 event-row-{{event.level | levelToString | lowercase }}">
+                            <td class="p-2">{{ event.sinkSeq }}</td>
+                            <td class="p-2 whitespace-nowrap">{{ event.date | date:'yyyy-MM-dd HH:mm:ss' }}</td>
+                            <td class="p-2">{{ event.level | levelToString }}</td>
+                            <td class="p-2">{{ event.message }}</td>
+                        </tr>
+                    } @empty {
+                        <tr>
+                            <td colspan="4" class="p-4 text-center text-gray-500">No events</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </p-panel>
+        
+}
+
 <!--</div>-->

@@ -13,7 +13,7 @@ export class CategoryModel {
     // propData = signal<PropertyBag[]>([]);
     eventData: EventResponse[] = [];
     subCats = signal<SubCat[]>([]);
-    eventSinks: EventSinkModel[] = [];
+    eventSinks = signal<EventSinkModel[]>([]);
     realtimeModel: RealtimeModel;
     labelClass = '';
     worstSev = 0;
@@ -37,9 +37,11 @@ export class CategoryModel {
     }
 
     getSink(name: string): EventSinkModel {
-        let sink = this.eventSinks.find(c => strEqCI(c.name, name));
-        if (!sink)
-            this.eventSinks.push(sink = new EventSinkModel(this, name));
+        let sink = this.eventSinks().find(c => strEqCI(c.name, name));
+        if (!sink) {
+            sink = new EventSinkModel(this, name);
+            this.eventSinks.update(sinks => [...sinks, sink!]);
+        }
 
         return sink;
     }
@@ -63,14 +65,14 @@ export class CategoryModel {
             this.labelClass = this.worstSev === 0 ? '' : 'event-level-' + Level.LevelToString(this.worstSev).toLocaleLowerCase();
         }
 
-        const grouped = _.groupBy(evts, evt => evt.sinkName)
+        const grouped = _.groupBy(evts, evt => evt.sink);
         for (const sinkName in grouped)
             this.getSink(sinkName).addEvents(grouped[sinkName]);
     }
     
     clearEvents() {
-        for (let sink of this.eventSinks) {
-            sink.events = [];
+        for (let sink of this.eventSinks()) {
+            sink.clearEvents();
         }            
     }
 

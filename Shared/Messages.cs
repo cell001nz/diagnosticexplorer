@@ -10,14 +10,16 @@ internal static class Messages
 {
     
     public static WebMessageNames Web { get; } = new();
-    public static ProcessClientNames Process { get; } = new();
+    public static ProcessMessageNames Process { get; } = new();
 
 
-    internal class ProcessClientNames
+    internal class ProcessMessageNames
     {
         public string StartSending => nameof(StartSending);
         public string StopSending => nameof(StopSending);
         public string SetRenewTime => nameof(SetRenewTime);
+        public string SetProperty => nameof(SetProperty);
+        public string ReceiveMessage => nameof(ReceiveMessage);
     }
 
     internal class WebMessageNames
