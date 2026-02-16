@@ -3,8 +3,8 @@
     "Sites": [
       {
         "Url": "http://localhost:4280/api/processhub/negotiate",
-        "Code": "2faaea68-f8ec-447a-83c8-6b812ce87112",
-        "Secret": "5W5n3XiW29qHAMlPbhGoZNOjEb6SGL5USanOH9A5q54=",
+        "Code": "e07b00b9-8f6c-4e1c-a3da-1317a139d66c",
+        "Secret": "ZnkfK7r3x2XTlo48t2S9Outv3WOD4bBA8upWN9mS2vk=",
         "Enabled": true
       },
       {

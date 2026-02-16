@@ -1,6 +1,5 @@
 ﻿export class SetPropertyRequest {
-    processId = '';
-    siteId = '';
+    processId = 0;
     path = '';
     value = '';
 }

@@ -1,9 +1,8 @@
-﻿namespace DiagnosticExplorer.Api.Domain;
+﻿namespace DiagnosticExplorer.Domain;
 
 public class WebProcSub
 {
-    public string WebConnectionId { get; set; }
-    public string SiteId { get; set; }
-    public string ProcessId { get; set; }
+    public int ProcessId { get; set; }
+    public string WebConnectionId { get; set; } = "";
     public DateTime Date { get; set; }
 }

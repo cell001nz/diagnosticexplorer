@@ -23,7 +23,7 @@ export class DiagProcessSignals {
     this.id.set(process.id);
     this.siteId.set(process.siteId);
     this.instanceId.set(process.instanceId);
-    this.processName.set(process.processName);
+    this.processName.set(process.name);
     this.userName.set(process.userName);
     this.lastOnline.set(new Date(process.lastOnline));
     this.isOnline.set(process.isOnline);

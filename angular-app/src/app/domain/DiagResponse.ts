@@ -1,5 +1,5 @@
 ﻿export interface DiagnosticResponse {
-    processId: string;
+    processId: number;
     propertyBags: PropertyBag[];
     events: EventResponse[];
     operationSets: OperationSet[];

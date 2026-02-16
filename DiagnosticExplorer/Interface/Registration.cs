@@ -39,11 +39,10 @@ public class Registration
     public string ProcessName { get; set; }
     public string UserName { get; set; }
     public int ProcessId { get; set; }
-    public string Uri { get; set; }
     public string MachineName { get; set; }
 
     public override string ToString()
     {
-        return $"DiagnosticRegistration(Uri:{Uri}, UserName:{UserName}, PID:{ProcessId}, Process:{ProcessName})";
+        return $"DiagnosticRegistration(UserName:{UserName}, PID:{ProcessId}, Process:{ProcessName})";
     }
 }

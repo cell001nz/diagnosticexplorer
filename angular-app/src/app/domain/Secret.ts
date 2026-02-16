@@ -1,5 +1,5 @@
 ﻿export interface Secret {
-    id: string;
+    id: number;
     name: string;
     value: string;
 }

@@ -1,11 +1,11 @@
-﻿namespace DiagnosticExplorer.Api.Domain;
+﻿namespace DiagnosticExplorer.Domain;
 
 public class WebClient
 {
-    public string Id { get; set; }
-    public string AccountId { get; set; }
-    
+    public int Id { get; set; }
+    public string ConnectionId { get; set; }
+    public int AccountId { get; set; }
     
     //Subscriptions by ProcessId
-    public Dictionary<string, WebProcSub> Subscriptions { get; set; } = [];
+    public WebProcSub[] Subscriptions { get; set; } = [];
 }

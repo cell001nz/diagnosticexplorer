@@ -28,12 +28,12 @@ export class SiteIOService {
       return this.#http.put<Site>(`api/Sites/${site.id}`, site);
   }
   
-  getProcesses(siteId: string) {
+  getProcesses(siteId: number) {
     return this.#http.get<DiagProcess[]>(`api/Sites/${siteId}/Processes`);
   }
 
-  getDiagnostics(siteId: string, processId: string): Observable<DiagnosticResponse> {
-    return this.#http.get<DiagnosticResponse>(`api/Sites/${siteId}/Processes/${processId}/Diagnostics`);
+  getDiagnostics(processId: number): Observable<DiagnosticResponse> {
+    return this.#http.get<DiagnosticResponse>(`api/Sites/${processId}/Diagnostics`);
   }
 
   newSecret() {

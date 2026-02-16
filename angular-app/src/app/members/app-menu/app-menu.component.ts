@@ -38,7 +38,7 @@ export class AppMenuComponent {
 
         let siteMenu = [ { label: 'Diagnostics', items: siteItems }];
 
-        if (this.#authService.account()?.clientPrincipal?.userRoles.some(r => r.toLowerCase() === 'admin')) {
+        if (this.#authService.authMe()?.clientPrincipal?.userRoles.some(r => r.toLowerCase() === 'admin')) {
             adminItems = [
                 {
                     label: 'Admin',

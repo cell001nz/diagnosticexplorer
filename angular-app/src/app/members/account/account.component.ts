@@ -1,4 +1,4 @@
-import {Component, computed, inject} from '@angular/core';
+import {Component, computed, inject, resource} from '@angular/core';
 import {JsonPipe} from "@angular/common";
 import {AuthService} from "@services/auth.service";
 
@@ -13,6 +13,11 @@ import {AuthService} from "@services/auth.service";
 export class AccountComponent {
   
   #authSvc = inject(AuthService);
-  account = computed(() => this.#authSvc.account());  
-
+  authMe = computed(() => this.#authSvc.authMe());
+  
+  accountResource = resource({
+    loader: () => this.#authSvc.getMyAccount()
+  });
+  
+  
 }

@@ -1,11 +1,9 @@
-
-
-namespace DiagnosticExplorer.Api.Domain;
+namespace DiagnosticExplorer.Domain;
 
 public class Site
 {
-    public string Id { get; set; } = "";
+    public int Id { get; set; }
     public string Name { get; set; } = "";
-    public List<SiteRole>? Roles { get; set; } = [];
+    public string Code { get; set; } = "";
     public List<Secret>? Secrets { get; set; } = [];
 }

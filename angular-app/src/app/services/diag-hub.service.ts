@@ -21,9 +21,9 @@ export class DiagHubService implements OnDestroy {
   #authService = inject(AuthService);
   #hubConnection?: Promise<signalR.HubConnection>;
   processArrived$ = new Subject<DiagProcess>();
-  diagsArrived$ = new Subject<{processId: string, response: DiagnosticResponse}>();
-  clearEvents$ = new Subject<{processId: string}>();
-  streamEvents$ = new Subject<{processId: string, events: SystemEvent[] }>();
+  diagsArrived$ = new Subject<{processId: number, response: DiagnosticResponse}>();
+  clearEvents$ = new Subject<{processId: number}>();
+  streamEvents$ = new Subject<{processId: number, events: SystemEvent[] }>();
   tabId = '';
   
   constructor() {
@@ -42,22 +42,22 @@ export class DiagHubService implements OnDestroy {
   
           await hub.start();
           hub.on('say', (message) => console.log('Hub message', message));
-          hub.on('ReceiveProcesses', (siteId: string, processes: DiagProcess[]) => {
+          hub.on('ReceiveProcesses', (siteId: number, processes: DiagProcess[]) => {
             console.log('Processes arrived', siteId, processes);
           });
           hub.on('ReceiveProcess', (process: DiagProcess) => {
             console.log('DiagHubService.ReceiveProcess', process);
             this.processArrived$.next(process);
           });
-          hub.on('ReceiveDiagnostics', (processId: string, response: DiagnosticResponse) => {
+          hub.on('ReceiveDiagnostics', (processId: number, response: DiagnosticResponse) => {
             console.log('Diagnostics arrived', response);
             this.diagsArrived$.next({processId, response});
           });
-          hub.on('ClearEvents', (processId: string) => {
+          hub.on('ClearEvents', (processId: number) => {
             console.log('ClearEvents', processId);
             this.clearEvents$.next({processId});
           });
-          hub.on('StreamEvents', (processId: string, events: SystemEvent[]) => {
+          hub.on('StreamEvents', (processId: number, events: SystemEvent[]) => {
             console.log('StreamEvents', processId, events);
             this.streamEvents$.next({processId, events});
           });
@@ -88,27 +88,27 @@ export class DiagHubService implements OnDestroy {
     sessionStorage.setItem(TAB_ID_KEY, this.tabId)
   }
 
-  async subscribeSite(siteId: string) {
+  async subscribeSite(siteId: number) {
     let hub = await this.getHubConnection();
     console.log('Subscribe site: ' + siteId);
     await hub.invoke("SubscribeSite", siteId);
   }
 
-  async unsubscribeSite(siteId: string) {
+  async unsubscribeSite(siteId: number) {
     let hub = await this.getHubConnection();
     await hub.invoke("UnsubscribeSite", siteId);
   }
 
-  async subscribeProcess(processId: string, siteId: string) {
+  async subscribeProcess(processId: number) {
     let hub = await this.getHubConnection();
-    await hub.invoke("SubscribeProcess", processId, siteId);
+    await hub.invoke("SubscribeProcess", processId);
     console.log('Subscribe process: ' + processId);
   }
 
-  async unsubscribeProcess(processId: string, siteId: string) {
+  async unsubscribeProcess(processId: number) {
     console.log('unsubscribeProcess process: ' + processId);
     let hub = await this.getHubConnection();
-    await hub.invoke("UnsubscribeProcess", processId, siteId);
+    await hub.invoke("UnsubscribeProcess", processId);
   }
     async setPropertyValue(request: SetPropertyRequest): Promise<void> {
        let hub = await this.getHubConnection();

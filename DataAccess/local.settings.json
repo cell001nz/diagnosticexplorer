@@ -1,0 +1,7 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "PostgreSQLConnection": "Host=localhost;Database=diagnosticexplorer;Username=postgres;Password=postgres"
+  },
+  "ConnectionStrings": {}
+}

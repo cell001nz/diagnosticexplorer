@@ -40,8 +40,9 @@ export class EditSiteComponent {
   
   #createNew(): Site {
     return {
-      id: crypto.randomUUID(),
+      id: 0,
       name: 'New Site',
+      code: crypto.randomUUID(),
       secrets: []
     }
   }
@@ -84,7 +85,7 @@ export class EditSiteComponent {
   addSecret() {
     this.#siteService.newSecret()
         .subscribe(secret => {
-          this.site.value().secrets.push( {id: '',  name: "New Secret", value: secret})
+          this.site.value().secrets.push( {id: 0,  name: "New Secret", value: secret})
         })
   }
 

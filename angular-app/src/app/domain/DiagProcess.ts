@@ -1,8 +1,8 @@
 ﻿export interface DiagProcess {
-    id: string;
-    siteId: string;
+    id: number;
+    siteId: number;
     instanceId: string;
-    processName: string;
+    name: string;
     userName: string;
     lastOnline: string | Date;
     isOnline: boolean;

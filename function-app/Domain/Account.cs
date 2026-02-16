@@ -1,4 +1,4 @@
-namespace DiagnosticExplorer.Api.Domain;
+namespace DiagnosticExplorer.Domain;
 
 public class Account
 {
@@ -6,12 +6,12 @@ public class Account
     {
     }
 
-    public Account(string id, string name)
+    public Account(int id, string name)
     {
         Id = id;
         Name = name;
     }
 
-    public string Id { get; set; } = "";
+    public int Id { get; set; }
     public string Name { get; set; } = "";
 }

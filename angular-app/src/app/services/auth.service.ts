@@ -3,6 +3,7 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {HttpClient} from "@angular/common/http";
 import {firstValueFrom} from "rxjs";
 import {AuthMe} from "@domain/AuthMe";
+import {Account} from "@domain/Account";
 
 @Injectable({
   providedIn: 'root'
@@ -13,8 +14,8 @@ export class AuthService {
     #router = inject(Router);
     #http = inject(HttpClient);
     
-    account = signal<AuthMe | undefined>(undefined);
-    isLoggedIn = computed(() => !!(this.account()?.clientPrincipal));
+    authMe = signal<AuthMe | undefined>(undefined);
+    isLoggedIn = computed(() => !!(this.authMe()?.clientPrincipal));
     #account = firstValueFrom(this.#http.get<AuthMe>('/.auth/me'));       
     
     
@@ -32,9 +33,14 @@ export class AuthService {
     logout() {
         window.location.assign('/.auth/logout');
     }
+    
+    getMyAccount() : Promise<Account> {
+        return firstValueFrom(this.#http.get<Account>('/api/Account/MyAccount'));
+    }
+    
     async initialiseAsync() {
         this.#account.then(async v => {
-            this.account.set(v);
+            this.authMe.set(v);
             console.log(v);
             if (v.clientPrincipal) {
                 let str = await firstValueFrom(this.#http.get('/api/Account/RegisterLogin', {responseType: 'text'}));

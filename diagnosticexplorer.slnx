@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/SolutionItems/">
+    <File Path="Directory.Packages.props" />
     <File Path="README.txt" />
   </Folder>
   <Project Path="angular-app/angular-app.esproj">
@@ -7,6 +8,7 @@
     <Deploy Solution="Release|*" />
   </Project>
   <Project Path="ConsoleApp/ConsoleApp.csproj" />
+  <Project Path="DataAccess/DataAccess.csproj" />
   <Project Path="DiagnosticExplorer.Hosting/DiagnosticExplorer.Hosting.csproj" />
   <Project Path="DiagnosticExplorer/DiagnosticExplorer.csproj" />
   <Project Path="DiagnosticService/Diagnostic.Service.csproj" />

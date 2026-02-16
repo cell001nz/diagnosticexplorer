@@ -109,7 +109,7 @@ public class DiagnosticHub : Hub<IDiagnosticHubClient>, IDiagnosticHubServer
         return Task.CompletedTask;
     }
 
-    public Task ClearEventStream()
+    public Task ClearEvents()
     {
         var client = _rtManager.GetClientHandler(Context.ConnectionId);
         client.SetEvents([]);

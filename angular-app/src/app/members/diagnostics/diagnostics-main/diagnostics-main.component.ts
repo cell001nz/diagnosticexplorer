@@ -19,8 +19,8 @@ import {AppContextService} from "@services/app-context.service";
 })
 export class DiagnosticsMainComponent implements OnDestroy {
   
-  siteId = input.required<string>();
-  processId = input<string>('')
+  siteId = input.required<number, string>({ transform: (value: string) => Number(value) });
+  processId = input<number, string>(0, { transform: (value: string) => Number(value) });
   #appContext = inject(AppContextService);
 
   constructor() {
@@ -28,7 +28,7 @@ export class DiagnosticsMainComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-        this.#appContext.siteId.set('');
+        this.#appContext.siteId.set(0);
     }
   
 

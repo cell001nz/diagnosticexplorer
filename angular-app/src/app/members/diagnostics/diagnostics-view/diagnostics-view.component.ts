@@ -37,7 +37,7 @@ const REFRESH_INTERVAL = 5_000;
 })
 export class DiagnosticsViewComponent implements OnDestroy {
   route = inject(ActivatedRoute);
-  processId = input.required<string>();
+  processId = input.required<number, string>({ transform: (value: string) => Number(value) });
   #siteIO = inject(SiteIOService);
   #hubService = inject(DiagHubService);
   #appContext = inject(AppContextService);
@@ -46,6 +46,8 @@ export class DiagnosticsViewComponent implements OnDestroy {
   process = computed(() => this.#appContext.processes.value().find(p => p.id === this.processId()));
 
   constructor() {
+    effect(() => console.log('ProcessId changed ', this.processId(), typeof this.processId()));
+    
     toObservable(this.process)
         .pipe(
             filter(p => !!p),
@@ -85,7 +87,7 @@ export class DiagnosticsViewComponent implements OnDestroy {
   private async tryUnsubscribe(process: DiagProcess | undefined) {
     try {
       if (process)
-        await this.#hubService.unsubscribeProcess(process.id, process.siteId);
+        await this.#hubService.unsubscribeProcess(process.id);
     } catch (err) {
       console.log(err);
     }
@@ -94,7 +96,7 @@ export class DiagnosticsViewComponent implements OnDestroy {
   private async trySubscribe(process: DiagProcess | undefined) {
         try {
       if (process)
-        await this.#hubService.subscribeProcess(process.id, process.siteId);
+        await this.#hubService.subscribeProcess(process.id);
     } catch (err) {
       console.log(err);
     }

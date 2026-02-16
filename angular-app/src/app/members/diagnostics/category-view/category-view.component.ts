@@ -63,7 +63,6 @@ export class CategoryViewComponent {
         try {
             const request = new SetPropertyRequest();
             request.processId = this.process()!.id;
-            request.siteId = this.process()!.siteId;
             request.path = prop.getPropertyPath();
             request.value = value;
 

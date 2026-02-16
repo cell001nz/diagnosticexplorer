@@ -2,8 +2,12 @@
   "profiles": {
     "api": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7195",
+      "commandLineArgs": "--port 7071",
       "launchBrowser": false
+    },
+    "FunctionApp": {
+      "commandName": "Project",
+      "commandLineArgs": "start --csharp"
     }
   }
 }

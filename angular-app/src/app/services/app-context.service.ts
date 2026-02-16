@@ -17,11 +17,11 @@ export class AppContextService {
   #siteIO = inject(SiteIOService);
   #hubService = inject(DiagHubService);
   
-  siteId = signal<string>('');
+  siteId = signal<number>(0);
   site = computed(() => this.sites.value().find(s => s.id === this.siteId()));   
   route = inject(ActivatedRoute);
   
-  diags$ = new Subject<{processId: string, response: DiagnosticResponse}>();
+  diags$ = new Subject<{processId: number, response: DiagnosticResponse}>();
 
   constructor() {
       this.#hubService.processArrived$.pipe(
@@ -37,7 +37,7 @@ export class AppContextService {
     
     toObservable(this.siteId)
     .pipe(
-        startWith(''),
+        startWith(0),
         pairwise()
     )
     .subscribe(async ([oldSiteId, newSiteId]) => {

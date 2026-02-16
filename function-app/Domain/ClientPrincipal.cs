@@ -1,4 +1,4 @@
-namespace DiagnosticExplorer.Api.Domain;
+namespace DiagnosticExplorer.Domain;
 
 public class ClientPrincipal
 {
