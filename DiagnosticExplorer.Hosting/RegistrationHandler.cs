@@ -15,6 +15,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
+using DiagnosticExplorer.Domain;
 using DiagnosticExplorer.Util;
 using DiagWebService.Hubs;
 using Flurl.Http;
@@ -32,8 +33,7 @@ public class RegistrationHandler
 
     private DiagnosticSite _site;
     private string _resolvedUrl;
-    private Registration _registration;
-    private ProcessHubHandler _processHubAdapter;
+    private ProcessHubClient _processHubAdapter;
     private HubConnection _connection;
     private TimeSpan _renewTime = TimeSpan.FromSeconds(25);
 
@@ -43,23 +43,12 @@ public class RegistrationHandler
     private Subject<DiagnosticMsg> _logSubject = new();
     private Channel<IList<DiagnosticMsg>> _logChannel;
     private readonly IFlurlClientCache _flurlCache;
-    private static readonly string _instanceId = Guid.NewGuid().ToString("N");
 
     public RegistrationHandler(DiagnosticSite site, IFlurlClientCache flurlCache)
     {
         _site = site;
         _resolvedUrl = site.Url;
         _flurlCache = flurlCache;
-        
-        _registration = new() {
-            Code = site.Code,
-            Secret = site.Secret,
-            ProcessId = Process.GetCurrentProcess().Id,
-            InstanceId = _instanceId,
-            UserName = Environment.UserName,
-            MachineName = Environment.MachineName,
-            ProcessName = Process.GetCurrentProcess().ProcessName.Replace(".vshost", "")
-        };
     }
 
     public void Start()
@@ -139,7 +128,7 @@ public class RegistrationHandler
                 cancel.ThrowIfCancellationRequested();
 
                 // _registration.RenewTimeSeconds = (int)_renewTime.TotalSeconds;
-                // await _hubAdapter.Register(_registration, cancel);
+                await _processHubAdapter.Register(cancel);
             }
             catch (Exception ex)
             {
@@ -205,15 +194,21 @@ public class RegistrationHandler
                 flurlClient = _flurlCache.GetOrAdd($"Diagnostics_{baseUrl}", baseUrl,
                     options => options.Settings.JsonSerializer = new DefaultJsonSerializer(DiagJsonOptions.Default));
 
+                SiteCredentials siteCredentials = new SiteCredentials()
+                {
+                    Code = _site.Code,
+                    Secret = _site.Secret,
+                };
+
                 var negResponse = await flurlClient
                     .Request("negotiate")
-                    .PostJsonAsync(_registration)
+                    .PostJsonAsync(siteCredentials)
                     .ReceiveJson<NegotiateResponse>();
-                
+
                 _resolvedUrl = negResponse.Url;
                 accessToken = negResponse.AccessToken;
             }
-            
+
             _connection = new HubConnectionBuilder()
                 .AddJsonProtocol(options => options.PayloadSerializerOptions = DiagJsonOptions.Default)
                 .WithUrl(_resolvedUrl, options =>
@@ -229,7 +224,7 @@ public class RegistrationHandler
             await _connection.StartAsync(_stopToken.Token);
 
             Debug.WriteLine("Diagnostic RegistrationHandler connection started");
-            _processHubAdapter = new ProcessHubHandler(_connection, flurlClient, isAzure);
+            _processHubAdapter = new ProcessHubClient(_connection, flurlClient);
             _processHubAdapter.RenewTimeChanged += (sender, args) => _renewTime = args.Time;
         }
     }
@@ -238,7 +233,7 @@ public class RegistrationHandler
     {
         Debug.WriteLine($"RegistrationHandler.HandleClosed {ex?.Message}");
         HubConnection currentConnection = _connection;
-        ProcessHubHandler currentAdapter = _processHubAdapter;
+        ProcessHubClient currentAdapter = _processHubAdapter;
 
         _connection = null;
         _processHubAdapter = null;
@@ -296,7 +291,7 @@ public class RegistrationHandler
         }
     }
 
-    private async Task Deregister(ProcessHubHandler processHubAdapter, Registration registration)
+    private async Task Deregister(ProcessHubClient processHubAdapter, Registration registration)
     {
         try
         {

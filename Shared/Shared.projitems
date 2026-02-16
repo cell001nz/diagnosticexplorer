@@ -10,7 +10,15 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)DiagJsonOptions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Messages.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Domain\Account.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Domain\ClientPrincipal.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Domain\DiagProcess.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Domain\Secret.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Domain\SetPropertyRequest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Domain\Site.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Domain\WebClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Domain\WebProcSub.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IProcessHubClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProtobufUtil.cs" />
   </ItemGroup>
 </Project>

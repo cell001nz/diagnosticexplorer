@@ -21,80 +21,71 @@ namespace DiagnosticExplorer.Endpoints;
 
 public class ProcessHubApi : ApiBase
 {
-    private const string PROCESS_CLAIM = "DiagProcessClaim";
-    
+    private const string SITE_ID_CLAIM = "Diag_SiteId";
+
     private readonly ServiceManager _serviceManager;
-    
+
     public ProcessHubApi(ILogger<ProcessHubApi> logger, DiagDbContext context) : base(logger, context)
     {
         _serviceManager = new ServiceManagerBuilder()
-            .WithOptions(o =>
-            {
-                o.ConnectionString = Environment.GetEnvironmentVariable("AzureSignalRConnectionString");
-            }).BuildServiceManager();
+            .WithOptions(o => { o.ConnectionString = Environment.GetEnvironmentVariable("AzureSignalRConnectionString"); }).BuildServiceManager();
     }
 
-    
-    
+
+
     #region Negotiate => POST /api/processhub/negotiate
 
     [Function("ProcessHub_negotiate")]
     public async Task<IActionResult> Negotiate(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "processhub/negotiate")]
         HttpRequest req,
-        [FromBody] Registration registration)
+        [FromBody] SiteCredentials credentials)
     {
-        _logger.LogWarning($"----------------------------------- ProcessHubTrigger.Negotiate {registration?.InstanceId} {registration?.ProcessName}");
+        _logger.LogWarning($"----------------------------------- ProcessHubTrigger.Negotiate {credentials?.Code}");
 
-        if (registration?.Code == null || registration.Secret == null)
+        if (credentials?.Code == null || credentials.Secret == null)
         {
             _logger.LogWarning($"----------------------------------- Missing clientId or secret");
             return new BadRequestObjectResult("Missing clientId or secret");
         }
-        
-        DiagProcess process = await RegisterProcess(registration);
-        List<Claim> customClaims =
-        [
-            new Claim(PROCESS_CLAIM, $"{process.Id}/{process.SiteId}")
-        ];
 
-        var hubContext = await _serviceManager.CreateHubContextAsync(PROCESS_HUB, CancellationToken.None);
+        PasswordHasher hasher = new PasswordHasher();
+        var secretHash = hasher.HashSecret(credentials.Secret);
+
+        var site = await _context.Sites.Where(s => s.Code == credentials.Code
+                                                   && s.Secrets.Any(sec => sec.Hash == secretHash))
+            .FirstOrDefaultAsync();
+
+        if (site == null)
+            return new BadRequestObjectResult("Site not found");
+
+        ServiceHubContext? hubContext = await _serviceManager.CreateHubContextAsync(PROCESS_HUB, CancellationToken.None);
         NegotiationResponse negResponse = await hubContext.NegotiateAsync(new NegotiationOptions()
-                                    {
-                                        UserId = $"{process.Id}/{process.SiteId}",
-                                        Claims = customClaims
-                                    }) ??
-                                    throw new ApplicationException("Failed to negotiate SignalR connection");
-        
+                                          {
+                                              Claims = [new Claim(SITE_ID_CLAIM, site.Id.ToString())]
+                                          })
+                                          ?? throw new ApplicationException("Failed to negotiate SignalR connection");
+
         if (string.IsNullOrWhiteSpace(negResponse.Url))
             throw new ApplicationException("Failed to negotiate SignalR connection - Url is null or empty");
-    
+
         if (string.IsNullOrWhiteSpace(negResponse.AccessToken))
             throw new ApplicationException("Failed to negotiate SignalR connection - AccessToken is null or empty");
-    
+
         SignalRConnectionInfo info = new SignalRConnectionInfo()
         {
             Url = negResponse.Url,
             AccessToken = negResponse.AccessToken
         };
-        
+
         // Console.WriteLine($"ConnectionInfo is null: {connectionInfo?.Url} {connectionInfo?.AccessToken}");
         return new OkObjectResult(info);
     }
-    
-    private bool VerifyClientSecret(Site site, Registration registration)
-    {
-        if (site is not { Secrets.Count: > 0 })
-            return false;
 
-        PasswordHasher hasher = new PasswordHasher();
-        string secretHash = hasher.HashSecret(registration.Secret);
-        return site.Secrets.Any(secret => secret.Hash == secretHash);
-    }
-    
+
     #endregion
-    
-    #region OnConnected => SIGNALR/connections/connected
+
+    /*#region OnConnected => SIGNALR/connections/connected
 
     [Function("OnClientConnected")]
     public async Task<DualHubOutput> OnConnected(
@@ -102,38 +93,100 @@ public class ProcessHubApi : ApiBase
         SignalRInvocationContext invokeContext,
         FunctionContext context)
     {
-        var (processId, siteId) = GetProcessAndSiteId(invokeContext);
-        _logger.LogWarning($"----------------------------------- ProcessHubTrigger.OnConnected {invokeContext.ConnectionId}/{processId}/{siteId}");
+       
+    }
 
-        
+    #endregion*/
+
+    #region Register
+
+    [Function("ProcessHub_Register")]
+    public async Task<DualHubOutput> Register(
+        [SignalRTrigger(PROCESS_HUB, MESSAGES, nameof(IProcessHub.Register), nameof(registration))]
+        SignalRInvocationContext invokeContext,
+        Registration registration)
+    {
+        _logger.LogWarning($"----------------------------------- ProcessHubTrigger.Register {invokeContext.ConnectionId}/{registration.ProcessName}");
+
         // await DiagIO.Process.SetConnectionId(processId, siteId, invokeContext.ConnectionId);
-        var process = await _context.Processes.Where(p => p.Id == processId)
-            .Select(ProcessEntityUtil.Projection)
-            .FirstOrDefaultAsync() ?? throw new ApplicationException($"Can't find Process {processId} for Site {siteId}");
+        int siteId = GetSiteId(invokeContext);
+        var process = await RegisterProcess(siteId, invokeContext.ConnectionId, registration);
 
         DualHubOutput output = new DualHubOutput();
-        output.WebClient.Add(new SignalRMessageAction(Messages.Web.ReceiveProcess, [process]) { GroupName = siteId.ToString() });
+        output.WebClient.Add(new SignalRMessageAction(nameof(IWebHubClient.ReceiveProcess), [process]) { GroupName = siteId.ToString() });
 
-        output.ProcessClient.Add(new SignalRMessageAction(Messages.Process.SetRenewTime, [PROCESS_RENEW_TIME])
+        output.ProcessClient.Add(new SignalRMessageAction(nameof(IProcessHubClient.SetRenewTime), [PROCESS_RENEW_TIME_MILLIS])
         {
             ConnectionId = invokeContext.ConnectionId
         });
 
-        int subs = await _context.Processes.Where(p => p.Id == processId)
+        output.ProcessClient.Add(new SignalRMessageAction(nameof(IProcessHubClient.SetProcessId), [process.Id])
+        {
+            ConnectionId = invokeContext.ConnectionId
+        });
+
+        int subs = await _context.Processes.Where(p => p.Id == process.Id)
             .Select(p => p.Subscriptions.Count)
             .FirstOrDefaultAsync();
-        
+
         if (subs > 0)
         {
-            output.ProcessClient.Add(new SignalRMessageAction(Messages.Process.StartSending, [DIAG_SEND_FREQ])
+            output.ProcessClient.Add(new SignalRMessageAction(nameof(IProcessHubClient.StartSending), [DIAG_SEND_FREQ_MILLIS])
                 { ConnectionId = invokeContext.ConnectionId });
         }
+
+        output.ProcessClient.Add(new SignalRGroupAction(SignalRGroupActionType.Add)
+        {
+            ConnectionId = invokeContext.ConnectionId,
+            GroupName = process.Id.ToString()
+        });
 
         return output;
     }
 
-    #endregion
+    private async Task<DiagProcess> RegisterProcess(int siteId, string connectionId, Registration registration)
+    {
+        Expression<Func<ProcessEntity, bool>> processFilter = p => p.InstanceId == registration.InstanceId
+                                                                   || (p.MachineName == registration.MachineName && p.UserName == registration.UserName && p.Name == registration.ProcessName);
 
+        var candidates = await _context.Processes
+            .Where(p => p.SiteId == siteId)
+            .Where(processFilter)
+            .ToArrayAsync();
+
+        var process = candidates.FirstOrDefault(p => p.InstanceId == registration.InstanceId)
+                      ?? candidates.FirstOrDefault(p => !p.IsOnline)
+                      ?? candidates.FirstOrDefault(p => DateTime.UtcNow - p.LastOnline > TimeSpan.FromMilliseconds(PROCESS_STALE_TIME_MILLIS))
+                      ?? _context.Processes.Add(new ProcessEntity()
+                      {
+                          SiteId = siteId,
+                          Name = registration.ProcessName,
+                          MachineName = registration.MachineName,
+                          UserName = registration.UserName
+                      }).Entity;
+        
+        process.InstanceId = registration.InstanceId;
+        process.ConnectionId = connectionId;
+        process.LastOnline = DateTime.UtcNow;
+        process.IsOnline = true;
+
+        await _context.SaveChangesAsync();
+        
+        return new DiagProcess()
+        {
+            Id = process.Id,
+            InstanceId = process.InstanceId,
+            IsOnline = process.IsOnline,
+            IsSending = process.IsSending,
+            LastOnline = process.LastOnline,
+            LastReceived = process.LastReceived,
+            MachineName = process.MachineName,
+            Name = process.Name,
+            SiteId = process.SiteId
+        };
+    }
+
+#endregion
     #region OnDisconnected => SIGNALR/connections/disconnected
 
     [Function("ProcessHub_OnProcessDisconnected")]
@@ -145,11 +198,12 @@ public class ProcessHubApi : ApiBase
     {
         _logger.LogWarning($"----------------------------------- ClientTrigger.OnDisconnected {invokeContext.ConnectionId}");
 
-        var (processId, siteId) = GetProcessAndSiteId(invokeContext);
+        int siteId = GetSiteId(invokeContext);
 
         // await DiagIO.Process.SetConnectionId(processId, siteId, invokeContext.ConnectionId);
-        var process = await _context.Processes.Where(p => p.Id == processId)
-            .FirstOrDefaultAsync() ?? throw new ApplicationException($"Can't find Process {processId} for Site {siteId}");
+        var process = await _context.Processes.Where(p => p.SiteId == siteId && p.ConnectionId == invokeContext.ConnectionId)
+            .FirstOrDefaultAsync() ?? throw new ApplicationException($"Can't find Process for ConnectionId {invokeContext.ConnectionId} for Site {siteId}");
+        
         process.IsOnline = false;
         process.IsSending = false;
         process.ConnectionId = null;
@@ -166,15 +220,15 @@ public class ProcessHubApi : ApiBase
 
     [Function("ProcessHub_ReceiveDiagnostics")]
     public async Task<DualHubOutput> ReceiveDiagnostics(
-        [SignalRTrigger(PROCESS_HUB, MESSAGES, nameof(ReceiveDiagnostics), nameof(stringData))]
+        [SignalRTrigger(PROCESS_HUB, MESSAGES, nameof(IProcessHub.ReceiveDiagnostics), nameof(processId), nameof(stringData))]
         SignalRInvocationContext invokeContext,
+        int processId,
         string stringData,
         FunctionContext context)
     {
         // DiagProcess process = await GetProcess(invokeContext);
-        _logger.LogWarning($"ReceiveDiagnostics {stringData}");
+        _logger.LogWarning($"ReceiveDiagnostics {processId} {stringData?.Substring(0, 20)}...");
         DualHubOutput output = new DualHubOutput();
-        var (processId, siteId) = GetProcessAndSiteId(invokeContext);
 
         // if (!process.IsSending)
         // {
@@ -188,7 +242,7 @@ public class ProcessHubApi : ApiBase
             DiagnosticResponse response = DeserialiseBase64Protobuf<DiagnosticResponse>(stringData);
             response.ServerDate = DateTime.UtcNow;
 
-            output.WebClient.Add(new SignalRMessageAction(Messages.Web.ReceiveDiagnostics, [processId, response])
+            output.WebClient.Add(new SignalRMessageAction(nameof(IWebHubClient.ReceiveDiagnostics), [processId, response])
             {
                 GroupName = processId.ToString()
             });
@@ -201,19 +255,19 @@ public class ProcessHubApi : ApiBase
 
     #region ClearEventStream => SIGNALR/ClearEventStream
 
-    [Function("ProcessHub_ClearEventStream")]
+    [Function("ProcessHub_ClearEvents")]
     [SignalROutput(HubName = WEB_HUB)]
 
-    public async Task<SignalRMessageAction> ClearEventStream(
-        [SignalRTrigger(PROCESS_HUB, MESSAGES, nameof(ClearEventStream))]
+    public async Task<SignalRMessageAction> ClearEvents(
+        [SignalRTrigger(PROCESS_HUB, MESSAGES, nameof(IProcessHub.ClearEvents), nameof(processId))]
         SignalRInvocationContext invokeContext,
+        int processId,
         FunctionContext context)
     {
         // DiagProcess process = await GetProcess(invokeContext);
         _logger.LogWarning($"ClearEventStream");
-        var (processId, siteId) = GetProcessAndSiteId(invokeContext);
 
-        return new SignalRMessageAction(Messages.Web.ClearEventStream, [processId])
+        return new SignalRMessageAction(nameof(IWebHubClient.ClearEvents), [processId])
         {
             GroupName = processId.ToString()
         };
@@ -226,17 +280,16 @@ public class ProcessHubApi : ApiBase
     [Function("ProcessHub_StreamEvents")]
     [SignalROutput(HubName = WEB_HUB)]
     public async Task<SignalRMessageAction> StreamEvents(
-        [SignalRTrigger(PROCESS_HUB, MESSAGES, nameof(StreamEvents), nameof(events))]
+        [SignalRTrigger(PROCESS_HUB, MESSAGES, nameof(IProcessHub.StreamEvents), nameof(processId), nameof(events))]
         SignalRInvocationContext invokeContext,
+        int processId,
         SystemEvent[] events,
         FunctionContext context)
     {
         // DiagProcess process = await GetProcess(invokeContext);
         _logger.LogWarning($"StreamEvents");
 
-        var (processId, siteId) = GetProcessAndSiteId(invokeContext);
-
-        return new SignalRMessageAction(Messages.Web.StreamEvents, [processId, events])
+        return new SignalRMessageAction(nameof(IWebHubClient.StreamEvents), [processId, events])
         {
             GroupName = processId.ToString()
         };
@@ -244,75 +297,15 @@ public class ProcessHubApi : ApiBase
 
     #endregion
 
-    #region RegisterProcess
 
-    private async Task<DiagProcess> RegisterProcess(Registration registration)
+    int GetSiteId(SignalRInvocationContext invokeContext)
     {
-        PasswordHasher hasher = new PasswordHasher();
-        var secretHash = hasher.HashSecret(registration.Secret);
+        if (!invokeContext.Claims.TryGetValue(SITE_ID_CLAIM, out var found))
+            throw new ApplicationException($"Can't find SiteId claim");
 
-        Expression<Func<ProcessEntity, bool>> processFilter = p => p.InstanceId == registration.InstanceId
-                                                                   || (p.MachineName == registration.MachineName && p.UserName == registration.UserName && p.Name == registration.ProcessName);
-
-        var site = await _context.Sites
-            .Where(s => s.Code == registration.Code && s.Secrets.Any(secret => secret.Hash == secretHash))
-            .Include(s => s.Processes.AsQueryable().Where(processFilter))
-            .FirstOrDefaultAsync() ?? throw new ApplicationException("Invalid registration code or secret");
-
-        var process = site.Processes.FirstOrDefault(p => p.InstanceId == registration.InstanceId)
-                      ?? site.Processes.FirstOrDefault(p => !p.IsOnline)
-                      ?? site.Processes.FirstOrDefault(p => DateTime.UtcNow - p.LastOnline > TimeSpan.FromSeconds(PROCESS_STALE_TIME));
-        if (process == null)
-        {
-            process = new ProcessEntity()
-            {
-                Name = registration.ProcessName,
-                MachineName = registration.MachineName,
-                UserName = registration.UserName
-            };
-            site.Processes.Add(process);
-        }
-
-        process.InstanceId = registration.InstanceId;
-        process.LastOnline = DateTime.UtcNow;
-        process.IsOnline = true;
-
-        await _context.SaveChangesAsync();
-        return new DiagProcess()
-        {
-            Id = process.Id,
-            InstanceId = process.InstanceId,
-            IsOnline = process.IsOnline,
-            IsSending = process.IsSending,
-            LastOnline = process.LastOnline,
-            LastReceived = process.LastReceived,
-            MachineName = process.MachineName,
-            Name = process.Name,
-            SiteId = process.SiteId
-        };
+        return int.Parse(found[0]!);
     }
 
-    #endregion
-  
-    (int processId, int siteId) GetProcessAndSiteId(SignalRInvocationContext invokeContext)
-    {
-        // if (!invokeContext.Claims.TryGetValue(PROCESS_CLAIM, out var vals) || vals[0] == null)
-            // throw new ApplicationException($"Can't find diagnostics process claim");
-        
-        if (invokeContext.UserId == null)
-            throw new ApplicationException("UserId is null in SignalRInvocationContext");
-
-        // string value = vals[0]!;
-        string value = invokeContext.UserId;
-        
-        string[] parts = value.Split('/');
-        
-        if (parts.Length != 2)
-            throw new ApplicationException($"Invalid UserId format: {invokeContext.UserId}");
-     
-        int processId = int.Parse(parts[0]);
-        int siteId = int.Parse(parts[1]);
-        return (processId, siteId);
-    }
+ 
 
 }

@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using DiagnosticExplorer.DataAccess;
+using DiagnosticExplorer.DataExtensions;
 using DiagnosticExplorer.Domain;
 using DiagnosticExplorer.Util;
 using Microsoft.AspNetCore.Http;
@@ -18,9 +19,9 @@ public class ApiBase
     protected const string WEB_HUB = "web";
     protected const string MESSAGES = "messages";
     
-    protected const int PROCESS_RENEW_TIME = 20;
-    protected const int PROCESS_STALE_TIME = 60;
-    protected const int DIAG_SEND_FREQ = 5_000;
+    protected const int PROCESS_RENEW_TIME_MILLIS = 10_000;
+    protected const int PROCESS_STALE_TIME_MILLIS = 20_000;
+    protected const int DIAG_SEND_FREQ_MILLIS = 2_000;
 
     
     protected DiagDbContext _context { get; }
@@ -59,11 +60,6 @@ public class ApiBase
         if (!req.Headers.TryGetValue("x-ms-client-principal", out var header))
             throw new ApplicationException($"x-ms-client-principal header not found");
 
-        return GetClientPrincipal(header);
-    }
-
-    protected ClientPrincipal GetClientPrincipal(StringValues header)
-    {
         return GetClientPrincipal(header.FirstOrDefault());
     }
 
@@ -79,11 +75,7 @@ public class ApiBase
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
     }
 
-    protected async Task<Account> GetLoggedInAccount(SignalRInvocationContext context)
-    {
-        ClientPrincipal cp = GetClientPrincipal(context);
-        return await GetLoggedInAccount(cp);
-    }
+ 
 
     protected async Task<Account> GetLoggedInAccount(HttpRequest request)
     {
@@ -103,29 +95,25 @@ public class ApiBase
           // await DiagIO.Site.GetSiteForUser(siteId, cp.UserId);
       }
 
-    protected async Task<Account> GetLoggedInAccount(ClientPrincipal cp)
-    {
-        _logger.LogWarning($"Getting account for user {cp.UserId}");
+      protected async Task<Account> GetLoggedInAccount(ClientPrincipal cp)
+      {
+          _logger.LogWarning($"Getting account for user {cp.UserId}");
 
-        var account = await _context.Accounts.Where(a => a.Username == cp.UserId)
-                              .Select(row => new Account()
-                              {
-                                  Id = row.Id,
-                                  Name = row.Name,
-                              }).FirstOrDefaultAsync()
-                          ?? throw new ApplicationException("Current user not found");
-        _logger.LogWarning($"Found account for user {cp.UserId}: {account.Id}");
-        return account;
-    }
+          var account = await _context.Accounts.Where(a => a.Username == cp.UserId)
+                            .Select(AccountEntityUtil.Projection)
+                            .FirstOrDefaultAsync()
+                        ?? throw new ApplicationException("Current user not found");
+          _logger.LogWarning($"Found account for user {cp.UserId}: {account.Id}");
+          return account;
+      }
 
-    protected T DeserialiseBase64Protobuf<T>(string strData)
-    {
-        byte[] data = Convert.FromBase64String(strData);
-        return ProtobufUtil.Decompress<T>(data);
-    }
+      protected T DeserialiseBase64Protobuf<T>(string strData)
+      {
+          byte[] data = Convert.FromBase64String(strData);
+          return ProtobufUtil.Decompress<T>(data);
+      }
 
-    
-    public class DualHubOutput
+      public class DualHubOutput
     {
         [SignalROutput(HubName = WEB_HUB)]
         public List<object> WebClient { get; } = [];

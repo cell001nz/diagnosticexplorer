@@ -237,6 +237,18 @@ namespace DataAccess.Migrations
                         .HasColumnType("character varying(1000)")
                         .HasColumnName("connection_id");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime?>("EndedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ended_at");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
                     b.HasKey("Id")
                         .HasName("p_k_web_sessions");
 

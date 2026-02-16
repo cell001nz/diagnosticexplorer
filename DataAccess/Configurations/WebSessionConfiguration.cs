@@ -1,4 +1,4 @@
-﻿using DiagnosticExplorer.DataAccess.Entities;
+﻿﻿using DiagnosticExplorer.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

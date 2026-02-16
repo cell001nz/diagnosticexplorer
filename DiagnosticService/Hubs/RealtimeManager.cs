@@ -264,7 +264,7 @@ public class RealtimeManager : IHostedService
 
 
             process.UserName = registration.UserName;
-            process.ProcessId = registration.ProcessId;
+            process.ProcessId = registration.Pid;
             process.State = OnlineState.Online;
             process.LastOnline = DateTime.UtcNow;
             process.ConnectionId = connectionId;

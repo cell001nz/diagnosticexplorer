@@ -1,9 +1,12 @@
 using DiagnosticExplorer.DataAccess;
 using DiagnosticExplorer.DataAccess.Entities;
+using DiagnosticExplorer.DataExtensions;
 using DiagnosticExplorer.Domain;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.SignalR.Management;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -11,25 +14,62 @@ namespace DiagnosticExplorer.Endpoints;
 
 public class WebHubApi : ApiBase
 {
+    private readonly ServiceManager _serviceManager;
 
     public WebHubApi(ILogger<WebHubApi> logger, DiagDbContext context) : base(logger, context)
     {
+         _serviceManager = new ServiceManagerBuilder()
+            .WithOptions(o =>
+            {
+                o.ConnectionString = Environment.GetEnvironmentVariable("AzureSignalRConnectionString");
+            }).BuildServiceManager();
     }
 
     #region Negotiate => GET /api/webclient/negotiate
 
     [Function("WebHub_negotiate")]
-    public IActionResult Negotiate(
+    public async Task<IActionResult> Negotiate(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "webhub/negotiate")]
-        HttpRequest req,
-        [SignalRConnectionInfoInput(HubName = WEB_HUB, UserId = "{headers.x-ms-client-principal}")]
-        SignalRConnectionInfo connectionInfo)
+        HttpRequest req)
     {
         _logger.LogWarning($"### HEADERS ### {string.Join(", ", req.Headers.Keys)}");
-        return new OkObjectResult(connectionInfo);
+        // return new OkObjectResult(connectionInfo);
+
+        Account account = await GetLoggedInAccount(req);
+
+        var hubContext = await _serviceManager.CreateHubContextAsync(WEB_HUB, CancellationToken.None);
+        NegotiationResponse negResponse = await hubContext.NegotiateAsync(new NegotiationOptions()
+                                          {
+                                              UserId = account.Id.ToString(),
+                                          })
+                                          ?? throw new ApplicationException("Failed to negotiate SignalR connection");
+
+        if (string.IsNullOrWhiteSpace(negResponse.Url))
+            throw new ApplicationException("Failed to negotiate SignalR connection - Url is null or empty");
+
+        if (string.IsNullOrWhiteSpace(negResponse.AccessToken))
+            throw new ApplicationException("Failed to negotiate SignalR connection - AccessToken is null or empty");
+
+        SignalRConnectionInfo info = new SignalRConnectionInfo()
+        {
+            Url = negResponse.Url,
+            AccessToken = negResponse.AccessToken
+        };
+
+        // Console.WriteLine($"ConnectionInfo is null: {connectionInfo?.Url} {connectionInfo?.AccessToken}");
+        return new OkObjectResult(info);
     }
-    
+
     #endregion
+    
+    protected async Task<Account> GetLoggedInAccount(SignalRInvocationContext context)
+    {
+        int userId = int.Parse(context.UserId);
+        return await _context.Accounts.Where(a => a.Id == userId)
+            .Select(AccountEntityUtil.Projection)
+            .FirstOrDefaultAsync()
+            ?? throw new ApplicationException("Current user not found");
+    }
     
     #region OnConnected => SIGNALR/connections/connected
     
@@ -42,16 +82,17 @@ public class WebHubApi : ApiBase
         logger.LogInformation($"""
                                ----------------------------------- WebClient.OnConnected 
                                    ConnectionId {invocationContext.ConnectionId}
-                                      UserId {invocationContext.UserId}
+                                   UserId {invocationContext.UserId}
                                """);
-        
         
         Account account = await GetLoggedInAccount(invocationContext);
 
         _context.WebSessions.Add(new WebSessionEntity()
         {
             ConnectionId = invocationContext.ConnectionId,
-            AccountId = account.Id
+            AccountId = account.Id,
+            CreatedAt = DateTime.UtcNow,
+            IsActive = true
         });
 
         await _context.SaveChangesAsync();
@@ -73,7 +114,7 @@ public class WebHubApi : ApiBase
                                        .FirstOrDefaultAsync(s => s.ConnectionId == invocationContext.ConnectionId)
             ?? throw new ApplicationException($"WebSession not found for connection {invocationContext.ConnectionId}");
 
-        _context.WebSessions.Remove(session);
+        session.EndedAt = DateTime.UtcNow;
         await _context.SaveChangesAsync();
     }
     
@@ -86,17 +127,20 @@ public class WebHubApi : ApiBase
     public async Task<object[]> SubscribeSite(
         [SignalRTrigger(WEB_HUB, MESSAGES, nameof(SubscribeSite), nameof(siteId))]
         SignalRInvocationContext invokeContext,
-        string siteId,
+        int siteId,
         FunctionContext context)
     {
         var logger = context.GetLogger("ClientHub_SubscribeSite");
         logger.LogWarning($"Connection {invokeContext.ConnectionId} SUBSCRIBE to {siteId}");
 
+        Account account = await GetLoggedInAccount(invokeContext);
+        await VerifySiteAccess(account, siteId);
+        
         return
         [
             new SignalRGroupAction(SignalRGroupActionType.Add)
             {
-                GroupName = siteId,
+                GroupName = siteId.ToString(),
                 ConnectionId = invokeContext.ConnectionId
             },
         ];
@@ -138,20 +182,24 @@ public class WebHubApi : ApiBase
         _logger.LogWarning($"Connection {invokeContext.ConnectionId} SUBSCRIBE to {processId}");
 
         var session = await _context.WebSessions
-            .FirstOrDefaultAsync(s => s.ConnectionId == invokeContext.ConnectionId)
-            ?? throw new ApplicationException($"WebSession not found for connection {invokeContext.ConnectionId}");
+                          .Include(s => s.Subscriptions)
+                          .FirstOrDefaultAsync(s => s.ConnectionId == invokeContext.ConnectionId)
+                      ?? throw new ApplicationException($"WebSession not found for connection {invokeContext.ConnectionId}");
 
         var process = await _context.Processes
                           .Include(p => p.Subscriptions.Where(s => s.SessionId == session.Id))
                           .FirstOrDefaultAsync(p => p.Id == processId)
                       ?? throw new ApplicationException($"Can't find Process {processId}");
         
+        Account account = await GetLoggedInAccount(invokeContext);
+        await VerifySiteAccess(account, process.SiteId);
+
         DualHubOutput output = new();
 
         //If the process is not sending already, instruct it to start sending diagnostics
         process.IsSending = true;
         
-        var sub = process.Subscriptions.FirstOrDefault(s => s.Session?.ConnectionId == invokeContext.ConnectionId);
+        var sub = session.Subscriptions.FirstOrDefault(sub => sub.ProcessId == processId);
         if (sub == null)
         {
             sub = new WebSubcriptionEntity()
@@ -160,12 +208,12 @@ public class WebHubApi : ApiBase
                 SessionId = session.Id,
                 CreatedAt = DateTime.UtcNow
             };
-            process.Subscriptions.Add(sub);
+            session.Subscriptions.Add(sub);
         }
         sub.RenewedAt = DateTime.UtcNow;
         await _context.SaveChangesAsync();
 
-        output.ProcessClient.Add(new SignalRMessageAction(Messages.Process.StartSending, [DIAG_SEND_FREQ])
+        output.ProcessClient.Add(new SignalRMessageAction(nameof(IProcessHubClient.StartSending), [DIAG_SEND_FREQ_MILLIS])
             { ConnectionId = process.ConnectionId });
         
         output.WebClient.Add(new SignalRGroupAction(SignalRGroupActionType.Add)
@@ -209,8 +257,7 @@ public class WebHubApi : ApiBase
 
         if (process.Subscriptions.Count == 0)
         {
-            output.ProcessClient.Add(new SignalRMessageAction(Messages.Process.StopSending)
-                { ConnectionId = process.ConnectionId });
+            output.ProcessClient.Add(new SignalRMessageAction(nameof(IProcessHubClient.StopSending)) { ConnectionId = process.ConnectionId });
         }
 
         return output;
