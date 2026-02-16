@@ -30,11 +30,11 @@ import {AuthService} from "@services/auth.service";
                     </a>
 
                     <a routerLink="/" fragment="highlights" pRipple class="px-0 py-4 text-surface-900 dark:text-surface-0 font-medium text-xl">
-                        <span>Highlights</span>
+                        <span>How It Works</span>
                     </a>
                 
                     <a routerLink="/" fragment="pricing" pRipple class="px-0 py-4 text-surface-900 dark:text-surface-0 font-medium text-xl">
-                        <span>Pricing</span>
+                        <span>Get Started</span>
                     </a>
                 
                     <a routerLink="/app" pRipple class="px-0 py-4 text-surface-900 dark:text-surface-0 font-medium text-xl">

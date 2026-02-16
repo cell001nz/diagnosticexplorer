@@ -8,7 +8,6 @@ import { HomeWidget } from './components/home-widget.component';
 import { FeaturesWidget } from './components/featureswidget';
 import { HighlightsWidget } from './components/highlightswidget';
 import { PricingWidget } from './components/pricingwidget';
-import { FooterWidget } from './components/footerwidget';
 import {LandingLayout} from "./components/landinglayout.component";
 
 @Component({

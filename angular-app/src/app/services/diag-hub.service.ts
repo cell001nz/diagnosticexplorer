@@ -42,9 +42,6 @@ export class DiagHubService implements OnDestroy {
   
           await hub.start();
           hub.on('say', (message) => console.log('Hub message', message));
-          hub.on('ReceiveProcesses', (siteId: number, processes: DiagProcess[]) => {
-            console.log('Processes arrived', siteId, processes);
-          });
           hub.on('ReceiveProcess', (process: DiagProcess) => {
             console.log('DiagHubService.ReceiveProcess', process);
             this.processArrived$.next(process);

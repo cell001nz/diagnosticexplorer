@@ -294,5 +294,35 @@ public class WebHubApi : ApiBase
     }
 
     #endregion
+    
+    #region SetProperty => SIGNALR/ExecuteOperation
+
+    [Function("ProcessHub_ExecuteOperation")]
+    [SignalROutput(HubName = PROCESS_HUB)]
+    public async Task<SignalRMessageAction> ExecuteOperation(
+        [SignalRTrigger(WEB_HUB, MESSAGES, nameof(ExecuteOperation), nameof(request))]
+        SignalRInvocationContext invokeContext,
+        SetPropertyRequest request,
+        FunctionContext context)
+    {
+        if (string.IsNullOrWhiteSpace(request.Path))
+            throw new ApplicationException("Path is required");
+        
+        var process = await _context.Processes
+                          .FirstOrDefaultAsync(p => p.Id == request.ProcessId)
+                      ?? throw new ApplicationException($"Can't find Process {request.ProcessId}");
+        
+        await VerifySiteAccess(await GetLoggedInAccount(invokeContext), process.SiteId);
+
+        if (string.IsNullOrWhiteSpace(process.ConnectionId))
+            throw new ApplicationException($"Process {request.ProcessId} is not connected");
+
+        return new SignalRMessageAction(nameof(IProcessHubClient.SetProperty), ["RequestId (Ignore)", request.Path, request.Value ?? ""])
+        {
+            ConnectionId = process.ConnectionId
+        };
+    }
+
+    #endregion
    
 }

@@ -17,20 +17,22 @@ import { Router, RouterModule } from '@angular/router';
                 <div class="col-span-12 md:col-span-10">
                     <div class="grid grid-cols-12 gap-8 text-center md:text-left">
                         <div class="col-span-12 md:col-span-3">
-                            <h4 class="font-medium text-2xl leading-normal mb-6 text-surface-900 dark:text-surface-0">Company</h4>
-                            <a class="leading-normal text-xl block cursor-pointer mb-2 text-surface-700 dark:text-surface-100">About Us</a>
+                            <h4 class="font-medium text-2xl leading-normal mb-6 text-surface-900 dark:text-surface-0">Documentation</h4>
+                            <a href="https://www.codeproject.com/Articles/28aboratori/Diagnostic-Explorer" target="_blank" class="leading-normal text-xl block cursor-pointer mb-2 text-surface-700 dark:text-surface-100">CodeProject Article</a>
+                            <a routerLink="/app" class="leading-normal text-xl block cursor-pointer mb-2 text-surface-700 dark:text-surface-100">Dashboard</a>
                         </div>
 
                         <div class="col-span-12 md:col-span-3">
                             <h4 class="font-medium text-2xl leading-normal mb-6 text-surface-900 dark:text-surface-0">Resources</h4>
-                            <a class="leading-normal text-xl block cursor-pointer mb-2 text-surface-700 dark:text-surface-100">Get Started</a>
-                            <a class="leading-normal text-xl block cursor-pointer mb-2 text-surface-700 dark:text-surface-100">Learn</a>
+                            <a routerLink="/" fragment="features" class="leading-normal text-xl block cursor-pointer mb-2 text-surface-700 dark:text-surface-100">Features</a>
+                            <a routerLink="/" fragment="highlights" class="leading-normal text-xl block cursor-pointer mb-2 text-surface-700 dark:text-surface-100">How It Works</a>
+                            <a routerLink="/" fragment="pricing" class="leading-normal text-xl block cursor-pointer mb-2 text-surface-700 dark:text-surface-100">Get Started</a>
                         </div>
 
                         <div class="col-span-12 md:col-span-3">
-                            <h4 class="font-medium text-2xl leading-normal mb-6 text-surface-900 dark:text-surface-0">Community</h4>
-                            <a class="leading-normal text-xl block cursor-pointer mb-2 text-surface-700 dark:text-surface-100">Discord</a>
-                            <a class="leading-normal text-xl block cursor-pointer mb-2 text-surface-700 dark:text-surface-100">FAQ</a>
+                            <h4 class="font-medium text-2xl leading-normal mb-6 text-surface-900 dark:text-surface-0">Open Source</h4>
+                            <a href="https://github.com" target="_blank" class="leading-normal text-xl block cursor-pointer mb-2 text-surface-700 dark:text-surface-100">GitHub</a>
+                            <a class="leading-normal text-xl block cursor-pointer mb-2 text-surface-700 dark:text-surface-100">LGPL License</a>
                         </div>
 
                         <div class="col-span-12 md:col-span-3">
