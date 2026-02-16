@@ -287,7 +287,7 @@ public class WebHubApi : ApiBase
         if (string.IsNullOrWhiteSpace(process.ConnectionId))
             throw new ApplicationException($"Process {request.ProcessId} is not connected");
 
-        return new SignalRMessageAction("SetProperty", ["RequestId (Ignore)", request.Path, request.Value ?? ""])
+        return new SignalRMessageAction(nameof(IProcessHubClient.SetProperty), ["RequestId (Ignore)", request.Path, request.Value ?? ""])
         {
             ConnectionId = process.ConnectionId
         };

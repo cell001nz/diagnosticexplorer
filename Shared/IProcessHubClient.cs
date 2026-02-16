@@ -3,13 +3,6 @@ using DiagnosticExplorer.Api.Domain;
 
 namespace DiagnosticExplorer.Domain;
 
-
-
-public interface IWebHub
-{
-    
-}
-
 public interface IWebHubClient
 {
     Task ReceiveProcess(DiagProcess process);

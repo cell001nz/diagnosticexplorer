@@ -211,7 +211,7 @@ public class ProcessHubApi : ApiBase
         await _context.SaveChangesAsync();
 
         _logger.LogWarning($"OnDisconnected sending ReceiveProcess to GroupName {siteId}");
-        return new SignalRMessageAction("ReceiveProcess", [process]) { GroupName = siteId.ToString() };
+        return new SignalRMessageAction(nameof(IWebHubClient.ReceiveProcess), [process]) { GroupName = siteId.ToString() };
     }
 
     #endregion
