@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/SolutionItems/">
+    <File Path=".github/workflows/azure-static-web-apps-gray-tree-0d7035900.yml" />
     <File Path="Directory.Packages.props" />
     <File Path="README.txt" />
   </Folder>
