@@ -228,7 +228,12 @@ public class ProcessHubApi : ApiBase
     {
         // DiagProcess process = await GetProcess(invokeContext);
         _logger.LogWarning($"ReceiveDiagnostics {processId} {stringData?.Substring(0, 20)}...");
+        
+        
         DualHubOutput output = new DualHubOutput();
+
+        if (string.IsNullOrWhiteSpace(stringData))
+            return output;
 
         // if (!process.IsSending)
         // {
@@ -239,6 +244,7 @@ public class ProcessHubApi : ApiBase
         // }
         // else
         // {
+        
             DiagnosticResponse response = DeserialiseBase64Protobuf<DiagnosticResponse>(stringData);
             response.ServerDate = DateTime.UtcNow;
 

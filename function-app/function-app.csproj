@@ -10,17 +10,10 @@
     <AssemblyName>DiagnosticExplorer.Api</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="IO\Cosmos\**" />
-    <EmbeddedResource Remove="IO\Cosmos\**" />
-    <None Remove="IO\Cosmos\**" />
-  </ItemGroup>
-  <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Konscious.Security.Cryptography.Argon2" />
     <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" />
-    <PackageReference Include="Microsoft.Azure.Cosmos" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Cosmos" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" />

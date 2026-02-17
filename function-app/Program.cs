@@ -1,5 +1,3 @@
-using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Builder;
@@ -39,8 +37,8 @@ var connectionString = Environment.GetEnvironmentVariable("PostgreSQLConnection"
     ?? throw new InvalidOperationException("PostgreSQLConnection not configured");
 
 builder.Services
-    .AddSingleton<CosmosClient>(services => new CosmosClientBuilder(Environment.GetEnvironmentVariable("CosmosDBConnection"))
-    .WithSystemTextJsonSerializerOptions(jsonOptions).Build())
+//    .AddSingleton<CosmosClient>(services => new CosmosClientBuilder(Environment.GetEnvironmentVariable("CosmosDBConnection"))
+//    .WithSystemTextJsonSerializerOptions(jsonOptions).Build())
     .AddDbContext<DiagDbContext>(options =>
     {
         options.UseNpgsql(connectionString);

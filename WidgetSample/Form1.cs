@@ -60,8 +60,6 @@ public partial class Form1 : Form, INotifyPropertyChanged
     private Timer _evtTimer;
 
     private Timer _listTestTimer;
-    private Task _autoLogTask;
-    private Timer _scopeTimer;
     private Task _scopeTask;
     private IFlurlClientCache _flurlCache;
 
@@ -86,7 +84,6 @@ public partial class Form1 : Form, INotifyPropertyChanged
                     });
         */
         StartDiagnostics();
-        Closed += StopDiagnostics;
 
         //Exposure the remoting interface
         _gadgets = [];
@@ -116,6 +113,12 @@ public partial class Form1 : Form, INotifyPropertyChanged
         _scopeTask = RunScopeTask();
     }
 
+    protected override void OnFormClosed(FormClosedEventArgs e)
+    {
+        DiagnosticHostingService.Stop().GetAwaiter().GetResult();
+        base.OnFormClosed(e);
+    }
+
     private void StartDiagnostics()
     {
 
@@ -129,10 +132,10 @@ public partial class Form1 : Form, INotifyPropertyChanged
         DiagnosticHostingService.Start(options, _flurlCache);
     }
 
-    private void StopDiagnostics(object sender, EventArgs e)
+    private async void StopDiagnostics(object sender, EventArgs e)
     {
         Debug.WriteLine($"Calling StopDiagnostics");
-        DiagnosticHostingService.Stop();
+        await DiagnosticHostingService.Stop();
     }
 
     [ExtendedProperty] public Widget NullWidget => null;
