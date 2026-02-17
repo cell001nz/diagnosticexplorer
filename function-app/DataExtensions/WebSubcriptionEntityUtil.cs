@@ -15,13 +15,10 @@ public static class WebSubcriptionEntityUtil
         };
     
     private static readonly Func<WebSubcriptionEntity, WebProcSub> CompiledProjection = Projection.Compile();
-    
-    extension(WebSubcriptionEntity entity)
+
+    public static WebProcSub ToDto(this WebSubcriptionEntity entity)
     {
-        public WebProcSub ToDto()
-        {
-            return CompiledProjection(entity);
-        }
+        return CompiledProjection(entity);
     }
 }
 

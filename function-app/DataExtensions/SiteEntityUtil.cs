@@ -22,13 +22,10 @@ public static class SiteEntityUtil
         };
     
     private static readonly Func<SiteEntity, Site> CompiledProjection = Projection.Compile();
-    
-    extension(SiteEntity entity)
+
+    public static Site ToDto(this SiteEntity entity)
     {
-        public Site ToDto()
-        {
-            return CompiledProjection(entity);
-        }
+        return CompiledProjection(entity);
     }
 }
 

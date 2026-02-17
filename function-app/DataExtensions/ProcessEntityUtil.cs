@@ -22,13 +22,9 @@ public static class ProcessEntityUtil
         };
     
     private static readonly Func<ProcessEntity, DiagProcess> CompiledProjection = Projection.Compile();
-    
-    extension(ProcessEntity entity)
-    {
-        public DiagProcess ToDto()
-        {
-            return CompiledProjection(entity);
-        }
-    }
 
+    public static DiagProcess ToDto(this ProcessEntity entity)
+    {
+        return CompiledProjection(entity);
+    }
 }

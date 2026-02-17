@@ -14,13 +14,10 @@ public static class AccountEntityUtil
         };
     
     private static readonly Func<AccountEntity, Account> CompiledProjection = Projection.Compile();
-    
-    extension(AccountEntity entity)
+
+    public static Account ToDto(this AccountEntity entity)
     {
-        public Account ToDto()
-        {
-            return CompiledProjection(entity);
-        }
+        return CompiledProjection(entity);
     }
 }
 
