@@ -12,12 +12,12 @@ public class ProcessCleanupJob : ApiBase
     {
     }
 
-    /// <summary>
+    /*/// <summary>
     /// Timer trigger that runs every minute to mark stale online processes as offline.
     /// Processes are considered stale if they haven't been online for more than 2 minutes.
     /// </summary>
     [Function("ProcessCleanup")]
-    public async Task<SignalRMessageAction[]> Run([TimerTrigger("0 */1 * * * *")] TimerInfo timerInfo)
+    public async Task<SignalRMessageAction[]> Run([TimerTrigger("0 #1#1 * * * *")] TimerInfo timerInfo)
     {
         _logger.LogInformation("ProcessCleanup timer triggered at: {Time}", DateTime.UtcNow);
 
@@ -59,6 +59,6 @@ public class ProcessCleanupJob : ApiBase
         _logger.LogInformation("ProcessCleanup completed. Processed {Count} stale processes.", staleProcesses.Length);
 
         return actions.ToArray();
-    }
+    }*/
 }
 
