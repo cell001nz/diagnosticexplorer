@@ -20,10 +20,13 @@ public static class WebSessionEntityUtil
         };
     
     private static readonly Func<WebSessionEntity, WebClient> CompiledProjection = Projection.Compile();
-
-    public static WebClient ToDto(this WebSessionEntity entity)
+    
+    extension(WebSessionEntity entity)
     {
-        return CompiledProjection(entity);
+        public WebClient ToDto()
+        {
+            return CompiledProjection(entity);
+        }
     }
 }
 

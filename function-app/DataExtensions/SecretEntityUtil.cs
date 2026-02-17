@@ -16,10 +16,13 @@ public static class SecretEntityUtil
         };
     
     private static readonly Func<SecretEntity, Secret> CompiledProjection = Projection.Compile();
-
-    public static Secret ToDto(this SecretEntity entity)
+    
+    extension(SecretEntity entity)
     {
-        return CompiledProjection(entity);
+        public Secret ToDto()
+        {
+            return CompiledProjection(entity);
+        }
     }
 }
 
