@@ -113,9 +113,9 @@ public partial class Form1 : Form, INotifyPropertyChanged
         _scopeTask = RunScopeTask();
     }
 
-    protected override void OnFormClosed(FormClosedEventArgs e)
+    protected override async void OnFormClosed(FormClosedEventArgs e)
     {
-        DiagnosticHostingService.Stop().GetAwaiter().GetResult();
+        await DiagnosticHostingService.Stop();
         base.OnFormClosed(e);
     }
 

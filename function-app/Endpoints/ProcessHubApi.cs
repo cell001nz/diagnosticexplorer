@@ -72,14 +72,14 @@ public class ProcessHubApi : ApiBase
         if (string.IsNullOrWhiteSpace(negResponse.AccessToken))
             throw new ApplicationException("Failed to negotiate SignalR connection - AccessToken is null or empty");
 
-        SignalRConnectionInfo info = new SignalRConnectionInfo()
+        ProcessNegotiateResponse response = new ProcessNegotiateResponse()
         {
             Url = negResponse.Url,
-            AccessToken = negResponse.AccessToken
+            AccessToken = negResponse.AccessToken,
+            SiteId = site.Id
         };
 
-        // Console.WriteLine($"ConnectionInfo is null: {connectionInfo?.Url} {connectionInfo?.AccessToken}");
-        return new OkObjectResult(info);
+        return new OkObjectResult(response);
     }
 
 
@@ -98,32 +98,29 @@ public class ProcessHubApi : ApiBase
 
     #endregion*/
 
-    #region Register
+    #region Register => POST /api/processhub/register
 
     [Function("ProcessHub_Register")]
-    public async Task<DualHubOutput> Register(
-        [SignalRTrigger(PROCESS_HUB, MESSAGES, nameof(IProcessHub.Register), nameof(registration))]
-        SignalRInvocationContext invokeContext,
-        Registration registration)
+    public async Task<IActionResult> Register(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "processhub/register")]
+        HttpRequest req,
+        [FromBody] ProcessRegisterRequest request)
     {
-        _logger.LogWarning($"----------------------------------- ProcessHubTrigger.Register {invokeContext.ConnectionId}/{registration.ProcessName}");
+        _logger.LogWarning($"----------------------------------- ProcessHubTrigger.Register {request?.Registration?.ProcessName} conn={request?.ConnectionId}");
 
-        // await DiagIO.Process.SetConnectionId(processId, siteId, invokeContext.ConnectionId);
-        int siteId = GetSiteId(invokeContext);
-        var process = await RegisterProcess(siteId, invokeContext.ConnectionId, registration);
+        if (request?.ConnectionId == null || request.Registration == null)
+            return new BadRequestObjectResult("Missing ConnectionId or Registration");
 
-        DualHubOutput output = new DualHubOutput();
-        output.WebClient.Add(new SignalRMessageAction(nameof(IWebHubClient.ReceiveProcess), [process]) { GroupName = siteId.ToString() });
+        int siteId = request.SiteId;
+        var process = await RegisterProcess(siteId, request.ConnectionId, request.Registration);
 
-        output.ProcessClient.Add(new SignalRMessageAction(nameof(IProcessHubClient.SetRenewTime), [PROCESS_RENEW_TIME_MILLIS])
-        {
-            ConnectionId = invokeContext.ConnectionId
-        });
+        ServiceHubContext hubContext = await _serviceManager.CreateHubContextAsync(PROCESS_HUB, CancellationToken.None);
 
-        output.ProcessClient.Add(new SignalRMessageAction(nameof(IProcessHubClient.SetProcessId), [process.Id])
-        {
-            ConnectionId = invokeContext.ConnectionId
-        });
+        await hubContext.Clients.Client(request.ConnectionId)
+            .SendCoreAsync(nameof(IProcessHubClient.SetRenewTime), [PROCESS_RENEW_TIME_MILLIS]);
+
+        await hubContext.Clients.Client(request.ConnectionId)
+            .SendCoreAsync(nameof(IProcessHubClient.SetProcessId), [process.Id]);
 
         int subs = await _context.Processes.Where(p => p.Id == process.Id)
             .Select(p => p.Subscriptions.Count)
@@ -131,17 +128,16 @@ public class ProcessHubApi : ApiBase
 
         if (subs > 0)
         {
-            output.ProcessClient.Add(new SignalRMessageAction(nameof(IProcessHubClient.StartSending), [DIAG_SEND_FREQ_MILLIS])
-                { ConnectionId = invokeContext.ConnectionId });
+            await hubContext.Clients.Client(request.ConnectionId)
+                .SendCoreAsync(nameof(IProcessHubClient.StartSending), [DIAG_SEND_FREQ_MILLIS]);
         }
 
-        output.ProcessClient.Add(new SignalRGroupAction(SignalRGroupActionType.Add)
-        {
-            ConnectionId = invokeContext.ConnectionId,
-            GroupName = process.Id.ToString()
-        });
+        await hubContext.Groups.AddToGroupAsync(request.ConnectionId, process.Id.ToString());
 
-        return output;
+        await hubContext.Clients.Group(siteId.ToString())
+            .SendCoreAsync(nameof(IWebHubClient.ReceiveProcess), [process]);
+
+        return new OkObjectResult(process);
     }
 
     private async Task<DiagProcess> RegisterProcess(int siteId, string connectionId, Registration registration)
@@ -187,6 +183,7 @@ public class ProcessHubApi : ApiBase
     }
 
 #endregion
+
     #region OnDisconnected => SIGNALR/connections/disconnected
 
     [Function("ProcessHub_OnProcessDisconnected")]

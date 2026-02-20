@@ -33,6 +33,7 @@ public class RegistrationHandler
 
     private DiagnosticSite _site;
     private string _resolvedUrl;
+    private int _siteId;
     private ProcessHubClient _processHubAdapter;
     private HubConnection _connection;
     private TimeSpan _renewTime = TimeSpan.FromSeconds(25);
@@ -123,12 +124,7 @@ public class RegistrationHandler
 
                 cancel.ThrowIfCancellationRequested();
 
-                await OpenHub();
-
-                cancel.ThrowIfCancellationRequested();
-
-                // _registration.RenewTimeSeconds = (int)_renewTime.TotalSeconds;
-                await _processHubAdapter.Register(cancel);
+                await OpenHub(cancel);
             }
             catch (Exception ex)
             {
@@ -174,10 +170,11 @@ public class RegistrationHandler
     {
         public string Url { get; set; }
         public string AccessToken { get; set; }
+        public int SiteId { get; set; }
     }
 
 
-    private async Task OpenHub()
+    private async Task OpenHub(CancellationToken cancel = default)
     {
         if (_processHubAdapter == null)
         {
@@ -207,6 +204,9 @@ public class RegistrationHandler
 
                 _resolvedUrl = negResponse.Url;
                 accessToken = negResponse.AccessToken;
+                _siteId = negResponse.SiteId;
+                
+                Trace.WriteLine($"Hub is open, negotiated URL is {_resolvedUrl}");
             }
 
             _connection = new HubConnectionBuilder()
@@ -222,16 +222,40 @@ public class RegistrationHandler
 
             Debug.WriteLine("Diagnostic RegistrationHandler starting connection");
             await _connection.StartAsync(_stopToken.Token);
+            string connectionId = _connection.ConnectionId;
 
             Debug.WriteLine("Diagnostic RegistrationHandler connection started");
             _processHubAdapter = new ProcessHubClient(_connection, flurlClient);
             _processHubAdapter.RenewTimeChanged += (sender, args) => _renewTime = args.Time;
+
+            if (isAzure)
+            {
+                Trace.WriteLine($"BEFORE register via HTTP connectionId={connectionId}");
+                var registerRequest = new ProcessRegisterRequest()
+                {
+                    ConnectionId = connectionId,
+                    SiteId = _siteId,
+                    Registration = new Registration
+                    {
+                        Pid = System.Diagnostics.Process.GetCurrentProcess().Id,
+                        InstanceId = ProcessHubClient.InstanceId,
+                        UserName = Environment.UserName,
+                        MachineName = Environment.MachineName,
+                        ProcessName = System.Diagnostics.Process.GetCurrentProcess().ProcessName.Replace(".vshost", "")
+                    }
+                };
+                await flurlClient
+                    .Request("register")
+                    .PostJsonAsync(registerRequest, cancel);
+                Trace.WriteLine($"AFTER register via HTTP");
+            }
         }
     }
 
     private async Task HandleClosed(Exception ex)
     {
         Debug.WriteLine($"RegistrationHandler.HandleClosed {ex?.Message}");
+        Trace.WriteLine($"RegistrationHandler.HandleClosed {ex?.Message}");
         HubConnection currentConnection = _connection;
         ProcessHubClient currentAdapter = _processHubAdapter;
 

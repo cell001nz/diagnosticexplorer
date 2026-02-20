@@ -23,7 +23,7 @@ public class ProcessApi : ApiBase
 
     [Function("GetProcesses")]
     public async Task<IActionResult> GetProcesses(
-        [HttpTrigger(AuthorizationLevel.User, "get", Route = "Sites/{siteId}/Processes")] HttpRequest req, 
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Sites/{siteId}/Processes")] HttpRequest req, 
         int siteId)
     {
         var account = await GetCurrentAccount(req);

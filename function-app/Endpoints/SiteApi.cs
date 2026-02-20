@@ -24,7 +24,7 @@ public class SiteApi : ApiBase
 
     [Function("GetSites")]
     public async Task<IActionResult> GetSites(
-        [HttpTrigger(AuthorizationLevel.User, "get", Route = "Sites")] HttpRequest req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Sites")] HttpRequest req)
     {
         var account = await GetLoggedInAccount(req);
 
@@ -50,7 +50,7 @@ public class SiteApi : ApiBase
 
     [Function("GetSite")]
     public async Task<IActionResult> GetSite(
-        [HttpTrigger(AuthorizationLevel.User, "get", Route = "Sites/{id}")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Sites/{id}")]
         HttpRequest req, int id)
     {
         Account account = await GetLoggedInAccount(req);
@@ -89,7 +89,7 @@ public class SiteApi : ApiBase
 
     [Function("InsertSite")]
     public async Task<IActionResult> InsertSite(
-        [HttpTrigger(AuthorizationLevel.User, "post", Route = "Sites")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Sites")]
         HttpRequest req,
         [FromBody] Site site)
     {
@@ -145,7 +145,7 @@ public class SiteApi : ApiBase
     #region NewSecret => GET /api/Secrets/New
 
     [Function("NewSecret")]
-    public IActionResult NewSecret([HttpTrigger(AuthorizationLevel.User, "get", Route = "Secrets/New")] HttpRequest req)
+    public IActionResult NewSecret([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Secrets/New")] HttpRequest req)
     {
         using var rng = RandomNumberGenerator.Create();
         byte[] data = new byte[32];
@@ -160,7 +160,7 @@ public class SiteApi : ApiBase
 
     [Function("UpdateSite")]
     public async Task<IActionResult> UpdateSite(
-        [HttpTrigger(AuthorizationLevel.User, "put", Route = "Sites/{id}")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "Sites/{id}")]
         HttpRequest req,
         string id, [FromBody] Site site)
     {
@@ -169,6 +169,7 @@ public class SiteApi : ApiBase
             Account account = await GetLoggedInAccount(req);
 
             SiteEntity siteEntity = await _context.Sites
+                                        .Include(s => s.Secrets)
                                         .Where(s => s.Id == site.Id && s.AccountId == account.Id)
                                         .FirstOrDefaultAsync()
                                     ?? throw new ApplicationException("Site not found");

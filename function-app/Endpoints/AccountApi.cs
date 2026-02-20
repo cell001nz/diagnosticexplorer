@@ -19,7 +19,7 @@ public class AccountApi : ApiBase
 
     [Function("MyAccount")]
     public async Task<IActionResult> MyAccount(
-        [HttpTrigger(AuthorizationLevel.User, "get", "post", Route = "Account/MyAccount")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "Account/MyAccount")]
         HttpRequest req)
     {
         var account = await GetLoggedInAccount(req);
@@ -53,7 +53,7 @@ public class AccountApi : ApiBase
 
     [Function("LoggedIn")]
     public async Task<IActionResult> RegisterLogin(
-        [HttpTrigger(AuthorizationLevel.User, "get", "post", Route = "Account/RegisterLogin")] HttpRequest req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "Account/RegisterLogin")] HttpRequest req)
     {
         Account acct = await GetOrCreateAccountAsync(req);
 

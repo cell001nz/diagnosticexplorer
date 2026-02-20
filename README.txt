@@ -20,3 +20,8 @@ azurite --location ./.azurite_data
 func start
 swa start http://localhost:4200 --api-location  http://localhost:7071/api
 
+
+
+cd angular-app; swa deploy
+
+cd function-app; dotnet publish -c Release -r linux-x64 --self-contained false -o ./publish_output 2>&1
