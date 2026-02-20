@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using DiagnosticExplorer.DataAccess;
 using DiagnosticExplorer.DataAccess.Entities;
 using DiagnosticExplorer.Domain;
@@ -18,16 +19,41 @@ public class AccountApi : ApiBase
 
     [Function("MyAccount")]
     public async Task<IActionResult> MyAccount(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "Account/MyAccount")]
+        [HttpTrigger(AuthorizationLevel.User, "get", "post", Route = "Account/MyAccount")]
         HttpRequest req)
     {
         var account = await GetLoggedInAccount(req);
         return new OkObjectResult(account);
     }
 
+    [Function("Status")]
+    public async Task<IActionResult> Status(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "Account/Status")]
+        HttpRequest req)
+    {
+        string info = $"Status: ";
+        
+        if (req.Headers.TryGetValue("x-ms-client-principal", out var header))
+            info += $" UserId = {header.FirstOrDefault()?.Substring(0, 10)}...";
+        else
+            info += " No user principal header";
+
+        try
+        {
+            int count = await _context.Sites.CountAsync();
+            info += $", Site count = {count}";
+        }
+        catch (Exception e)
+        {
+            info += $", Failed to access database: {e.Message}";
+        }
+
+        return new OkObjectResult(info);
+    }
+
     [Function("LoggedIn")]
     public async Task<IActionResult> RegisterLogin(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "Account/RegisterLogin")] HttpRequest req)
+        [HttpTrigger(AuthorizationLevel.User, "get", "post", Route = "Account/RegisterLogin")] HttpRequest req)
     {
         Account acct = await GetOrCreateAccountAsync(req);
 

@@ -188,6 +188,7 @@ _pkginfo.txt
 
 # Others
 ClientBin/
+output/
 ~$*
 *~
 *.dbmdl

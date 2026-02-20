@@ -21,6 +21,12 @@
       ]
     },
     {
+      "route": "/api/Account/Status",
+      "allowedRoles": [
+        "anonymous"
+      ]
+    },
+    {
       "route": "/api/*",
       "allowedRoles": [
         "authenticated"

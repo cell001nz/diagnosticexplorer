@@ -34,6 +34,10 @@ export class AuthService {
         window.location.assign('/.auth/logout');
     }
     
+    getStatus() : Promise<string> {
+        return firstValueFrom(this.#http.get('/api/Account/Status', { responseType: 'text' }));
+    }
+    
     getMyAccount() : Promise<Account> {
         return firstValueFrom(this.#http.get<Account>('/api/Account/MyAccount'));
     }

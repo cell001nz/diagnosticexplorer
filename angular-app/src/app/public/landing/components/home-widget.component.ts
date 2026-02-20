@@ -1,11 +1,13 @@
-import {Component} from '@angular/core';
+import {Component, inject, resource} from '@angular/core';
+import {JsonPipe} from "@angular/common";
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { RouterModule } from '@angular/router';
+import {AuthService} from "@services/auth.service";
 
 @Component({
     selector: 'home-widget',
-    imports: [ButtonModule, RippleModule, RouterModule],
+    imports: [ButtonModule, RippleModule, RouterModule, JsonPipe],
     template: `
         <div
             class="flex flex-col pt-6 px-6 lg:px-20 overflow-hidden anchor-target"
@@ -17,12 +19,15 @@ import { RouterModule } from '@angular/router';
                     Diagnostic Toolset
                 </h1>
                 <p class="text-xl text-gray-700 mt-4 max-w-2xl">
-                    Monitor, debug, and explore your .NET applications in real-time. 
+                    Monitor, debug, and explore your .NET applications in real-time.
                     Expose properties, track rates, trace execution flow, and invoke methods - all without stopping your application.
                 </p>
+                <pre class="text-xl text-gray-700 mt-4 max-w-2xl">
+                    Status: {{status.status()}} {{(status.isLoading() ? "Loading" : status.error() ? (status.error() | json) : status.value())}}
+                </pre>
                 <div class="flex gap-4 mt-8">
                     <a pButton pRipple [rounded]="true" routerLink="/app" class="text-xl! px-6!">
-                        Get Started
+                        Get Started!
                     </a>
                     <a pButton pRipple [rounded]="true" [outlined]="true" href="https://www.codeproject.com/Articles/28aboratori/Diagnostic-Explorer" target="_blank" class="text-xl! px-6!">
                         Documentation
@@ -50,4 +55,12 @@ scope.Trace("Processing started...");</code></pre>
         </div>
     `
 })
-export class HomeWidget {}
+export class HomeWidget {
+
+    #authService = inject(AuthService);
+
+    status = resource({
+        loader: () => this.#authService.getStatus()
+    });
+
+}

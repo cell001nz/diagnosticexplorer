@@ -1,7 +1,9 @@
 {
   "IsEncrypted": false,
   "Values": {
-    "PostgreSQLConnection": "Host=localhost;Database=diagnosticexplorer;Username=postgres;Password=postgres"
+    "PostgreSQLConnectionLocal": "Host=localhost;Database=diagnosticexplorer;Username=postgres;Password=postgres",
+    "PostgreSQLConnection": "Server=diag-explorer-postgresql.postgres.database.azure.com;Database=postgres;Port=5432;User Id=cameronelliot@gmail.com;Password=miKar12akacr01;Ssl Mode=Require;"
+
   },
   "ConnectionStrings": {}
-}
+} 
