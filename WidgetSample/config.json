@@ -5,16 +5,12 @@
         "Url": "http://localhost:4280/api/processhub/negotiate",
         "Code": "a354406c-36b8-4405-bb39-a3d5b1f2ddba",
         "Secret": "j3KotR2w62ejviQR2iYGDcnYKspNM/2w/pySteLd0w0=",
-        "Enabled": false
+        "Enabled": true
       },
       {
         "Url": "https://diagnosticexplorer.com/api/processhub/negotiate",
         "Code": "8d62414f-0017-424c-8047-5d0c82d1ad87",
         "Secret": "0WKmDCIipfwXyyuNjC16d5plAcyIPo25b6P+GyfMk1E=",
-        "Enabled": true
-      },
-      {
-        "Url": "http://localhost:280399999/diagnostics",
         "Enabled": false
       }
     ]

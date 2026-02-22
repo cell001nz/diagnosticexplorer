@@ -16,7 +16,7 @@
       ]
     },
     {
-      "route": "/api/processhub/negotiate",
+      "route": "/api/processhub/*",
       "allowedRoles": [
         "anonymous"
       ]

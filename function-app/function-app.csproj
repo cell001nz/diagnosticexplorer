@@ -26,6 +26,7 @@
     <PackageReference Include="Microsoft.Azure.SignalR.Management" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
     <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DataAccess\DataAccess.csproj" />

@@ -31,3 +31,5 @@ obj
 *.sln
 *.sw?
 /angular-app/swa-cli.config.json
+
+.env

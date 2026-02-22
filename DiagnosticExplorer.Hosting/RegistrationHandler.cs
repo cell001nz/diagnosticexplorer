@@ -44,6 +44,7 @@ public class RegistrationHandler
     private Subject<DiagnosticMsg> _logSubject = new();
     private Channel<IList<DiagnosticMsg>> _logChannel;
     private readonly IFlurlClientCache _flurlCache;
+    private static readonly string InstanceId = Guid.NewGuid().ToString("N");
 
     public RegistrationHandler(DiagnosticSite site, IFlurlClientCache flurlCache)
     {
@@ -182,32 +183,28 @@ public class RegistrationHandler
             string accessToken = null;
             _resolvedUrl = _site.Url;
             bool isAzure = false;
-            IFlurlClient flurlClient = _flurlCache.GetOrAdd("Default");
 
-            if (_site.Url.EndsWith("negotiate", StringComparison.InvariantCultureIgnoreCase))
+            isAzure = true;
+            string baseUrl = Regex.Replace(_site.Url, "/negotiate", "", RegexOptions.IgnoreCase);
+            IFlurlClient flurlClient = _flurlCache.GetOrAdd($"Diagnostics_{baseUrl}", baseUrl,
+                options => options.Settings.JsonSerializer = new DefaultJsonSerializer(DiagJsonOptions.Default));
+
+            SiteCredentials siteCredentials = new SiteCredentials()
             {
-                isAzure = true;
-                string baseUrl = Regex.Replace(_site.Url, "/negotiate", "", RegexOptions.IgnoreCase);
-                flurlClient = _flurlCache.GetOrAdd($"Diagnostics_{baseUrl}", baseUrl,
-                    options => options.Settings.JsonSerializer = new DefaultJsonSerializer(DiagJsonOptions.Default));
+                Code = _site.Code,
+                Secret = _site.Secret,
+            };
 
-                SiteCredentials siteCredentials = new SiteCredentials()
-                {
-                    Code = _site.Code,
-                    Secret = _site.Secret,
-                };
+            var negResponse = await flurlClient
+                .Request("negotiate")
+                .PostJsonAsync(siteCredentials, HttpCompletionOption.ResponseContentRead, cancel)
+                .ReceiveJson<NegotiateResponse>();
 
-                var negResponse = await flurlClient
-                    .Request("negotiate")
-                    .PostJsonAsync(siteCredentials)
-                    .ReceiveJson<NegotiateResponse>();
+            _resolvedUrl = negResponse.Url;
+            accessToken = negResponse.AccessToken;
+            _siteId = negResponse.SiteId;
 
-                _resolvedUrl = negResponse.Url;
-                accessToken = negResponse.AccessToken;
-                _siteId = negResponse.SiteId;
-                
-                Trace.WriteLine($"Hub is open, negotiated URL is {_resolvedUrl}");
-            }
+            Trace.WriteLine($"Hub is open, negotiated URL is {_resolvedUrl}");
 
             _connection = new HubConnectionBuilder()
                 .AddJsonProtocol(options => options.PayloadSerializerOptions = DiagJsonOptions.Default)
@@ -225,30 +222,29 @@ public class RegistrationHandler
             string connectionId = _connection.ConnectionId;
 
             Debug.WriteLine("Diagnostic RegistrationHandler connection started");
-            _processHubAdapter = new ProcessHubClient(_connection, flurlClient);
+
+            IFlurlClient hubFlurlClient = flurlClient.WithOAuthBearerToken(negResponse.AccessToken);
+            _processHubAdapter = new ProcessHubClient(_connection, hubFlurlClient);
             _processHubAdapter.RenewTimeChanged += (sender, args) => _renewTime = args.Time;
 
-            if (isAzure)
+            Trace.WriteLine($"BEFORE register via HTTP connectionId={connectionId}");
+            var registerRequest = new ProcessRegisterRequest()
             {
-                Trace.WriteLine($"BEFORE register via HTTP connectionId={connectionId}");
-                var registerRequest = new ProcessRegisterRequest()
+                ConnectionId = connectionId,
+                SiteId = _siteId,
+                Registration = new Registration
                 {
-                    ConnectionId = connectionId,
-                    SiteId = _siteId,
-                    Registration = new Registration
-                    {
-                        Pid = System.Diagnostics.Process.GetCurrentProcess().Id,
-                        InstanceId = ProcessHubClient.InstanceId,
-                        UserName = Environment.UserName,
-                        MachineName = Environment.MachineName,
-                        ProcessName = System.Diagnostics.Process.GetCurrentProcess().ProcessName.Replace(".vshost", "")
-                    }
-                };
-                await flurlClient
-                    .Request("register")
-                    .PostJsonAsync(registerRequest, cancel);
-                Trace.WriteLine($"AFTER register via HTTP");
-            }
+                    Pid = Process.GetCurrentProcess().Id,
+                    InstanceId = InstanceId,
+                    UserName = Environment.UserName,
+                    MachineName = Environment.MachineName,
+                    ProcessName = Process.GetCurrentProcess().ProcessName.Replace(".vshost", "")
+                }
+            };
+            await hubFlurlClient
+                .Request("register")
+                .PostJsonAsync(registerRequest, HttpCompletionOption.ResponseContentRead, cancel);
+            Trace.WriteLine($"AFTER register via HTTP");
         }
     }
 

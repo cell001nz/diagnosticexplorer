@@ -47,7 +47,7 @@ export class DiagHubService implements OnDestroy {
             this.processArrived$.next(process);
           });
           hub.on('ReceiveDiagnostics', (processId: number, response: DiagnosticResponse) => {
-            console.log('Diagnostics arrived', response);
+            console.log('Diagnostics arrived', processId, response);
             this.diagsArrived$.next({processId, response});
           });
           hub.on('ClearEvents', (processId: number) => {

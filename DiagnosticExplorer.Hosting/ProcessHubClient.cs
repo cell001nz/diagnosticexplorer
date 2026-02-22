@@ -17,7 +17,6 @@ namespace DiagWebService.Hubs;
 internal class ProcessHubClient : IProcessHubClient
 {
     private static readonly ILog _log = LogManager.GetLogger(typeof(ProcessHubClient));
-    internal static readonly string InstanceId = Guid.NewGuid().ToString("N");
     private Task _writeEventTask;
     private Task _sendDiagnosticsTask;
     private int _processId = 0;
@@ -45,21 +44,6 @@ internal class ProcessHubClient : IProcessHubClient
         _hubConn.On(nameof(IProcessHubClient.SetRenewTime), async (int millis) => await ((IProcessHubClient)this).SetRenewTime(millis));
         _hubConn.On(nameof(IProcessHubClient.ExecuteOperation),
             async (string requestId, string path, string operation, string[] args) => await ((IProcessHubClient)this).ExecuteOperation(requestId, path, operation, args));
-    }
-
-    public async Task Register(CancellationToken cancel)
-    {
-        var registration = new Registration
-        {
-            Pid = Process.GetCurrentProcess().Id,
-            InstanceId = InstanceId,
-            UserName = Environment.UserName,
-            MachineName = Environment.MachineName,
-            ProcessName = Process.GetCurrentProcess().ProcessName.Replace(".vshost", "")
-        };
-        Trace.WriteLine($"BEFORE register process with hub");
-        await _hubConn.SendAsync(nameof(IProcessHub.Register), registration, cancel);
-        Trace.WriteLine($"AFTER register process with hub");
     }
 
     Task IProcessHubClient.SetRenewTime(int millis)
@@ -135,7 +119,11 @@ internal class ProcessHubClient : IProcessHubClient
                 var data = ProtobufUtil.Compress(response, 1024);
                 var stringData = Convert.ToBase64String(data);
                 Trace.WriteLine($"SENDING DIAGNOSTICS {Process.GetCurrentProcess().Id}");
-                await _hubConn.SendAsync(nameof(IDiagnosticHubServer.ReceiveDiagnostics), _processId, stringData, cancel);
+                await _flurlClient.Request(nameof(IDiagnosticHubServer.ReceiveDiagnostics))
+                    .SetQueryParam("processId", _processId)
+                    .PostStringAsync(stringData, cancellationToken: cancel);
+                
+                // await _hubConn.SendAsync(nameof(IDiagnosticHubServer.ReceiveDiagnostics), _processId, stringData, cancel);
             }
             catch when (cancel.IsCancellationRequested)
             {
@@ -176,7 +164,9 @@ internal class ProcessHubClient : IProcessHubClient
         using var stream = EventSinkRepo.Default.CreateSinkStream(TimeSpan.FromMilliseconds(50), 100);
         try
         {
-            await _hubConn.SendAsync(nameof(IProcessHub.ClearEvents), _processId, cancel);
+            await _flurlClient.Request(nameof(IProcessHub.ClearEvents))
+                .SetQueryParam("processId", _processId)
+                .PostAsync(cancellationToken: cancel);
         }
         catch (OperationCanceledException)
         {
@@ -193,7 +183,9 @@ internal class ProcessHubClient : IProcessHubClient
             {
                 var item = await stream.EventChannel.Reader.ReadAsync(cancel);
                 if (item.Any())
-                    await _hubConn.SendAsync(nameof(IProcessHub.StreamEvents), _processId, item, cancel);
+                    await _flurlClient.Request(nameof(IProcessHub.StreamEvents))
+                        .SetQueryParam("processId", _processId)
+                        .PostJsonAsync(item, cancellationToken: cancel);
             }
         }
         catch (OperationCanceledException)

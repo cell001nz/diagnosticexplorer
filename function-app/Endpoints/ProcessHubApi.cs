@@ -1,5 +1,9 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.IO.Pipelines;
 using System.Linq.Expressions;
 using System.Security.Claims;
+using System.Text.Json;
+using Azure.Core.Serialization;
 using DiagnosticExplorer.Api.Domain;
 using DiagnosticExplorer.Api.Security;
 using DiagnosticExplorer.DataAccess;
@@ -28,7 +32,12 @@ public class ProcessHubApi : ApiBase
     public ProcessHubApi(ILogger<ProcessHubApi> logger, DiagDbContext context) : base(logger, context)
     {
         _serviceManager = new ServiceManagerBuilder()
-            .WithOptions(o => { o.ConnectionString = Environment.GetEnvironmentVariable("AzureSignalRConnectionString"); }).BuildServiceManager();
+            .WithOptions(o =>
+            {
+                o.ConnectionString = Environment.GetEnvironmentVariable("AzureSignalRConnectionString");
+                o.UseJsonObjectSerializer(new JsonObjectSerializer(DiagJsonOptions.Default));
+            })
+            .BuildServiceManager();
     }
 
 
@@ -213,89 +222,116 @@ public class ProcessHubApi : ApiBase
 
     #endregion
     
-   #region ReceiveDiagnostics => SIGNALR/ReceiveDiagnostics
+    #region ReceiveDiagnostics => POST /api/processhub/ReceiveDiagnostics?processId=...
 
     [Function("ProcessHub_ReceiveDiagnostics")]
-    public async Task<DualHubOutput> ReceiveDiagnostics(
-        [SignalRTrigger(PROCESS_HUB, MESSAGES, nameof(IProcessHub.ReceiveDiagnostics), nameof(processId), nameof(stringData))]
-        SignalRInvocationContext invokeContext,
-        int processId,
-        string stringData,
-        FunctionContext context)
+    public async Task<IActionResult> ReceiveDiagnostics(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "processhub/ReceiveDiagnostics")]
+        HttpRequest req,
+        [FromQuery] int processId)
     {
-        // DiagProcess process = await GetProcess(invokeContext);
-        _logger.LogWarning($"ReceiveDiagnostics {processId} {stringData?.Substring(0, 20)}...");
-        
-        
-        DualHubOutput output = new DualHubOutput();
+        if (!TryGetSiteIdFromBearer(req, out int siteId))
+        {
+            _logger.LogWarning("ReceiveDiagnostics - missing or invalid bearer token");
+            return new UnauthorizedResult();
+        }
+
+        string stringData;
+        using (StreamReader reader = new StreamReader(req.Body))
+            stringData = await reader.ReadToEndAsync();
+
+        _logger.LogWarning($"ReceiveDiagnostics siteId={siteId} processId={processId} data={stringData?.Substring(0, Math.Min(20, stringData?.Length ?? 0))}...");
 
         if (string.IsNullOrWhiteSpace(stringData))
-            return output;
+            return new OkResult();
 
-        // if (!process.IsSending)
-        // {
-            // output.ProcessClient.Add(new SignalRMessageAction(Messages.Process.StopSending)
-            // {
-                // ConnectionId = invokeContext.ConnectionId
-            // });
-        // }
-        // else
-        // {
-        
-            DiagnosticResponse response = DeserialiseBase64Protobuf<DiagnosticResponse>(stringData);
-            response.ServerDate = DateTime.UtcNow;
+        // Verify the process belongs to the site from the token
+        bool processOwnedBySite = await _context.Processes
+            .AnyAsync(p => p.Id == processId && p.SiteId == siteId);
 
-            output.WebClient.Add(new SignalRMessageAction(nameof(IWebHubClient.ReceiveDiagnostics), [processId, response])
-            {
-                GroupName = processId.ToString()
-            });
-        // }
+        if (!processOwnedBySite)
+        {
+            _logger.LogWarning($"ReceiveDiagnostics - process {processId} does not belong to site {siteId}");
+            return new UnauthorizedResult();
+        }
 
-        return output;
+        DiagnosticResponse response = DeserialiseBase64Protobuf<DiagnosticResponse>(stringData);
+        response.ServerDate = DateTime.UtcNow;
+
+        ServiceHubContext hubContext = await _serviceManager.CreateHubContextAsync(WEB_HUB, CancellationToken.None);
+        await hubContext.Clients.Group(processId.ToString())
+            .SendCoreAsync(nameof(IWebHubClient.ReceiveDiagnostics), [processId, response]);
+
+        return new OkResult();
     }
 
     #endregion
 
-    #region ClearEventStream => SIGNALR/ClearEventStream
+    #region ClearEvents => POST /api/processhub/ClearEvents?processId=...
 
     [Function("ProcessHub_ClearEvents")]
-    [SignalROutput(HubName = WEB_HUB)]
-
-    public async Task<SignalRMessageAction> ClearEvents(
-        [SignalRTrigger(PROCESS_HUB, MESSAGES, nameof(IProcessHub.ClearEvents), nameof(processId))]
-        SignalRInvocationContext invokeContext,
-        int processId,
-        FunctionContext context)
+    public async Task<IActionResult> ClearEvents(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "processhub/ClearEvents")]
+        HttpRequest req,
+        [FromQuery] int processId)
     {
-        // DiagProcess process = await GetProcess(invokeContext);
-        _logger.LogWarning($"ClearEventStream");
-
-        return new SignalRMessageAction(nameof(IWebHubClient.ClearEvents), [processId])
+        if (!TryGetSiteIdFromBearer(req, out int siteId))
         {
-            GroupName = processId.ToString()
-        };
+            _logger.LogWarning("ClearEvents - missing or invalid bearer token");
+            return new UnauthorizedResult();
+        }
+
+        _logger.LogWarning($"ClearEvents siteId={siteId} processId={processId}");
+
+        bool processOwnedBySite = await _context.Processes
+            .AnyAsync(p => p.Id == processId && p.SiteId == siteId);
+
+        if (!processOwnedBySite)
+        {
+            _logger.LogWarning($"ClearEvents - process {processId} does not belong to site {siteId}");
+            return new UnauthorizedResult();
+        }
+
+        ServiceHubContext hubContext = await _serviceManager.CreateHubContextAsync(WEB_HUB, CancellationToken.None);
+        await hubContext.Clients.Group(processId.ToString())
+            .SendCoreAsync(nameof(IWebHubClient.ClearEvents), [processId]);
+
+        return new OkResult();
     }
 
     #endregion
 
-    #region StreamEvents => SIGNALR/StreamEvents
+    #region StreamEvents => POST /api/processhub/StreamEvents?processId=...
 
     [Function("ProcessHub_StreamEvents")]
-    [SignalROutput(HubName = WEB_HUB)]
-    public async Task<SignalRMessageAction> StreamEvents(
-        [SignalRTrigger(PROCESS_HUB, MESSAGES, nameof(IProcessHub.StreamEvents), nameof(processId), nameof(events))]
-        SignalRInvocationContext invokeContext,
-        int processId,
-        SystemEvent[] events,
-        FunctionContext context)
+    public async Task<IActionResult> StreamEvents(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "processhub/StreamEvents")]
+        HttpRequest req,
+        [FromQuery] int processId,
+        [FromBody] SystemEvent[] events)
     {
-        // DiagProcess process = await GetProcess(invokeContext);
-        _logger.LogWarning($"StreamEvents");
-
-        return new SignalRMessageAction(nameof(IWebHubClient.StreamEvents), [processId, events])
+        if (!TryGetSiteIdFromBearer(req, out int siteId))
         {
-            GroupName = processId.ToString()
-        };
+            _logger.LogWarning("StreamEvents - missing or invalid bearer token");
+            return new UnauthorizedResult();
+        }
+
+        _logger.LogWarning($"StreamEvents siteId={siteId} processId={processId} count={events?.Length}");
+
+        bool processOwnedBySite = await _context.Processes
+            .AnyAsync(p => p.Id == processId && p.SiteId == siteId);
+
+        if (!processOwnedBySite)
+        {
+            _logger.LogWarning($"StreamEvents - process {processId} does not belong to site {siteId}");
+            return new UnauthorizedResult();
+        }
+
+        ServiceHubContext hubContext = await _serviceManager.CreateHubContextAsync(WEB_HUB, CancellationToken.None);
+        await hubContext.Clients.Group(processId.ToString())
+            .SendCoreAsync(nameof(IWebHubClient.StreamEvents), [processId, events]);
+
+        return new OkResult();
     }
 
     #endregion
@@ -307,6 +343,38 @@ public class ProcessHubApi : ApiBase
             throw new ApplicationException($"Can't find SiteId claim");
 
         return int.Parse(found[0]!);
+    }
+
+    bool TryGetSiteIdFromBearer(HttpRequest req, out int siteId)
+    {
+        siteId = 0;
+
+        if (!req.Headers.TryGetValue("Authorization", out var authHeader))
+            return false;
+
+        var headerValue = authHeader.FirstOrDefault();
+        if (headerValue == null || !headerValue.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        var token = headerValue.Substring("Bearer ".Length).Trim();
+
+        try
+        {
+            var handler = new JwtSecurityTokenHandler();
+            if (!handler.CanReadToken(token))
+                return false;
+
+            var jwt = handler.ReadJwtToken(token);
+            var claim = jwt.Claims.FirstOrDefault(c => c.Type == SITE_ID_CLAIM);
+            if (claim == null)
+                return false;
+
+            return int.TryParse(claim.Value, out siteId);
+        }
+        catch
+        {
+            return false;
+        }
     }
 
  
