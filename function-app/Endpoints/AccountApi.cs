@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using DiagnosticExplorer.DataAccess;
 using DiagnosticExplorer.DataAccess.Entities;
+using DiagnosticExplorer.DataExtensions;
 using DiagnosticExplorer.Domain;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -57,10 +58,33 @@ public class AccountApi : ApiBase
     {
         Account acct = await GetOrCreateAccountAsync(req);
 
-        return new OkObjectResult($"Login OK for {acct.Name}");
+        return new OkObjectResult(acct);
     }
-    
-    
+
+    [Function("UpdateProfile")]
+    public async Task<IActionResult> UpdateProfile(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Account/UpdateProfile")] HttpRequest req)
+    {
+        ClientPrincipal cp = GetClientPrincipal(req);
+
+        var profileUpdate = await req.ReadFromJsonAsync<UpdateProfileRequest>();
+        if (profileUpdate == null || string.IsNullOrWhiteSpace(profileUpdate.Name) || string.IsNullOrWhiteSpace(profileUpdate.Email))
+            return new BadRequestObjectResult("Name and email are required.");
+
+        var account = await _context.Accounts.Where(a => a.Username == cp.UserId)
+            .FirstOrDefaultAsync();
+
+        if (account == null)
+            return new NotFoundObjectResult("Account not found.");
+
+        account.Name = profileUpdate.Name.Trim();
+        account.Email = profileUpdate.Email.Trim();
+        account.IsProfileComplete = true;
+
+        await _context.SaveChangesAsync();
+
+        return new OkObjectResult(account.ToDto());
+    }
 
     private async Task<Account> GetOrCreateAccountAsync(HttpRequest req)
     {
@@ -71,16 +95,28 @@ public class AccountApi : ApiBase
         
         if (account == null)
         {
+            // Extract email from SWA userDetails (contains email for Google, UPN for AAD)
+            string? initialEmail = !string.IsNullOrWhiteSpace(cp.UserDetails) ? cp.UserDetails : null;
+
             account = _context.Accounts.Add(new AccountEntity()
             {
-                Name = cp.UserId,
+                Name = cp.UserDetails ?? cp.UserId,
                 IsActive = true,
                 Username = cp.UserId,
+                Email = initialEmail,
+                IsProfileComplete = false,
                 CreatedAt = DateTime.UtcNow
             }).Entity;
             await _context.SaveChangesAsync();
         }
         
-        return new Account(account.Id, account.Username);
+        return account.ToDto();
     }
 }
+
+public class UpdateProfileRequest
+{
+    public string Name { get; set; } = "";
+    public string Email { get; set; } = "";
+}
+

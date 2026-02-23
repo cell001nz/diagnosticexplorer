@@ -14,8 +14,14 @@ export class LoginGuard implements CanActivate {
         console.log('canActivate', state.url);
         try {
             const encodedRedirect = encodeURIComponent(state.url);
-            if (this.#auth.isLoggedIn())
+            if (this.#auth.isLoggedIn()) {
+                // User is logged in — check if profile is complete
+                const account = this.#auth.account();
+                if (account && !account.isProfileComplete && !state.url.includes('complete-profile')) {
+                    return this.#router.parseUrl('/app/complete-profile');
+                }
                 return true;
+            }
 
             return this.#auth.getAccount()
                 .then(acct => acct.clientPrincipal ? true : this.#router.parseUrl(`/login?post_login_redirect_uri=${encodedRedirect}`));

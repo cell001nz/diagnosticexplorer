@@ -15,7 +15,9 @@ export class AuthService {
     #http = inject(HttpClient);
     
     authMe = signal<AuthMe | undefined>(undefined);
+    account = signal<Account | undefined>(undefined);
     isLoggedIn = computed(() => !!(this.authMe()?.clientPrincipal));
+    isProfileComplete = computed(() => this.account()?.isProfileComplete ?? false);
     #account = firstValueFrom(this.#http.get<AuthMe>('/.auth/me'));       
     
     
@@ -31,7 +33,7 @@ export class AuthService {
     }
   
     logout() {
-        window.location.assign('/.auth/logout');
+        this.#router.navigate(['/logout']);
     }
     
     getStatus() : Promise<string> {
@@ -41,15 +43,18 @@ export class AuthService {
     getMyAccount() : Promise<Account> {
         return firstValueFrom(this.#http.get<Account>('/api/Account/MyAccount'));
     }
+
+    updateProfile(name: string, email: string): Promise<Account> {
+        return firstValueFrom(this.#http.post<Account>('/api/Account/UpdateProfile', { name, email }));
+    }
     
     async initialiseAsync() {
-        this.#account.then(async v => {
-            this.authMe.set(v);
-            console.log(v);
-            if (v.clientPrincipal) {
-                let str = await firstValueFrom(this.#http.get('/api/Account/RegisterLogin', {responseType: 'text'}));
-                console.log('LoggedIn', str);
-            }
-        });
+        const v = await this.#account;
+        this.authMe.set(v);
+        console.log(v);
+        if (v.clientPrincipal) {
+            let acct = await firstValueFrom(this.#http.get<Account>('/api/Account/RegisterLogin'));
+            this.account.set(acct);
+        }
     }
 }

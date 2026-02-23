@@ -1,4 +1,4 @@
-﻿using DiagnosticExplorer.DataAccess.Entities;
+﻿﻿using DiagnosticExplorer.DataAccess.Entities;
 using DiagnosticExplorer.Domain;
 using System.Linq.Expressions;
 
@@ -10,7 +10,9 @@ public static class AccountEntityUtil
         entity => new Account
         {
             Id = entity.Id,
-            Name = entity.Name
+            Name = entity.Name,
+            Email = entity.Email,
+            IsProfileComplete = entity.IsProfileComplete
         };
     
     private static readonly Func<AccountEntity, Account> CompiledProjection = Projection.Compile();

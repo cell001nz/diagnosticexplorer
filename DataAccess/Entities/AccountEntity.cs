@@ -1,4 +1,4 @@
-﻿namespace DiagnosticExplorer.DataAccess.Entities;
+﻿﻿namespace DiagnosticExplorer.DataAccess.Entities;
 
 public class AccountEntity
 {
@@ -6,6 +6,7 @@ public class AccountEntity
     public string Name { get; set; } = string.Empty;
     public string Username { get; set; } = string.Empty;
     public string? Email { get; set; }
+    public bool IsProfileComplete { get; set; }
     public bool IsActive { get; set; }
     public DateTime CreatedAt { get; set; }
     public List<SiteEntity> Sites { get; set; } = [];

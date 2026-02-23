@@ -1,0 +1,49 @@
+﻿<div class="flex items-center justify-center min-h-[60vh]">
+    <div class="w-full max-w-md bg-white dark:bg-gray-800 shadow-md rounded-lg p-8">
+        <h2 class="text-2xl font-semibold text-center mb-2 text-gray-800 dark:text-white">Complete Your Profile</h2>
+        <p class="text-center text-gray-500 dark:text-gray-400 mb-6">Please provide your details to get started.</p>
+
+        @if (errorMessage()) {
+            <p-message severity="error" [text]="errorMessage()!" class="mb-4 w-full" />
+        }
+
+        <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-5">
+            <div class="flex flex-col gap-2">
+                <label for="name" class="font-medium text-gray-700 dark:text-gray-300">Display Name</label>
+                <input pInputText id="name" formControlName="name" placeholder="Your name" class="w-full" />
+                @if (form.controls.name.touched && form.controls.name.errors) {
+                    <small class="text-red-500">
+                        @if (form.controls.name.errors['required']) {
+                            Name is required.
+                        } @else if (form.controls.name.errors['minlength']) {
+                            Name must be at least 2 characters.
+                        }
+                    </small>
+                }
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label for="email" class="font-medium text-gray-700 dark:text-gray-300">Email Address</label>
+                <input pInputText id="email" formControlName="email" placeholder="you@example.com" class="w-full" />
+                @if (form.controls.email.touched && form.controls.email.errors) {
+                    <small class="text-red-500">
+                        @if (form.controls.email.errors['required']) {
+                            Email is required.
+                        } @else if (form.controls.email.errors['email']) {
+                            Please enter a valid email address.
+                        }
+                    </small>
+                }
+            </div>
+
+            <p-button
+                type="submit"
+                label="Save & Continue"
+                [loading]="saving()"
+                [disabled]="form.invalid || saving()"
+                styleClass="w-full"
+            />
+        </form>
+    </div>
+</div>
+

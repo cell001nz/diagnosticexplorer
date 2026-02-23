@@ -1,4 +1,4 @@
-﻿import { Routes } from '@angular/router';
+﻿﻿import { Routes } from '@angular/router';
 import {AccountComponent} from "./account/account.component";
 import {NotAuthorizedComponent} from "../pages/not-authorized/not-authorized.component";
 import {RoleGuard} from "@services/role-guard";
@@ -7,10 +7,12 @@ import {LoginGuard} from "@services/login-guard";
 import {SitesComponent} from "./sites/sites.component";
 import {EditSiteComponent} from "./edit-site/edit-site.component";
 import {DocumentationComponent} from "@public/documentation/documentation.component";
+import {CompleteProfileComponent} from "./complete-profile/complete-profile.component";
 
 export default [
     {path: '', component: AppLayout, canActivate: [LoginGuard], children: [
-            {path: '', pathMatch: 'full', redirectTo: 'dashboard'},
+            {path: 'complete-profile', component: CompleteProfileComponent},
+            {path: '', pathMatch: 'full', redirectTo: 'sites'},
             {path: 'account', component: AccountComponent},
             {path: 'sites', component: SitesComponent},
             {path: 'sites/new', component: EditSiteComponent, data: {createNew: true}},

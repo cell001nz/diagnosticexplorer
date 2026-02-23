@@ -1,10 +1,19 @@
-<h2>Auth Me</h2>
-<pre>
-{{authMe() | json}}
-</pre>
-
 <h2>My Account</h2>
-<pre>
-    {{accountResource.value() | json}}
-</pre>
 
+@if (accountResource.value(); as account) {
+    <div class="card">
+        <div class="flex flex-col gap-3">
+            <div>
+                <label class="font-semibold text-gray-500">Name</label>
+                <p class="text-lg">{{ account.name }}</p>
+            </div>
+            <div>
+                <label class="font-semibold text-gray-500">Email</label>
+                <p class="text-lg">{{ account.email ?? 'Not set' }}</p>
+            </div>
+            <div>
+                <a routerLink="/app/complete-profile" class="text-primary underline">Edit Profile</a>
+            </div>
+        </div>
+    </div>
+}

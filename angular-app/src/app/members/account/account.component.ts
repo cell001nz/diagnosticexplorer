@@ -1,11 +1,11 @@
 import {Component, computed, inject, resource} from '@angular/core';
-import {JsonPipe} from "@angular/common";
+import {RouterModule} from "@angular/router";
 import {AuthService} from "@services/auth.service";
 
 @Component({
   selector: 'app-account',
     imports: [
-        JsonPipe,
+        RouterModule,
     ],
   templateUrl: './account.component.html',
   styleUrl: './account.component.scss'
@@ -13,7 +13,6 @@ import {AuthService} from "@services/auth.service";
 export class AccountComponent {
   
   #authSvc = inject(AuthService);
-  authMe = computed(() => this.#authSvc.authMe());
   
   accountResource = resource({
     loader: () => this.#authSvc.getMyAccount()

@@ -1,4 +1,4 @@
-﻿using DiagnosticExplorer.DataAccess.Entities;
+﻿﻿using DiagnosticExplorer.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -16,8 +16,19 @@ public class AccountConfiguration : IEntityTypeConfiguration<AccountEntity>
             .IsRequired()
             .HasMaxLength(200);
 
+        builder.Property(a => a.Username)
+            .IsRequired()
+            .HasMaxLength(1000);
+
+        builder.HasIndex(a => a.Username)
+            .IsUnique();
+
         builder.Property(a => a.Email)
             .HasMaxLength(256);
+
+        builder.Property(a => a.IsProfileComplete)
+            .IsRequired()
+            .HasDefaultValue(false);
 
         builder.Property(a => a.IsActive)
             .IsRequired()

@@ -19,13 +19,13 @@ export class LoginComponent {
 
     constructor() {
         this.#route.queryParams.subscribe(params => {
-            this.redirectUri = params['post_login_redirect_uri'] ?? '/';
+            this.redirectUri = params['post_login_redirect_uri'];
         });
     }
 
 
     login(provider: 'aad' | 'google') {
-        const encodedRedirect = encodeURIComponent(this.redirectUri ?? '/');
+        const encodedRedirect = encodeURIComponent(this.redirectUri ?? '/app');
         window.location.href = `/.auth/login/${provider}?post_login_redirect_uri=${encodedRedirect}`;
     }
 }
