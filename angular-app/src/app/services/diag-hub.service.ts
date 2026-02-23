@@ -4,7 +4,7 @@ import * as signalR from '@microsoft/signalr';
 import { v4 as uuidv4 } from 'uuid';
 import {AuthService} from "@services/auth.service";
 import {DiagProcess} from "@domain/DiagProcess";
-import {Observable, Subject} from "rxjs";
+import {Observable, Subject, firstValueFrom} from "rxjs";
 import {OperationResponse, SetPropertyRequest} from "@domain/SetPropertyRequest";
 import {DiagnosticResponse, SystemEvent} from "@domain/DiagResponse";
 
@@ -87,25 +87,39 @@ export class DiagHubService implements OnDestroy {
 
   async subscribeSite(siteId: number) {
     let hub = await this.getHubConnection();
+    const connectionId = hub.connectionId;
     console.log('Subscribe site: ' + siteId);
-    await hub.invoke("SubscribeSite", siteId);
+    await firstValueFrom(this.#http.post(`/api/webhub/SubscribeSite`, null, {
+      params: { siteId: siteId, connectionId: connectionId! }
+    }));
   }
 
   async unsubscribeSite(siteId: number) {
     let hub = await this.getHubConnection();
-    await hub.invoke("UnsubscribeSite", siteId);
+    const connectionId = hub.connectionId;
+    await firstValueFrom(this.#http.post(`/api/webhub/UnsubscribeSite`, null, {
+      params: { siteId: siteId, connectionId: connectionId! }
+    }));
   }
 
   async subscribeProcess(processId: number) {
     let hub = await this.getHubConnection();
-    await hub.invoke("SubscribeProcess", processId);
-    console.log('Subscribe process: ' + processId);
+    const connectionId = hub.connectionId;
+    console.log('Subscribe process: ' + processId + ' connectionId: ' + connectionId);
+    
+    await firstValueFrom(this.#http.post(`/api/webhub/SubscribeProcess`, null, {
+      params: { processId: processId!, connectionId: connectionId! }
+    }));
   }
 
   async unsubscribeProcess(processId: number) {
-    console.log('unsubscribeProcess process: ' + processId);
     let hub = await this.getHubConnection();
-    await hub.invoke("UnsubscribeProcess", processId);
+    const connectionId = hub.connectionId;
+    console.log('Unsubscribe process: ' + processId + ' connectionId: ' + connectionId);
+    
+    await firstValueFrom(this.#http.post(`/api/webhub/UnsubscribeProcess`, null, {
+      params: { processId: processId!, connectionId: connectionId! }
+    }));
   }
     async setPropertyValue(request: SetPropertyRequest): Promise<void> {
        let hub = await this.getHubConnection();

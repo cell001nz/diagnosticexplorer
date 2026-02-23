@@ -94,18 +94,18 @@ public class ProcessHubApi : ApiBase
 
     #endregion
 
-    /*#region OnConnected => SIGNALR/connections/connected
+    #region OnConnected => SIGNALR/connections/connected
 
     [Function("OnClientConnected")]
-    public async Task<DualHubOutput> OnConnected(
+    public async Task OnConnected(
         [SignalRTrigger(PROCESS_HUB, "connections", "connected")]
         SignalRInvocationContext invokeContext,
         FunctionContext context)
     {
-       
+       _logger.LogWarning($"########## ProcessHubTrigger.OnConnected - ConnectionId: {invokeContext.ConnectionId}");
     }
 
-    #endregion*/
+    #endregion
 
     #region Register => POST /api/processhub/register
 
@@ -123,12 +123,13 @@ public class ProcessHubApi : ApiBase
         int siteId = request.SiteId;
         var process = await RegisterProcess(siteId, request.ConnectionId, request.Registration);
 
-        ServiceHubContext hubContext = await _serviceManager.CreateHubContextAsync(PROCESS_HUB, CancellationToken.None);
+        ServiceHubContext processHub = await _serviceManager.CreateHubContextAsync(PROCESS_HUB, CancellationToken.None);
+        ServiceHubContext webHub = await _serviceManager.CreateHubContextAsync(WEB_HUB, CancellationToken.None);
 
-        await hubContext.Clients.Client(request.ConnectionId)
+        await processHub.Clients.Client(request.ConnectionId)
             .SendCoreAsync(nameof(IProcessHubClient.SetRenewTime), [PROCESS_RENEW_TIME_MILLIS]);
 
-        await hubContext.Clients.Client(request.ConnectionId)
+        await processHub.Clients.Client(request.ConnectionId)
             .SendCoreAsync(nameof(IProcessHubClient.SetProcessId), [process.Id]);
 
         int subs = await _context.Processes.Where(p => p.Id == process.Id)
@@ -137,13 +138,13 @@ public class ProcessHubApi : ApiBase
 
         if (subs > 0)
         {
-            await hubContext.Clients.Client(request.ConnectionId)
+            await processHub.Clients.Client(request.ConnectionId)
                 .SendCoreAsync(nameof(IProcessHubClient.StartSending), [DIAG_SEND_FREQ_MILLIS]);
         }
 
-        await hubContext.Groups.AddToGroupAsync(request.ConnectionId, process.Id.ToString());
+        await processHub.Groups.AddToGroupAsync(request.ConnectionId, process.Id.ToString());
 
-        await hubContext.Clients.Group(siteId.ToString())
+        await webHub.Clients.Group(siteId.ToString())
             .SendCoreAsync(nameof(IWebHubClient.ReceiveProcess), [process]);
 
         return new OkObjectResult(process);
@@ -310,6 +311,7 @@ public class ProcessHubApi : ApiBase
         [FromQuery] int processId,
         [FromBody] SystemEvent[] events)
     {
+        _logger.LogWarning($"StreamEvents processId={processId} count={events?.Length}");
         if (!TryGetSiteIdFromBearer(req, out int siteId))
         {
             _logger.LogWarning("StreamEvents - missing or invalid bearer token");

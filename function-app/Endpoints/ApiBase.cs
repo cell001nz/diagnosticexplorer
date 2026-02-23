@@ -107,6 +107,15 @@ public class ApiBase
           return account;
       }
 
+      protected async Task<Account> GetLoggedInAccount(int userId)
+      {
+          return await _context.Accounts
+                     .Where(a => a.Id == userId)
+                     .Select(AccountEntityUtil.Projection)
+                     .FirstOrDefaultAsync()
+                 ?? throw new ApplicationException($"Account {userId} not found");
+      }
+
       protected T DeserialiseBase64Protobuf<T>(string strData)
       {
           byte[] data = Convert.FromBase64String(strData);

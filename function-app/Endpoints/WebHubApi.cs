@@ -1,3 +1,4 @@
+using Azure.Core.Serialization;
 using DiagnosticExplorer.DataAccess;
 using DiagnosticExplorer.DataAccess.Entities;
 using DiagnosticExplorer.DataExtensions;
@@ -5,6 +6,7 @@ using DiagnosticExplorer.Domain;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.SignalR.Management;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +24,7 @@ public class WebHubApi : ApiBase
             .WithOptions(o =>
             {
                 o.ConnectionString = Environment.GetEnvironmentVariable("AzureSignalRConnectionString");
+                o.UseJsonObjectSerializer(new JsonObjectSerializer(DiagJsonOptions.Default));
             }).BuildServiceManager();
     }
 
@@ -63,23 +66,18 @@ public class WebHubApi : ApiBase
     #endregion
     
     protected async Task<Account> GetLoggedInAccount(SignalRInvocationContext context)
-    {
-        int userId = int.Parse(context.UserId);
-        return await _context.Accounts.Where(a => a.Id == userId)
-            .Select(AccountEntityUtil.Projection)
-            .FirstOrDefaultAsync()
-            ?? throw new ApplicationException("Current user not found");
-    }
-    
+        => await GetLoggedInAccount(int.Parse(context.UserId));
+
     #region OnConnected => SIGNALR/connections/connected
     
-    [Function("WebHub_OnClientConnected")]
+    [Function("WebHub_OnConnected")]
     public async Task OnConnected(
         [SignalRTrigger(WEB_HUB, "connections", "connected")] SignalRInvocationContext invocationContext, 
         FunctionContext context)
     {
-        var logger = context.GetLogger(nameof(OnConnected));
-        logger.LogInformation($"""
+        _logger.LogWarning($"HELLO FROM WEB_HUB.CONNECTED");
+
+        _logger.LogWarning($"""
                                ----------------------------------- WebClient.OnConnected 
                                    ConnectionId {invocationContext.ConnectionId}
                                    UserId {invocationContext.UserId}
@@ -102,12 +100,12 @@ public class WebHubApi : ApiBase
 
     #region OnDisconnected => SIGNALR/connections/disconnected
 
-    [Function("WebHub_OnClientDisconnected")]
+    [Function("WebHub_OnDisconnected")]
     public async Task OnDisconnected(
         [SignalRTrigger(WEB_HUB, "connections", "disconnected")] SignalRInvocationContext invocationContext, 
         FunctionContext context)
     {
-        _logger.LogInformation($"----------------------------------- WebClient.OnDisconnected {invocationContext.ConnectionId}");
+        _logger.LogWarning($"----------------------------------- WebClient.OnDisconnected {invocationContext.ConnectionId}");
 
         WebSessionEntity session = await _context.WebSessions
                                        .Include(s => s.Subscriptions)
@@ -123,27 +121,19 @@ public class WebHubApi : ApiBase
     #region SubscribeSite => SIGNALR/SubscribeSite
 
     [Function("ClientHub_SubscribeSite")]
-    [SignalROutput(HubName = WEB_HUB)]
-    public async Task<object[]> SubscribeSite(
-        [SignalRTrigger(WEB_HUB, MESSAGES, nameof(SubscribeSite), nameof(siteId))]
-        SignalRInvocationContext invokeContext,
-        int siteId,
-        FunctionContext context)
+    public async Task SubscribeSite(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "webhub/SubscribeSite")]
+        HttpRequest req,
+        string connectionId,
+        int siteId)
     {
-        var logger = context.GetLogger("ClientHub_SubscribeSite");
-        logger.LogWarning($"Connection {invokeContext.ConnectionId} SUBSCRIBE to {siteId}");
+        _logger.LogWarning($"Connection {connectionId} SUBSCRIBE to {siteId}");
 
-        Account account = await GetLoggedInAccount(invokeContext);
+        Account account = await GetLoggedInAccount(req);
         await VerifySiteAccess(account, siteId);
         
-        return
-        [
-            new SignalRGroupAction(SignalRGroupActionType.Add)
-            {
-                GroupName = siteId.ToString(),
-                ConnectionId = invokeContext.ConnectionId
-            },
-        ];
+        var hubContext = await _serviceManager.CreateHubContextAsync(WEB_HUB, CancellationToken.None);
+        await hubContext.Groups.AddToGroupAsync(connectionId, siteId.ToString());
     }
 
     #endregion
@@ -151,55 +141,48 @@ public class WebHubApi : ApiBase
     #region UnsubscribeSite => SIGNALR/UnsubscribeSite
 
     [Function("ClientHub_UnsubscribeSite")]
-    [SignalROutput(HubName = WEB_HUB)]
-    public SignalRGroupAction UnsubscribeSite(
-        [SignalRTrigger(WEB_HUB, MESSAGES, nameof(UnsubscribeSite), nameof(siteId))]
-        SignalRInvocationContext invokeContext,
-        string siteId,
-        FunctionContext context)
+    public async Task UnsubscribeSite(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "webhub/UnsubscribeSite")]
+        HttpRequest req,
+        string connectionId,
+        string siteId)
     {
-        var logger = context.GetLogger("ClientHub_SubscribeSite");
-        logger.LogWarning($"Connection {invokeContext.ConnectionId} UNSUBSCRIBE to {siteId}");
+        _logger.LogWarning($"Connection {connectionId} UNSUBSCRIBE to {siteId}");
 
-        return new SignalRGroupAction(SignalRGroupActionType.Remove)
-        {
-            GroupName = siteId,
-            ConnectionId = invokeContext.ConnectionId
-        };
+        var hubContext = await _serviceManager.CreateHubContextAsync(WEB_HUB, CancellationToken.None);
+        await hubContext.Groups.RemoveFromGroupAsync(connectionId, siteId.ToString());
     }
 
     #endregion
 
-    #region SubscribeProcess => SIGNALR/SubscribeProcess
+    #region SubscribeProcess => POST /api/webhub/SubscribeProcess?processId=...
 
     [Function("ClientHub_SubscribeProcess")]
-    public async Task<DualHubOutput> SubscribeProcess(
-        [SignalRTrigger(WEB_HUB, MESSAGES, nameof(SubscribeProcess), nameof(processId))]
-        SignalRInvocationContext invokeContext,
-        int processId,
-        FunctionContext context)
+    public async Task<IActionResult> SubscribeProcess(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "webhub/SubscribeProcess")]
+        HttpRequest req,
+        [FromQuery] string connectionId,
+        [FromQuery] int processId)
     {
-        _logger.LogWarning($"Connection {invokeContext.ConnectionId} SUBSCRIBE to {processId}");
+        var account = await GetLoggedInAccount(req);
+
+        _logger.LogWarning($"SubscribeProcess accountId={account.Id} processId={processId} connectionId={connectionId}");
 
         var session = await _context.WebSessions
                           .Include(s => s.Subscriptions)
-                          .FirstOrDefaultAsync(s => s.ConnectionId == invokeContext.ConnectionId)
-                      ?? throw new ApplicationException($"WebSession not found for connection {invokeContext.ConnectionId}");
+                          .FirstOrDefaultAsync(s => s.ConnectionId == connectionId)
+                      ?? throw new ApplicationException($"WebSession not found for connection {connectionId}");
 
         var process = await _context.Processes
                           .Include(p => p.Subscriptions.Where(s => s.SessionId == session.Id))
                           .FirstOrDefaultAsync(p => p.Id == processId)
                       ?? throw new ApplicationException($"Can't find Process {processId}");
-        
-        Account account = await GetLoggedInAccount(invokeContext);
+
         await VerifySiteAccess(account, process.SiteId);
 
-        DualHubOutput output = new();
-
-        //If the process is not sending already, instruct it to start sending diagnostics
         process.IsSending = true;
-        
-        var sub = session.Subscriptions.FirstOrDefault(sub => sub.ProcessId == processId);
+
+        var sub = session.Subscriptions.FirstOrDefault(s => s.ProcessId == processId);
         if (sub == null)
         {
             sub = new WebSubcriptionEntity()
@@ -213,16 +196,20 @@ public class WebHubApi : ApiBase
         sub.RenewedAt = DateTime.UtcNow;
         await _context.SaveChangesAsync();
 
-        output.ProcessClient.Add(new SignalRMessageAction(nameof(IProcessHubClient.StartSending), [DIAG_SEND_FREQ_MILLIS])
-            { ConnectionId = process.ConnectionId });
-        
-        output.WebClient.Add(new SignalRGroupAction(SignalRGroupActionType.Add)
+        ServiceHubContext webHubContext = await _serviceManager.CreateHubContextAsync(WEB_HUB, CancellationToken.None);
+        await webHubContext.Groups.AddToGroupAsync(connectionId, processId.ToString());
+
+        ServiceHubContext processHubContext = await _serviceManager.CreateHubContextAsync(PROCESS_HUB, CancellationToken.None);
+        if (!string.IsNullOrWhiteSpace(process.ConnectionId))
         {
-            GroupName = processId.ToString(),
-            ConnectionId = invokeContext.ConnectionId
-        });
-        
-        return output;
+            await processHubContext.Clients.Client(process.ConnectionId)
+                .SendCoreAsync(nameof(IProcessHubClient.StartSending), [DIAG_SEND_FREQ_MILLIS]);
+
+            await processHubContext.Clients.Client(process.ConnectionId)
+                .SendAsync(nameof(IProcessHubClient.ReceiveMessage), "################## Start sending please");
+        }
+
+        return new OkResult();
     }
 
     #endregion
@@ -230,17 +217,17 @@ public class WebHubApi : ApiBase
     #region UnsubscribeProcess => SIGNALR/UnsubscribeProcess
 
     [Function("ClientHub_UnsubscribeProcess")]
-    public async Task<DualHubOutput> UnsubscribeProcess(
-        [SignalRTrigger(WEB_HUB, MESSAGES, nameof(UnsubscribeProcess), nameof(processId))]
-        SignalRInvocationContext invokeContext,
-        int processId,
-        FunctionContext context)
+    public async Task UnsubscribeProcess(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "webhub/UnsubscribeProcess")]
+        HttpRequest req,
+        [FromQuery] string connectionId,
+        [FromQuery] int processId)
     {
-        _logger.LogWarning($"Connection {invokeContext.ConnectionId} UNSUBSCRIBE to {processId}");
+        _logger.LogWarning($"Connection {connectionId} UNSUBSCRIBE to {processId}");
 
        var session = await _context.WebSessions
-            .FirstOrDefaultAsync(s => s.ConnectionId == invokeContext.ConnectionId)
-            ?? throw new ApplicationException($"WebSession not found for connection {invokeContext.ConnectionId}");
+            .FirstOrDefaultAsync(s => s.ConnectionId == connectionId)
+            ?? throw new ApplicationException($"WebSession not found for connection {connectionId}");
         
         var process = await _context.Processes
             .Include(p => p.Subscriptions)
@@ -250,17 +237,18 @@ public class WebHubApi : ApiBase
         
         process.Subscriptions.RemoveAll(s => s.SessionId == session.Id);
         await _context.SaveChangesAsync();
-        DualHubOutput output = new();
 
-        output.WebClient.Add(new SignalRGroupAction(SignalRGroupActionType.Remove) 
-            { ConnectionId = invokeContext.ConnectionId});
+        ServiceHubContext webHubContext = await _serviceManager.CreateHubContextAsync(WEB_HUB, CancellationToken.None);
 
-        if (process.Subscriptions.Count == 0)
+        await webHubContext.Groups.RemoveFromGroupAsync(connectionId, processId.ToString());
+        
+        if (!string.IsNullOrWhiteSpace(process.ConnectionId) && process.Subscriptions.Count == 0)
         {
-            output.ProcessClient.Add(new SignalRMessageAction(nameof(IProcessHubClient.StopSending)) { ConnectionId = process.ConnectionId });
+            ServiceHubContext processHubContext = await _serviceManager.CreateHubContextAsync(PROCESS_HUB, CancellationToken.None);
+            await processHubContext.Clients.Client(process.ConnectionId).SendCoreAsync(nameof(IProcessHubClient.StopSending), [], CancellationToken.None);
+            await processHubContext.Clients.Client(process.ConnectionId)
+                .SendAsync(nameof(IProcessHubClient.ReceiveMessage), "################## Stop sending please");
         }
-
-        return output;
     }
 
     #endregion

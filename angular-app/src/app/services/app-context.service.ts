@@ -42,7 +42,7 @@ export class AppContextService {
     )
     .subscribe(async ([oldSiteId, newSiteId]) => {
         if (oldSiteId)
-            await this.#hubService.subscribeSite(oldSiteId)
+            await this.#hubService.unsubscribeSite(oldSiteId)
         if (newSiteId)
             await this.#hubService.subscribeSite(newSiteId)
     });

@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DiagnosticExplorer.Domain;
 using DiagnosticExplorer.Hosting;
+using Microsoft.AspNetCore.Connections;
 
 namespace DiagWebService.Hubs;
 
@@ -174,7 +175,7 @@ internal class ProcessHubClient : IProcessHubClient
         }
         catch (Exception ex)
         {
-            Trace.WriteLine($"HubServerAdapter.ClearEvents error: {ex}");
+            Trace.WriteLine($"ProcessHubClient.ClearEvents error: {ex}");
         }
 
         try
@@ -183,9 +184,14 @@ internal class ProcessHubClient : IProcessHubClient
             {
                 var item = await stream.EventChannel.Reader.ReadAsync(cancel);
                 if (item.Any())
+                {
+                    Trace.WriteLine($"ProcessHubClient.StreamEvents items: {item.Count}");
+                    Stopwatch watch = Stopwatch.StartNew();
                     await _flurlClient.Request(nameof(IProcessHub.StreamEvents))
                         .SetQueryParam("processId", _processId)
                         .PostJsonAsync(item, cancellationToken: cancel);
+                    Trace.WriteLine($"ProcessHubClient.StreamEvents took {watch.ElapsedMilliseconds}ms for {item.Count} items");
+                }
             }
         }
         catch (OperationCanceledException)
@@ -193,7 +199,7 @@ internal class ProcessHubClient : IProcessHubClient
         }
         catch (Exception ex)
         {
-            Trace.WriteLine($"HubServerAdapter.SendEventStream error: {ex}");
+            Trace.WriteLine($"ProcessHubClient.SendEventStream error: {ex}");
         }
     }
 
